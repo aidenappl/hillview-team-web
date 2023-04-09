@@ -5,12 +5,26 @@ import GoogleLoginButton from "../components/pages/GoogleLoginButton";
 import LoginInputText from "../components/pages/LoginInputText";
 import { useState } from "react";
 import Spinner from "../components/general/Spinner";
+import {
+  CodeResponse,
+  GoogleLogin,
+  TokenResponse,
+  useGoogleLogin,
+} from "@react-oauth/google";
+import { InitializeSession } from "../services/sessionHandler";
+import { useDispatch } from "react-redux";
+import { NewRequest } from "../services/http/requestHandler";
+import { useRouter } from "next/router";
+import { GetAccountLander } from "../services/accountLander";
 
 const LoginPage = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingGoogle, setGoogleLoading] = useState<boolean>(false);
   const [loadingLocal, setLoadingLocal] = useState<boolean>(false);
+
+  const router = useRouter();
+  const dispatch = useDispatch();
 
   const login = () => {
     console.log("Login");
@@ -19,8 +33,63 @@ const LoginPage = () => {
 
   const googleLogin = () => {
     console.log("Google Login");
-    setLoading(true);
+    setGoogleLoading(true);
+    triggerLoginWindow();
   };
+
+  const handleGoogleResponse = async (
+    tokenResponse: Omit<
+      CodeResponse,
+      "error" | "error_description" | "error_uri"
+    >
+  ): Promise<void> => {
+    if (tokenResponse.code) {
+      console.log("Code: ", tokenResponse.code);
+
+      const response = await NewRequest({
+        route: "/auth/v1.1/google",
+        method: "POST",
+        body: {
+          google_code: tokenResponse.code,
+          redirect_uri: process.env.NEXT_PUBLIC_BASE_URL,
+        },
+      });
+      
+      if (response.success) {
+        let data = response.data.data;
+        console.log(data)
+        const initializerResp = await InitializeSession({
+          accessToken: data.access_token,
+          refreshToken: data.refresh_token,
+          user: data.user,
+          dispatch
+        });
+        setGoogleLoading(false);
+        if (initializerResp.success) {
+          if (router.query.redirect) {
+            router.push(router.query.redirect as string);
+          } else {
+            router.push(GetAccountLander(data.user));
+          }
+        }
+      } else {
+        console.error("Error");
+      }
+    }
+  };
+
+  const triggerLoginWindow = useGoogleLogin({
+    onSuccess: (tokenResponse) => handleGoogleResponse(tokenResponse),
+    onError(errorResponse) {
+      console.error(errorResponse);
+      setGoogleLoading(false);
+    },
+    onNonOAuthError(nonOAuthError) {
+      console.error(nonOAuthError);
+      setGoogleLoading(false);
+    },
+    flow: "auth-code",
+  });
 
   return (
     <PageContainer className="flex">
@@ -31,7 +100,7 @@ const LoginPage = () => {
           <p className="mt-1 pb-10">
             Let's get things rolling! Get started below...
           </p>
-          <GoogleLoginButton loading={loading} onClick={googleLogin} />
+          <GoogleLoginButton loading={loadingGoogle} onClick={googleLogin} />
           <LineBreakText text="or Sign in with Email" />
           <LoginInputText
             value={email}
