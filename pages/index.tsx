@@ -138,4 +138,13 @@ const LoginPage = () => {
   );
 };
 
+export async function getStaticProps() {
+	return {
+		props: {
+			protected: false,
+			allowAuthenticatedUsers: false,
+		},
+	};
+}
+
 export default LoginPage;
