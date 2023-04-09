@@ -3,8 +3,16 @@ import PageContainer from "../components/general/PageContainer";
 import LineBreakText from "../components/general/LineBreakText";
 import GoogleLoginButton from "../components/pages/GoogleLoginButton";
 import LoginInputText from "../components/pages/LoginInputText";
+import { useState } from "react";
 
 const LoginPage = () => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+
+  const login = () => {
+    console.log("Login");
+  };
+
   return (
     <PageContainer className="flex">
       {/* Left Container */}
@@ -17,27 +25,27 @@ const LoginPage = () => {
           <GoogleLoginButton />
           <LineBreakText text="or Sign in with Email" />
           <LoginInputText
-            value={""}
+            value={email}
             placeholder="Enter your email..."
             label="Email"
             wrapperClassName="mt-10"
-            onChange={function (value: string): void {
-              throw new Error("Function not implemented.");
-            }}
+            setValue={setEmail}
           />
           <LoginInputText
-            value={""}
+            value={password}
+            type="password"
             placeholder="Enter your password..."
             label="Password"
             wrapperClassName="mt-4"
-            onChange={function (value: string): void {
-              throw new Error("Function not implemented.");
-            }}
+            setValue={setPassword}
           />
           <a className="text-blue-600 font-medium float-right mt-4">
             Forgot Password?
           </a>
-          <button className="w-full bg-blue-600 text-white py-4 rounded-xl mt-9">
+          <button
+            className="w-full bg-blue-600 text-white py-4 rounded-xl mt-9"
+            onClick={login}
+          >
             Login
           </button>
         </div>
