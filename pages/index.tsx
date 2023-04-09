@@ -4,13 +4,22 @@ import LineBreakText from "../components/general/LineBreakText";
 import GoogleLoginButton from "../components/pages/GoogleLoginButton";
 import LoginInputText from "../components/pages/LoginInputText";
 import { useState } from "react";
+import Spinner from "../components/general/Spinner";
 
 const LoginPage = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingLocal, setLoadingLocal] = useState<boolean>(false);
 
   const login = () => {
     console.log("Login");
+    setLoadingLocal(true);
+  };
+
+  const googleLogin = () => {
+    console.log("Google Login");
+    setLoading(true);
   };
 
   return (
@@ -22,7 +31,7 @@ const LoginPage = () => {
           <p className="mt-1 pb-10">
             Let's get things rolling! Get started below...
           </p>
-          <GoogleLoginButton />
+          <GoogleLoginButton loading={loading} onClick={googleLogin} />
           <LineBreakText text="or Sign in with Email" />
           <LoginInputText
             value={email}
@@ -39,14 +48,18 @@ const LoginPage = () => {
             wrapperClassName="mt-4"
             setValue={setPassword}
           />
-          <a className="text-blue-600 font-medium float-right mt-4">
+          <a className="text-blue-600 font-medium float-right mt-4 cursor-pointer">
             Forgot Password?
           </a>
           <button
-            className="w-full bg-blue-600 text-white py-4 rounded-xl mt-9"
+            className="w-full bg-blue-600 text-white py-4 rounded-xl mt-9 relative h-[56px]"
             onClick={login}
           >
-            Login
+            {loadingLocal ? (
+              <Spinner wrapperClass="full-center" size={25} style="light" />
+            ) : (
+              "Login"
+            )}
           </button>
         </div>
       </div>
