@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import TeamContainer from "../../../components/pages/team/TeamContainer";
 import TeamHeader from "../../../components/pages/team/TeamHeader";
-import { useEffect, useState } from "react";
+import { ChangeEventHandler, useEffect, useState } from "react";
 import { Asset } from "../../../models/asset.model";
 import { NewRequest } from "../../../services/http/requestHandler";
 import Image from "next/image";
@@ -20,6 +20,8 @@ const AssetsPage = () => {
 
 	// inspector states
 	const [saving, setSaving] = useState<boolean>(false);
+	const [changes, setChanges] = useState<any>(null);
+	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
 
 	useEffect(() => {
 		initialize();
@@ -43,13 +45,39 @@ const AssetsPage = () => {
 	};
 
 	const saveAssetInspection = async () => {
-		setSaving(true);
-		// setSelectedAsset(null);
+		if (changes && Object.keys(changes).length > 0) {
+			setSaving(true);
+		} else {
+			setSelectedAsset(null);
+		}
 	};
 
 	const cancelAssetInspection = async () => {
 		setSelectedAsset(null);
+		setChanges(null);
 		setSaving(false);
+	};
+
+	const inputChange = async (modifier: Object) => {
+		setChanges({ ...changes, ...modifier });
+	};
+
+	const deleteChange = async (key: string, forcedArr?: any) => {
+		let splitKey = key.split(".");
+		let newChanges;
+		if (forcedArr) {
+			newChanges = { ...forcedArr };
+		} else {
+			newChanges = { ...changes };
+		}
+		for (var k in newChanges) {
+			if (k == key) {
+				delete newChanges[key];
+				setChanges(newChanges);
+			} else if (typeof newChanges[k] === "object" && splitKey[0] == k) {
+				deleteChange(splitKey[1], newChanges[k]);
+			}
+		}
 	};
 
 	return (
@@ -59,6 +87,7 @@ const AssetsPage = () => {
 				<TeamModal
 					className="gap-6"
 					loader={saving}
+					saveActive={changes && Object.keys(changes).length > 0}
 					cancelHit={() => cancelAssetInspection()}
 					saveHit={() => saveAssetInspection()}
 				>
@@ -67,16 +96,24 @@ const AssetsPage = () => {
 							title="Name"
 							placeholder="Item Name"
 							value={selectedAsset.name}
-							setValue={function (value: string): {} {
-								throw new Error("Function not implemented.");
+							setValue={(value: string) => {
+								if (value != selectedAsset.name) {
+									inputChange({ name: value });
+								} else {
+									deleteChange("name");
+								}
 							}}
 						/>
 						<TeamModalInput
 							title="Identifier"
 							placeholder="Item Identifier"
 							value={selectedAsset.identifier}
-							setValue={function (value: string): {} {
-								throw new Error("Function not implemented.");
+							setValue={(value: string) => {
+								if (value != selectedAsset.identifier) {
+									inputChange({ identifier: value });
+								} else {
+									deleteChange("identifier");
+								}
 							}}
 						/>
 					</div>
@@ -84,15 +121,30 @@ const AssetsPage = () => {
 					<TeamModalSelect
 						title="Status"
 						values={AssetStatuses}
-						default={AssetStatuses[0]}
+						value={AssetStatuses[0]}
+						setValue={(value) => {
+							if (value.name != selectedAsset.status.name) {
+								inputChange({ status: value.id });
+							} else {
+								deleteChange("status");
+							}
+						}}
 					/>
 					<TeamModalTextarea
 						title="Notes"
 						placeholder="Item Notes"
 						runner="Notes about the item's state"
 						value={selectedAsset.metadata.notes}
-						setValue={function (value: string): {} {
-							throw new Error("Function not implemented.");
+						setValue={(value: string) => {
+							if (value != selectedAsset.metadata.notes) {
+								inputChange({
+									metadata: {
+										notes: value,
+									},
+								});
+							} else {
+								deleteChange("metadata.notes");
+							}
 						}}
 					/>
 					<TeamModalUploader
@@ -100,6 +152,13 @@ const AssetsPage = () => {
 						imageSource={selectedAsset.image_url}
 						imageClassName="w-[70px]"
 						altText={selectedAsset.name + " banner image"}
+						showImageLoader={showImageLoader}
+						onChange={(e: any) => {
+							if (e.target.files && e.target.files[0]) {
+								let files = e.target.files;
+								console.log(files);
+							}
+						}}
 					/>
 				</TeamModal>
 			) : null}

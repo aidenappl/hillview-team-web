@@ -10,7 +10,8 @@ interface Select {
 interface Props {
 	title?: string;
 	values: Select[];
-	default: Select;
+	value: Select;
+	setValue: (value: Select) => void;
 }
 
 function classNames(...classes: any) {
@@ -20,10 +21,16 @@ function classNames(...classes: any) {
 const TeamModalSelect = (props: Props) => {
 	const { values } = props;
 
-	const [selected, setSelected] = useState<Select>(props.default);
+	const [selected, setSelected] = useState<Select>(props.value);
 
 	return (
-		<Listbox value={selected} onChange={setSelected}>
+		<Listbox
+			value={selected}
+			onChange={(e) => {
+				setSelected(e);
+				props.setValue(e);
+			}}
+		>
 			{({ open }) => (
 				<div className="flex flex-col">
 					<label className="font-medium text-[#101827]">
