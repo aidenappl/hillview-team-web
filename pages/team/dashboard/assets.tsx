@@ -5,11 +5,18 @@ import { useEffect, useState } from "react";
 import { Asset } from "../../../models/asset.model";
 import { NewRequest } from "../../../services/http/requestHandler";
 import Image from "next/image";
+import TeamModal from "../../../components/pages/team/TeamModal";
+import TeamModalInput from "../../../components/pages/team/TeamModalInput";
+import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea";
+import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
+import { AssetStatuses } from "../../../models/assetStatus.model";
+import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
 
 const AssetsPage = () => {
 	const router = useRouter();
 
 	const [assets, setAssets] = useState<Asset[] | null>(null);
+	const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
 
 	useEffect(() => {
 		initialize();
@@ -27,6 +34,7 @@ const AssetsPage = () => {
 		});
 		if (response.success) {
 			let data = response.data.data;
+			setSelectedAsset(data[0]);
 			console.log(data);
 			setAssets(data);
 		}
@@ -34,6 +42,50 @@ const AssetsPage = () => {
 
 	return (
 		<TeamContainer pageTitle="Assets" router={router}>
+			{/* Modal */}
+			{selectedAsset ? (
+				<TeamModal className="gap-6">
+					<div className="flex justify-between w-full gap-4">
+						<TeamModalInput
+							title="Name"
+							placeholder="Item Name"
+							value={selectedAsset.name}
+							setValue={function (value: string): {} {
+								throw new Error("Function not implemented.");
+							}}
+						/>
+						<TeamModalInput
+							title="Identifier"
+							placeholder="Item Identifier"
+							value={selectedAsset.identifier}
+							setValue={function (value: string): {} {
+								throw new Error("Function not implemented.");
+							}}
+						/>
+					</div>
+
+					<TeamModalSelect
+						title="Status"
+						values={AssetStatuses}
+						default={AssetStatuses[0]}
+					/>
+					<TeamModalTextarea
+						title="Notes"
+						placeholder="Item Notes"
+						runner="Notes about the item's state"
+						value={selectedAsset.metadata.notes}
+						setValue={function (value: string): {} {
+							throw new Error("Function not implemented.");
+						}}
+					/>
+					<TeamModalUploader
+						title="Asset Photo"
+						imageSource={selectedAsset.image_url}
+						imageClassName="w-[70px]"
+						altText={selectedAsset.name + " banner image"}
+					/>
+				</TeamModal>
+			) : null}
 			{/* Team Heading */}
 			<TeamHeader title="System Assets" />
 			{/* Data Content */}
