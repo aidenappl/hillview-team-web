@@ -8,10 +8,11 @@ interface Props {
 
 	cancelHit: () => void;
 	saveHit: () => void;
+	deleteHit?: () => void;
 }
 
 const TeamModal = (props: Props) => {
-	const { loader = false } = props;
+	const { loader = false, deleteHit = () => {} } = props;
 
 	return (
 		<>
@@ -25,8 +26,18 @@ const TeamModal = (props: Props) => {
 				>
 					{props.children}
 				</div>
-				<div className="mt-8 w-full h-[75px] flex justify-end items-center relative">
+				<div className="mt-8 w-full h-[75px] flex justify-between items-center relative">
 					<div className="w-[calc(100%+64px)] h-[1px] bg-[#d4d8dc] absolute top-0 left-[-32px]" />
+					<div className="flex gap-1">
+						<button
+							className={
+								"w-[70px] h-[36px] flex items-center justify-center text-white font-medium rounded-md text-sm bg-red-600 hover:bg-red-700"
+							}
+							onClick={() => deleteHit()}
+						>
+							<span>Delete</span>
+						</button>
+					</div>
 					<div className="flex gap-1">
 						<button
 							className="py-2 px-3.5 text-[#101827] hover:text-black font-semibold rounded-md text-sm"

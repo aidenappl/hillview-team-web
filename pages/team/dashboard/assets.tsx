@@ -11,23 +11,39 @@ import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea"
 import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
 import { AssetStatuses } from "../../../models/assetStatus.model";
 import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
+import toast from "react-hot-toast";
+import Spinner from "../../../components/general/Spinner";
+import UploadImage from "../../../services/uploadHandler";
+import PageModal from "../../../components/general/PageModal";
 
 const AssetsPage = () => {
 	const router = useRouter();
 
 	const [assets, setAssets] = useState<Asset[] | null>(null);
 	const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+	const [showConfirmDeleteAsset, setShowConfirmDeleteAsset] =
+		useState<boolean>(false);
 
 	// inspector states
 	const [saving, setSaving] = useState<boolean>(false);
 	const [changes, setChanges] = useState<any>(null);
 	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
+	const [selectedAssetImage, setSelectedAssetImage] = useState<string | null>(
+		null
+	);
+
+	useEffect(() => {
+		if (selectedAsset) {
+			setSelectedAssetImage(selectedAsset.image_url);
+		}
+	}, [selectedAsset]);
 
 	useEffect(() => {
 		initialize();
 	}, []);
 
 	const initialize = async () => {
+		setAssets(null);
 		const response = await NewRequest({
 			method: "GET",
 			route: "/core/v1.1/admin/assets",
@@ -47,6 +63,27 @@ const AssetsPage = () => {
 	const saveAssetInspection = async () => {
 		if (changes && Object.keys(changes).length > 0) {
 			setSaving(true);
+			const response = await NewRequest({
+				method: "PUT",
+				route: "/core/v1.1/admin/asset/" + selectedAsset!.id,
+				body: {
+					id: selectedAsset!.id,
+					changes: changes,
+				},
+				auth: true,
+			});
+			if (response.success) {
+				setSelectedAsset(null);
+				setChanges(null);
+				setSaving(false);
+				initialize();
+			} else {
+				console.error(response);
+				setSaving(false);
+				toast.error("Failed to save changes", {
+					position: "top-center",
+				});
+			}
 		} else {
 			setSelectedAsset(null);
 		}
@@ -55,6 +92,7 @@ const AssetsPage = () => {
 	const cancelAssetInspection = async () => {
 		setSelectedAsset(null);
 		setChanges(null);
+		setSelectedAssetImage(null);
 		setSaving(false);
 	};
 
@@ -82,14 +120,29 @@ const AssetsPage = () => {
 
 	return (
 		<TeamContainer pageTitle="Assets" router={router}>
+			<PageModal
+				titleText="Delete Asset"
+				bodyText="Are you sure you want to delete this asset? This action is irreversible."
+				primaryText="Delete"
+				secondaryText="Cancel"
+				cancelHit={() => {
+					// do nothing
+				}}
+				actionHit={function (): void {
+					throw new Error("Function not implemented.");
+				}}
+				setShow={setShowConfirmDeleteAsset}
+				show={showConfirmDeleteAsset}
+			/>
 			{/* Modal */}
-			{selectedAsset ? (
+			{selectedAsset && selectedAssetImage ? (
 				<TeamModal
 					className="gap-6"
 					loader={saving}
 					saveActive={changes && Object.keys(changes).length > 0}
 					cancelHit={() => cancelAssetInspection()}
 					saveHit={() => saveAssetInspection()}
+					deleteHit={() => setShowConfirmDeleteAsset(true)}
 				>
 					<div className="flex justify-between w-full gap-4">
 						<TeamModalInput
@@ -121,7 +174,7 @@ const AssetsPage = () => {
 					<TeamModalSelect
 						title="Status"
 						values={AssetStatuses}
-						value={AssetStatuses[0]}
+						value={selectedAsset.status}
 						setValue={(value) => {
 							if (value.name != selectedAsset.status.name) {
 								inputChange({ status: value.id });
@@ -149,14 +202,32 @@ const AssetsPage = () => {
 					/>
 					<TeamModalUploader
 						title="Asset Photo"
-						imageSource={selectedAsset.image_url}
+						imageSource={selectedAssetImage}
 						imageClassName="w-[70px]"
 						altText={selectedAsset.name + " banner image"}
 						showImageLoader={showImageLoader}
-						onChange={(e: any) => {
+						onChange={async (e: any) => {
 							if (e.target.files && e.target.files[0]) {
 								let files = e.target.files;
-								console.log(files);
+								setShowImageLoader(true);
+								let result = await UploadImage({
+									image: files[0],
+									route: "images/assets/",
+									id: selectedAsset.id,
+								});
+								if (result.success) {
+									setShowImageLoader(false);
+									setSelectedAssetImage(result.data.data.url);
+									inputChange({
+										image_url: result.data.data.url,
+									});
+								} else {
+									console.error(result);
+									toast.error("Failed to upload image", {
+										position: "top-center",
+									});
+									setShowImageLoader(false);
+								}
 							}
 						}}
 					/>
@@ -174,58 +245,58 @@ const AssetsPage = () => {
 				<div className="w-[200px]" />
 				<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
 			</div>
-			<div className="w-full h-[calc(100%-100px)] overflow-y-auto overflow-x-auto">
+			<div className="w-full h-[calc(100%-170px)] overflow-y-auto overflow-x-auto">
 				{/* Table Body */}
 				<div className="w-full h-[calc(100%-70px)]">
 					<>
-						{assets && assets.length > 0
-							? assets.map((asset, index) => {
-									return (
-										<div
-											key={index}
-											className="flex items-center w-full h-[70px] flex-shrink-0 hover:bg-slate-50"
-										>
-											<div className="w-[110px] flex items-center justify-center">
-												<div className="relative w-[50px] h-[40px] rounded-lg overflow-hidden shadow-md">
-													<Image
-														fill
-														style={{
-															objectFit: "cover",
-														}}
-														src={asset.image_url}
-														alt={
-															"asset " +
-															asset.name
-														}
-													/>
-												</div>
-											</div>
-											<p className="w-1/4">
-												{asset.name}
-											</p>
-											<p className="w-1/4">
-												{asset.identifier}
-											</p>
-											<p className="w-1/4">
-												{asset.category.name}
-											</p>
-											<p className="w-1/4">
-												{asset.status.name}
-											</p>
-											<div className="w-[200px]">
-												<button
-													className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
-													onClick={() => {
-														setSelectedAsset(asset);
+						{assets && assets.length > 0 ? (
+							assets.map((asset, index) => {
+								return (
+									<div
+										key={index}
+										className="flex items-center w-full h-[70px] flex-shrink-0 hover:bg-slate-50"
+									>
+										<div className="w-[110px] flex items-center justify-center">
+											<div className="relative w-[50px] h-[40px] rounded-lg overflow-hidden shadow-md">
+												<Image
+													fill
+													style={{
+														objectFit: "cover",
 													}}
-												>
-													Inspect
-												</button>
+													sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw,  33vw"
+													src={asset.image_url}
+													alt={"asset " + asset.name}
+												/>
 											</div>
 										</div>
-									);
-							  })
-							: null}
+										<p className="w-1/4">{asset.name}</p>
+										<p className="w-1/4">
+											{asset.identifier}
+										</p>
+										<p className="w-1/4">
+											{asset.category.name}
+										</p>
+										<p className="w-1/4">
+											{asset.status.name}
+										</p>
+										<div className="w-[200px]">
+											<button
+												className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
+												onClick={() => {
+													setSelectedAsset(asset);
+												}}
+											>
+												Inspect
+											</button>
+										</div>
+									</div>
+								);
+							})
+						) : (
+							<div className="w-full h-[100px] flex items-center justify-center">
+								<Spinner />
+							</div>
+						)}
 					</>
 				</div>
 			</div>
