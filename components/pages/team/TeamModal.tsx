@@ -5,6 +5,7 @@ interface Props {
 	className?: string;
 	loader?: boolean;
 	saveActive?: boolean;
+	destructiveText?: string;
 
 	cancelHit: () => void;
 	saveHit: () => void;
@@ -12,7 +13,7 @@ interface Props {
 }
 
 const TeamModal = (props: Props) => {
-	const { loader = false, deleteHit = () => {} } = props;
+	const { loader = false, deleteHit = () => {}, destructiveText="Delete" } = props;
 
 	return (
 		<>
@@ -35,7 +36,7 @@ const TeamModal = (props: Props) => {
 							}
 							onClick={() => deleteHit()}
 						>
-							<span>Delete</span>
+							<span>{destructiveText}</span>
 						</button>
 					</div>
 					<div className="flex gap-1">
