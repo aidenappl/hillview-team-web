@@ -10,6 +10,7 @@ import TeamModalInput from "../../../components/pages/team/TeamModalInput";
 import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea";
 import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
 import { AssetStatus, AssetStatuses } from "../../../models/assetStatus.model";
+import { AssetCategories } from "../../../models/assetCategories.model";
 import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
 import toast from "react-hot-toast";
 import Spinner from "../../../components/general/Spinner";
@@ -206,6 +207,18 @@ const AssetsPage = () => {
 								inputChange({ status: value.id });
 							} else {
 								deleteChange("status");
+							}
+						}}
+					/>
+					<TeamModalSelect
+						title="Category"
+						values={AssetCategories}
+						value={selectedAsset.category}
+						setValue={(value) => {
+							if (value.name != selectedAsset.category.name) {
+								inputChange({ category: value.id });
+							} else {
+								deleteChange("category");
 							}
 						}}
 					/>

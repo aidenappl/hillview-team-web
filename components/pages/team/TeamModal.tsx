@@ -63,7 +63,10 @@ const TeamModal = (props: Props) => {
 					</div>
 				</div>
 			</div>
-			<div className="h-screen w-screen fixed top-0 left-0 bg-black opacity-5 z-40" />
+			<div
+				className="h-screen w-screen fixed top-0 left-0 bg-black opacity-5 z-40"
+				onClick={() => props.cancelHit()}
+			/>
 		</>
 	);
 };
