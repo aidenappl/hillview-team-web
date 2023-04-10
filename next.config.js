@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: ['content.hillview.tv']
+    domains: ['content.hillview.tv', "google.com"]
   }
 }
 

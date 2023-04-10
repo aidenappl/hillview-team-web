@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import TeamContainer from "../../../components/pages/team/TeamContainer";
 import TeamHeader from "../../../components/pages/team/TeamHeader";
-import { ChangeEventHandler, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Asset } from "../../../models/asset.model";
 import { NewRequest } from "../../../services/http/requestHandler";
 import Image from "next/image";

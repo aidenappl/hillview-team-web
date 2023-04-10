@@ -6,7 +6,7 @@ interface Props {
 }
 
 const TeamTopNav = (props: Props) => {
-	const date = dayjs("2023-04-09");
+	const date = dayjs();
 	const formattedDate = date.locale("en").format("dddd MMMM DD, YYYY");
 
 	return (
