@@ -70,7 +70,7 @@ const TeamNavbar = (props: Props) => {
 	let pathname = props.router.pathname;
 
 	return (
-		<div className="w-[350px] h-ful p-[40px] relative flex flex-col gap-12">
+		<div className="w-[250px] lg:w-[290px] xl:w-[325px] 2xl:w-[350px] h-ful p-[40px] relative flex flex-col gap-12">
 			{/* Logo */}
 			<div className="w-[60px] h-[60px] bg-blue-600 rounded-xl bg-[length:40px] bg-center bg-no-repeat bg-[url('/logos/hillviewTVSun.png')]" />
 			{/* Navigation */}
