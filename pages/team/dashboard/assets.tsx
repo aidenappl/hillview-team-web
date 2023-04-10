@@ -9,7 +9,7 @@ import TeamModal from "../../../components/pages/team/TeamModal";
 import TeamModalInput from "../../../components/pages/team/TeamModalInput";
 import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea";
 import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
-import { AssetStatuses } from "../../../models/assetStatus.model";
+import { AssetStatus, AssetStatuses } from "../../../models/assetStatus.model";
 import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
 import toast from "react-hot-toast";
 import Spinner from "../../../components/general/Spinner";
@@ -57,6 +57,32 @@ const AssetsPage = () => {
 			let data = response.data.data;
 			console.log(data);
 			setAssets(data);
+		}
+	};
+
+	const deleteAsset = async () => {
+		const response = await NewRequest({
+			method: "PUT",
+			route: "/core/v1.1/admin/asset/" + selectedAsset!.id,
+			body: {
+				id: selectedAsset!.id,
+				changes: {
+					status: AssetStatus.Deleted,
+				},
+			},
+			auth: true,
+		});
+		if (response.success) {
+			setSelectedAsset(null);
+			setChanges(null);
+			setSaving(false);
+			initialize();
+		} else {
+			console.error(response);
+			setSaving(false);
+			toast.error("Failed to save changes", {
+				position: "top-center",
+			});
 		}
 	};
 
@@ -128,8 +154,8 @@ const AssetsPage = () => {
 				cancelHit={() => {
 					// do nothing
 				}}
-				actionHit={function (): void {
-					throw new Error("Function not implemented.");
+				actionHit={() => {
+					deleteAsset();
 				}}
 				setShow={setShowConfirmDeleteAsset}
 				show={showConfirmDeleteAsset}

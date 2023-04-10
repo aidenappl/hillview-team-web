@@ -30,3 +30,13 @@ export const AssetStatuses = [
 		short_name: "warning",
 	},
 ];
+
+export const AssetStatus = {
+	ReadyForSale: 1,
+	InService: 2,
+	PendingRepair: 3,
+	Broken: 4,
+	Lost: 5,
+	Warning: 6,
+	Deleted: 7,
+};
