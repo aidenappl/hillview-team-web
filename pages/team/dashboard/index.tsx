@@ -1,6 +1,6 @@
 export default function Dashboard() {}
 
-export const getStaticProps = () => {
+export const getServerSideProps = () => {
 	return {
 		redirect: {
             destination: '/team/dashboard/assets',
