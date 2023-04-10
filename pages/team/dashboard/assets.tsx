@@ -55,7 +55,7 @@ const AssetsPage = () => {
 									return (
 										<div
 											key={index}
-											className="flex items-center w-full h-[70px] flex-shrink-0"
+											className="flex items-center w-full h-[70px] flex-shrink-0 hover:bg-slate-50"
 										>
 											<div className="w-[110px] flex items-center justify-center">
 												<div className="relative w-[50px] h-[40px] rounded-lg overflow-hidden shadow-md">
