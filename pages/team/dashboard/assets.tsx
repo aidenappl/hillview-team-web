@@ -37,15 +37,15 @@ const AssetsPage = () => {
 			{/* Team Heading */}
 			<TeamHeader title="System Assets" />
 			{/* Data Content */}
-            <div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
-					<div className="w-[110px]" />
-					<p className="w-1/4 font-semibold">Asset</p>
-					<p className="w-1/4 font-semibold">Identifier</p>
-					<p className="w-1/4 font-semibold">Device Type</p>
-					<p className="w-1/4 font-semibold">Status</p>
-					<div className="w-[200px]" />
-					<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
-				</div>
+			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
+				<div className="w-[110px]" />
+				<p className="w-1/4 font-semibold">Asset</p>
+				<p className="w-1/4 font-semibold">Identifier</p>
+				<p className="w-1/4 font-semibold">Device Type</p>
+				<p className="w-1/4 font-semibold">Status</p>
+				<div className="w-[200px]" />
+				<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
+			</div>
 			<div className="w-full h-[calc(100%-100px)] overflow-y-auto overflow-x-auto">
 				{/* Table Body */}
 				<div className="w-full h-[calc(100%-70px)]">
@@ -85,7 +85,7 @@ const AssetsPage = () => {
 												{asset.status.name}
 											</p>
 											<div className="w-[200px]">
-												<button className="px-4 text-sm py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-md">
+												<button className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md">
 													Inspect
 												</button>
 											</div>
