@@ -18,6 +18,9 @@ const AssetsPage = () => {
 	const [assets, setAssets] = useState<Asset[] | null>(null);
 	const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
 
+	// inspector states
+	const [saving, setSaving] = useState<boolean>(false);
+
 	useEffect(() => {
 		initialize();
 	}, []);
@@ -34,17 +37,31 @@ const AssetsPage = () => {
 		});
 		if (response.success) {
 			let data = response.data.data;
-			setSelectedAsset(data[0]);
 			console.log(data);
 			setAssets(data);
 		}
+	};
+
+	const saveAssetInspection = async () => {
+		setSaving(true);
+		// setSelectedAsset(null);
+	};
+
+	const cancelAssetInspection = async () => {
+		setSelectedAsset(null);
+		setSaving(false);
 	};
 
 	return (
 		<TeamContainer pageTitle="Assets" router={router}>
 			{/* Modal */}
 			{selectedAsset ? (
-				<TeamModal className="gap-6">
+				<TeamModal
+					className="gap-6"
+					loader={saving}
+					cancelHit={() => cancelAssetInspection()}
+					saveHit={() => saveAssetInspection()}
+				>
 					<div className="flex justify-between w-full gap-4">
 						<TeamModalInput
 							title="Name"
@@ -137,7 +154,12 @@ const AssetsPage = () => {
 												{asset.status.name}
 											</p>
 											<div className="w-[200px]">
-												<button className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md">
+												<button
+													className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
+													onClick={() => {
+														setSelectedAsset(asset);
+													}}
+												>
 													Inspect
 												</button>
 											</div>
