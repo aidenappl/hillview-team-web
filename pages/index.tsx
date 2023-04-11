@@ -7,8 +7,6 @@ import { useState } from "react";
 import Spinner from "../components/general/Spinner";
 import {
   CodeResponse,
-  GoogleLogin,
-  TokenResponse,
   useGoogleLogin,
 } from "@react-oauth/google";
 import { InitializeSession } from "../services/sessionHandler";
