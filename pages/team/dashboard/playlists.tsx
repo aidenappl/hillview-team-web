@@ -9,14 +9,16 @@ import Image from "next/image";
 import { NewRequest } from "../../../services/http/requestHandler";
 import TeamModal from "../../../components/pages/team/TeamModal";
 import TeamModalInput from "../../../components/pages/team/TeamModalInput";
-import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
 import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea";
-import { VideoStatuses } from "../../../models/videoStatus.model";
+import { PlaylistStatus } from "../../../models/playlistStatus.model";
 import toast from "react-hot-toast";
+import PageModal from "../../../components/general/PageModal";
 
 const PlaylistsPage = () => {
 	const router = useRouter();
 	const [playlists, setPlaylists] = useState<Playlist[] | null>(null);
+	const [showConfirmDeletePlaylist, setShowConfirmDeletePlaylist] =
+		useState<boolean>(false);
 
 	// Video Inspector
 	const [saving, setSaving] = useState<boolean>(false);
@@ -100,12 +102,52 @@ const PlaylistsPage = () => {
 		}
 	};
 
+	const archiveVideo = async () => {
+		const response = await NewRequest({
+			method: "PUT",
+			route: "/core/v1.1/admin/asset/" + selectedPlaylist!.id,
+			body: {
+				id: selectedPlaylist!.id,
+				changes: {
+					status: PlaylistStatus.Archived,
+				},
+			},
+			auth: true,
+		});
+		if (response.success) {
+			setSelectedPlaylist(null);
+			setChanges(null);
+			setSaving(false);
+			initialize();
+		} else {
+			console.error(response);
+			setSaving(false);
+			toast.error("Failed to save changes", {
+				position: "top-center",
+			});
+		}
+	};
+
 	useEffect(() => {
 		initialize();
 	}, []);
 
 	return (
 		<TeamContainer pageTitle="Playlists" router={router}>
+			<PageModal
+				titleText="Archive Video"
+				bodyText="Are you sure you want to archive this video? This action is irreversible."
+				primaryText="Archive"
+				secondaryText="Cancel"
+				cancelHit={() => {
+					// do nothing
+				}}
+				actionHit={() => {
+					archiveVideo();
+				}}
+				setShow={setShowConfirmDeletePlaylist}
+				show={showConfirmDeletePlaylist}
+			/>
 			{selectedPlaylist ? (
 				<TeamModal
 					className="gap-6"
@@ -113,7 +155,7 @@ const PlaylistsPage = () => {
 					saveActive={changes && Object.keys(changes).length > 0}
 					cancelHit={() => cancelPlaylistInspection()}
 					saveHit={() => savePlaylistInspection()}
-					deleteHit={() => setShowConfirmDeleteVideo(true)}
+					deleteHit={() => setShowConfirmDeletePlaylist(true)}
 					destructiveText="Archive"
 				>
 					<TeamModalInput
