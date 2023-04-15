@@ -1,17 +1,17 @@
-import { ClearStoreUser, UpdateStoreUser } from '../redux/user/update';
-import { RemoveToken, RetrieveToken, StoreToken } from './cookieHandler';
-import { GeneralResponse } from '../models/generalResponse.model';
+import { ClearStoreUser, UpdateStoreUser } from "../redux/user/update";
+import { RemoveToken, RetrieveToken, StoreToken } from "./cookieHandler";
+import { GeneralResponse } from "../models/generalResponse.model";
 import {
 	AccessTokenExpiration,
 	ParseToken,
 	RefreshTokenExpiration,
-} from './tokenHandler';
-import { GetTeamUser } from './userHandler';
-import { User } from '../models/user.model';
+} from "./tokenHandler";
+import { GetTeamUser } from "./userHandler";
+import { User } from "../models/user.model";
 
 var sessionActive = false;
 var sessionAccessToken: string | null = null;
-var hasLoadedSession = false
+var hasLoadedSession = false;
 
 // Launch session from cookies
 type LoadSessionRequest = {
@@ -21,13 +21,13 @@ const LoadSessionFromStore = async (
 	req: LoadSessionRequest
 ): Promise<GeneralResponse | null> => {
 	try {
-        if (hasLoadedSession) {
-            return null;
-        }
-        hasLoadedSession = true;
+		if (hasLoadedSession) {
+			return null;
+		}
+		hasLoadedSession = true;
 
-		const access = await RetrieveToken('access');
-		const refresh = await RetrieveToken('refresh');
+		const access = await RetrieveToken("access");
+		const refresh = await RetrieveToken("refresh");
 
 		if (access && refresh) {
 			const token: any = await ParseToken(String(access));
@@ -37,7 +37,7 @@ const LoadSessionFromStore = async (
 					// Need new AT
 					return {
 						status: 300,
-						message: 'Access token reissue not implemented',
+						message: "Access token reissue not implemented",
 						data: null,
 						success: false,
 					};
@@ -45,19 +45,19 @@ const LoadSessionFromStore = async (
 					// Use existing AT
 					sessionActive = true;
 					sessionAccessToken = access;
-                    const user = await GetTeamUser({})
+					const user = await GetTeamUser({});
 					if (user == null) {
 						return {
 							status: 400,
-							message: 'Failed to retrieve user',
+							message: "Failed to retrieve user",
 							data: null,
 							success: false,
 						};
 					}
-                    await UpdateStoreUser(user!, req.dispatch);
+					await UpdateStoreUser(user!, req.dispatch);
 					return {
 						status: 200,
-						message: 'Successfully launched session',
+						message: "Successfully launched session",
 						data: user,
 						success: true,
 					};
@@ -65,7 +65,7 @@ const LoadSessionFromStore = async (
 			} else {
 				return {
 					status: 400,
-					message: 'Failed to parse access token',
+					message: "Failed to parse access token",
 					data: null,
 					success: false,
 				};
@@ -73,19 +73,19 @@ const LoadSessionFromStore = async (
 		} else {
 			return {
 				status: 401,
-				message: 'Failed to launch session, missing tokens',
+				message: "Failed to launch session, missing tokens",
 				data: null,
 				success: false,
 			};
 		}
 	} catch (error: any) {
-        hasLoadedSession = false;
+		hasLoadedSession = false;
 		KillSession({
 			dispatch: req.dispatch,
 		});
 		return {
 			status: error.code,
-			message: 'Failed to launch session: ' + error.message,
+			message: "Failed to launch session: " + error.message,
 			data: error,
 			success: false,
 		};
@@ -103,14 +103,14 @@ const InitializeSession = async (
 	req: RequestInitializeSession
 ): Promise<GeneralResponse> => {
 	try {
-		await StoreToken('access', req.accessToken, AccessTokenExpiration);
-		await StoreToken('refresh', req.refreshToken, RefreshTokenExpiration);
+		await StoreToken("access", req.accessToken, AccessTokenExpiration);
+		await StoreToken("refresh", req.refreshToken, RefreshTokenExpiration);
 		await UpdateStoreUser(req.user, req.dispatch);
 		sessionActive = true;
 		sessionAccessToken = req.accessToken;
 		return {
 			status: 200,
-			message: 'Successfully initialized session',
+			message: "Successfully initialized session",
 			data: req.user,
 			success: true,
 		};
@@ -121,7 +121,7 @@ const InitializeSession = async (
 		});
 		return {
 			status: error.code,
-			message: 'Failed to initialize session: ' + error.message,
+			message: "Failed to initialize session: " + error.message,
 			data: error,
 			success: false,
 		};
@@ -138,44 +138,50 @@ const KillSession = async (
 	req: RequestEndSession
 ): Promise<GeneralResponse> => {
 	try {
-		await RemoveToken('access');
-		await RemoveToken('refresh');
+		await RemoveToken("access");
+		await RemoveToken("refresh");
 		await ClearStoreUser(req.dispatch);
 		sessionActive = false;
 		sessionAccessToken = null;
 		if (req.router && req.navigate) {
-			req.router.push('/');
+			req.router.push("/");
 		}
 		return {
 			status: 200,
-			message: 'Successfully killed session',
+			message: "Successfully killed session",
 			data: null,
 			success: true,
 		};
 	} catch (error: any) {
 		return {
 			status: error.code,
-			message: 'Failed to kill session: ' + error.message,
+			message: "Failed to kill session: " + error.message,
 			data: error,
 			success: false,
 		};
 	}
 };
 
-// Check session state 
+// Check session state
 const SessionInService = async (): Promise<boolean> => {
-	const access = await RetrieveToken('access');
-	const refresh = await RetrieveToken('refresh');
+	const access = await RetrieveToken("access");
+	const refresh = await RetrieveToken("refresh");
 	if (access && refresh) {
 		return sessionActive;
 	} else {
 		return false;
 	}
-}
+};
 
 // Get session access token
 const GetSessionAccessToken = (): string | null => {
-    return sessionAccessToken;
-}
+	return sessionAccessToken;
+};
 
-export { KillSession, InitializeSession, LoadSessionFromStore, SessionInService, GetSessionAccessToken };
+export {
+	KillSession,
+	InitializeSession,
+	LoadSessionFromStore,
+	SessionInService,
+	GetSessionAccessToken,
+};
