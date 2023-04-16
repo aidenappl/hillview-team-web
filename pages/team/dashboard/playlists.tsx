@@ -80,7 +80,6 @@ const PlaylistsPage = () => {
 				method: "PUT",
 				route: "/core/v1.1/admin/playlist/" + selectedPlaylist!.id,
 				body: {
-					id: selectedPlaylist!.id,
 					changes: changes,
 				},
 				auth: true,
