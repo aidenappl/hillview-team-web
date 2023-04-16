@@ -39,7 +39,6 @@ const LoginPage = () => {
 		>
 	): Promise<void> => {
 		if (tokenResponse.code) {
-			console.log("Code: ", tokenResponse.code);
 
 			const response = await NewRequest({
 				route: "/auth/v1.1/google",
@@ -52,7 +51,6 @@ const LoginPage = () => {
 
 			if (response.success) {
 				let data = response.data.data;
-				console.log(data);
 				const initializerResp = await InitializeSession({
 					accessToken: data.access_token,
 					refreshToken: data.refresh_token,

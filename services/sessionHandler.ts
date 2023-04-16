@@ -8,6 +8,8 @@ import {
 } from "./tokenHandler";
 import { GetTeamUser } from "./userHandler";
 import { User } from "../models/user.model";
+import { Logout } from "./logoutHandler";
+import { NewRequest } from "./http/requestHandler";
 
 var sessionActive = false;
 var sessionAccessToken: string | null = null;
@@ -35,12 +37,34 @@ const LoadSessionFromStore = async (
 				let tokenExpiresIn = token.exp - Math.floor(Date.now() / 1000);
 				if (tokenExpiresIn < 0) {
 					// Need new AT
-					return {
-						status: 300,
-						message: "Access token reissue not implemented",
-						data: null,
-						success: false,
-					};
+					const tokenResp = await RefreshSession();
+					if (tokenResp.success) {
+						sessionActive = true;
+						sessionAccessToken = tokenResp.data!.access_token;
+						const user = await GetTeamUser({});
+						if (user == null) {
+							return {
+								status: 400,
+								message: "Failed to retrieve user",
+								data: null,
+								success: false,
+							};
+						}
+						await UpdateStoreUser(user!, req.dispatch);
+						return {
+							status: 200,
+							message: "Successfully launched session",
+							data: user,
+							success: true,
+						};
+					} else {
+						return {
+							status: 400,
+							message: "Failed to retrieve new session",
+							data: null,
+							success: false,
+						};
+					}
 				} else {
 					// Use existing AT
 					sessionActive = true;
@@ -162,6 +186,74 @@ const KillSession = async (
 	}
 };
 
+// Refresh Session
+const RefreshSession = async (): Promise<GeneralResponse> => {
+	const refresh = await RetrieveToken("refresh");
+	if (refresh) {
+		const tokenRequest = await NewRequest({
+			method: "POST",
+			route: "/auth/v1.1/token",
+			body: {
+				refreshToken: refresh,
+			},
+		});
+		if (tokenRequest.success) {
+			const tokenResponse = tokenRequest.data;
+			if (tokenResponse) {
+				await StoreToken(
+					"access",
+					tokenResponse.access_token,
+					AccessTokenExpiration
+				);
+				sessionActive = true;
+				sessionAccessToken = tokenResponse.access_token;
+				return {
+					status: 200,
+					message: "Successfully refreshed session",
+					data: tokenResponse,
+					success: true,
+				};
+			} else {
+				// Failed to refresh, kill session
+				await RemoveToken("access");
+				await RemoveToken("refresh");
+				sessionActive = false;
+				sessionAccessToken = null;
+				return {
+					status: 401,
+					message: "Failed to refresh session, missing token",
+					data: null,
+					success: false,
+				};
+			}
+		} else {
+			// Failed to refresh, kill session
+			await RemoveToken("access");
+			await RemoveToken("refresh");
+			sessionActive = false;
+			sessionAccessToken = null;
+			return {
+				status: 401,
+				message: "Failed to refresh session, missing refresh token",
+				data: null,
+				success: false,
+			};
+		}
+	} else {
+		// No refresh token, kill session
+		await RemoveToken("access");
+		await RemoveToken("refresh");
+		sessionActive = false;
+		sessionAccessToken = null;
+		return {
+			status: 401,
+			message: "Failed to refresh session, missing refresh token",
+			data: null,
+			success: false,
+		};
+	}
+};
+
 // Check session state
 const SessionInService = async (): Promise<boolean> => {
 	const access = await RetrieveToken("access");
@@ -175,13 +267,14 @@ const SessionInService = async (): Promise<boolean> => {
 
 // Get session access token
 const GetSessionAccessToken = (): string | null => {
-	return sessionAccessToken;
+	return RetrieveToken("access");
 };
 
 export {
 	KillSession,
 	InitializeSession,
 	LoadSessionFromStore,
+	RefreshSession,
 	SessionInService,
 	GetSessionAccessToken,
 };

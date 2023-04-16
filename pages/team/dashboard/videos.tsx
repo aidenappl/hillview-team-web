@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { Video } from "../../../models/video.model";
 import Image from "next/image";
 import { NewRequest } from "../../../services/http/requestHandler";
-import dayjs from "dayjs";
 import Link from "next/link";
 import TeamModal from "../../../components/pages/team/TeamModal";
 import TeamModalInput from "../../../components/pages/team/TeamModalInput";
@@ -15,7 +14,6 @@ import PageModal from "../../../components/general/PageModal";
 import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea";
 import { VideoStatus, VideoStatuses } from "../../../models/videoStatus.model";
 import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
-require("dayjs/locale/en");
 
 const VideosPage = () => {
 	const router = useRouter();
