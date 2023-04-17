@@ -25,6 +25,8 @@ import TeamModalList from "../../../components/pages/team/TeamModalList";
 import { Video } from "../../../models/video.model";
 import CreatePlaylistModal from "../../../components/pages/team/playlist/CreatePlaylistModal";
 import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
+import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
+import UploadImage from "../../../services/uploadHandler";
 
 const PlaylistInspectorTabs = GenerateGeneralNSM(["General", "Videos"]);
 
@@ -45,6 +47,7 @@ const PlaylistsPage = () => {
 	const [searchResults, setSearchResults] = useState<Video[] | null>(null);
 	const [showCreatePlaylist, setShowCreatePlaylist] =
 		useState<boolean>(false);
+	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
 
 	const initialize = async () => {
 		setPlaylists(null);
@@ -253,7 +256,7 @@ const PlaylistsPage = () => {
 							<TeamModalInput
 								title="Banner Image URL"
 								placeholder="Playlist Banner Image URL"
-								value={selectedPlaylist.banner_image}
+								value={changes?.banner_image || selectedPlaylist.banner_image}
 								setValue={(value: string) => {
 									if (
 										value != selectedPlaylist.banner_image
@@ -261,6 +264,41 @@ const PlaylistsPage = () => {
 										inputChange({ banner_image: value });
 									} else {
 										deleteChange("banner_image");
+									}
+								}}
+							/>
+							<TeamModalUploader
+								imageSource={
+									changes?.banner_image ||
+									selectedPlaylist.banner_image
+								}
+								altText={"Playlist Thumbnail"}
+								showImageLoader={showImageLoader}
+								onChange={async (e: any) => {
+									if (e.target.files && e.target.files[0]) {
+										let files = e.target.files;
+										setShowImageLoader(true);
+										let result = await UploadImage({
+											image: files[0],
+											route: "thumbnails/",
+											id: selectedPlaylist.id,
+										});
+										if (result.success) {
+											setShowImageLoader(false);
+											inputChange({
+												banner_image:
+													result.data.data.url,
+											});
+										} else {
+											console.error(result);
+											toast.error(
+												"Failed to upload image",
+												{
+													position: "top-center",
+												}
+											);
+											setShowImageLoader(false);
+										}
 									}
 								}}
 							/>
