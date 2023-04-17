@@ -152,6 +152,10 @@ const VideosPage = () => {
 			/>
 			{showUploadVideo ? (
 				<CreateVideoModal
+					saveDone={() => {
+						setShowUploadVideo(false);
+						initialize();
+					}}
 					cancelHit={() => {
 						setShowUploadVideo(false);
 					}}
