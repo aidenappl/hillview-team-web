@@ -237,9 +237,9 @@ const VideosPage = () => {
 			{/* Data Body */}
 			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
 				<div className="w-[300px]" />
-				<p className="w-[calc(33%-250px)] font-semibold">Title</p>
-				<p className="w-[calc(33%-250px)] font-semibold">UUID</p>
-				<p className="w-[calc(33%-250px)] font-semibold">Status</p>
+				<p className="w-[calc(33%-170px)] font-semibold">Title</p>
+				<p className="w-[calc(33%-170px)] font-semibold">UUID</p>
+				<p className="w-[calc(33%-170px)] font-semibold">Status</p>
 				<div className="w-[200px]" />
 				<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
 			</div>
@@ -277,9 +277,9 @@ const VideosPage = () => {
 												/>
 											</div>
 										</div>
-										<p className="w-[calc(33%-250px)]">{video.title}</p>
-										<p className="w-[calc(33%-250px)]">{video.uuid}</p>
-										<p className="w-[calc(33%-250px)]">
+										<p className="w-[calc(33%-170px)]">{video.title}</p>
+										<p className="w-[calc(33%-170px)]">{video.uuid}</p>
+										<p className="w-[calc(33%-170px)]">
 											{video.status.name}
 										</p>
 										<div className="w-[200px] flex gap-2 pr-10">
