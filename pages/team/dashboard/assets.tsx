@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 import Spinner from "../../../components/general/Spinner";
 import UploadImage from "../../../services/uploadHandler";
 import PageModal from "../../../components/general/PageModal";
+import CreateAssetModal from "../../../components/pages/team/asset/CreateAssetModal";
 
 const AssetsPage = () => {
 	const router = useRouter();
@@ -53,6 +54,7 @@ const AssetsPage = () => {
 			route: "/core/v1.1/admin/assets",
 			params: {
 				limit: 50,
+				sort: "DESC",
 				offset: 0,
 			},
 			auth: true,
@@ -166,88 +168,15 @@ const AssetsPage = () => {
 			/>
 			{/* Create Asset Modal */}
 			{showCreateAsset ? (
-				<TeamModal
-					className="gap-6"
-					showDestructive={false}
-					cancelHit={() => setShowCreateAsset(false)}
-					saveHit={() => {
-						console.log("save hit");
+				<CreateAssetModal
+					saveDone={() => {
+						setShowCreateAsset(false);
+						initialize();
 					}}
-				>
-					<div className="flex gap-4 justify-between">
-						<TeamModalInput
-							title="Asset"
-							placeholder="Enter an Asset Name..."
-							value={""}
-							required
-							setValue={function (value: string): void {
-								throw new Error("Function not implemented.");
-							}}
-						/>
-						<TeamModalInput
-							title="Identifier"
-							placeholder="Enter an Asset Identifier..."
-							value={""}
-							required
-							setValue={function (value: string): void {
-								throw new Error("Function not implemented.");
-							}}
-						/>
-					</div>
-					<TeamModalSelect
-						title="Category"
-						values={AssetCategories}
-						value={AssetCategories[0]}
-						required
-						setValue={(value) => {
-							console.log(value);
-						}}
-					/>
-					<TeamModalInput
-						title="Manufacturer"
-						placeholder="Enter the Asset Manufacturer..."
-						value={""}
-						required
-						setValue={function (value: string): void {
-							throw new Error("Function not implemented.");
-						}}
-					/>
-					<TeamModalInput
-						title="Model"
-						placeholder="Enter the Asset Model Number..."
-						value={""}
-						required
-						setValue={function (value: string): void {
-							throw new Error("Function not implemented.");
-						}}
-					/>
-					<TeamModalInput
-						title="Serial Number"
-						placeholder="Enter the Asset Serial Number..."
-						value={""}
-						required
-						setValue={function (value: string): void {
-							throw new Error("Function not implemented.");
-						}}
-					/>
-					<TeamModalTextarea
-						title="Description"
-						required
-						placeholder="Enter a description of the asset... e.g. 'SD Card C'"
-						value={""}
-						setValue={function (value: string): void {
-							throw new Error("Function not implemented.");
-						}}
-					/>
-					<TeamModalTextarea
-						title="Notes"
-						placeholder="Enter any additional notes about the asset..."
-						value={""}
-						setValue={function (value: string): void {
-							throw new Error("Function not implemented.");
-						}}
-					/>
-				</TeamModal>
+					cancelHit={(): void => {
+						setShowCreateAsset(false);
+					}}
+				/>
 			) : null}
 			{/* Modal */}
 			{selectedAsset && selectedAssetImage ? (
