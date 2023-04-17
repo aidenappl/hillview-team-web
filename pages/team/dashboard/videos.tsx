@@ -108,9 +108,8 @@ const VideosPage = () => {
 	const archiveVideo = async () => {
 		const response = await NewRequest({
 			method: "PUT",
-			route: "/core/v1.1/admin/asset/" + selectedVideo!.id,
+			route: "/core/v1.1/admin/video/" + selectedVideo!.id,
 			body: {
-				id: selectedVideo!.id,
 				changes: {
 					status: VideoStatus.Archived,
 				},
@@ -277,8 +276,12 @@ const VideosPage = () => {
 												/>
 											</div>
 										</div>
-										<p className="w-[calc(33%-170px)]">{video.title}</p>
-										<p className="w-[calc(33%-170px)]">{video.uuid}</p>
+										<p className="w-[calc(33%-170px)]">
+											{video.title}
+										</p>
+										<p className="w-[calc(33%-170px)]">
+											{video.uuid}
+										</p>
 										<p className="w-[calc(33%-170px)]">
 											{video.status.name}
 										</p>
