@@ -14,6 +14,7 @@ import PageModal from "../../../components/general/PageModal";
 import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea";
 import { VideoStatus, VideoStatuses } from "../../../models/videoStatus.model";
 import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
+import CreateVideoModal from "../../../components/pages/team/video/CreateVideoModal";
 
 const VideosPage = () => {
 	const router = useRouter();
@@ -25,6 +26,9 @@ const VideosPage = () => {
 	const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
 	const [saving, setSaving] = useState<boolean>(false);
 	const [changes, setChanges] = useState<any>(null);
+
+	// Video Uploader
+	const [showUploadVideo, setShowUploadVideo] = useState<boolean>(false);
 
 	useEffect(() => {
 		initialize();
@@ -146,6 +150,13 @@ const VideosPage = () => {
 				setShow={setShowConfirmDeleteVideo}
 				show={showConfirmDeleteVideo}
 			/>
+			{showUploadVideo ? (
+				<CreateVideoModal
+					cancelHit={() => {
+						setShowUploadVideo(false);
+					}}
+				/>
+			) : null}
 			{selectedVideo ? (
 				<TeamModal
 					className="gap-6"
@@ -232,7 +243,16 @@ const VideosPage = () => {
 				</TeamModal>
 			) : null}
 			{/* Team Heading */}
-			<TeamHeader title="System Videos" />
+			<TeamHeader title="System Videos">
+				<button
+					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
+					onClick={() => {
+						setShowUploadVideo(true);
+					}}
+				>
+					Upload Video
+				</button>
+			</TeamHeader>
 			{/* Data Body */}
 			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
 				<div className="w-[300px]" />
