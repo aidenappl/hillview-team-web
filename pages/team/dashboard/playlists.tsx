@@ -13,6 +13,15 @@ import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea"
 import { PlaylistStatus } from "../../../models/playlistStatus.model";
 import toast from "react-hot-toast";
 import PageModal from "../../../components/general/PageModal";
+import TeamModalTabBar from "../../../components/pages/team/TeamModalTabBar";
+import {
+	GeneralNSM,
+	GenerateGeneralNSM,
+} from "../../../models/generalNSM.model";
+import TeamModalList from "../../../components/pages/team/TeamModalList";
+import { Video } from "../../../models/video.model";
+
+const PlaylistInspectorTabs = GenerateGeneralNSM(["General", "Videos"]);
 
 const PlaylistsPage = () => {
 	const router = useRouter();
@@ -20,15 +29,19 @@ const PlaylistsPage = () => {
 	const [showConfirmDeletePlaylist, setShowConfirmDeletePlaylist] =
 		useState<boolean>(false);
 
-	// Video Inspector
+	// Playlist Inspector
 	const [saving, setSaving] = useState<boolean>(false);
 	const [changes, setChanges] = useState<any>(null);
 	const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(
 		null
 	);
+	const [activePlaylistInspectorTab, setActivePlaylistInspectorTab] =
+		useState<GeneralNSM>(PlaylistInspectorTabs[0]);
+	const [searchResults, setSearchResults] = useState<Video[] | null>(null);
 
 	const initialize = async () => {
 		setPlaylists(null);
+		setActivePlaylistInspectorTab(PlaylistInspectorTabs[1]);
 		const response = await NewRequest({
 			method: "GET",
 			route: "/core/v1.1/admin/playlists",
@@ -131,6 +144,10 @@ const PlaylistsPage = () => {
 		initialize();
 	}, []);
 
+	useEffect(() => {
+		console.log(changes);
+	}, [changes]);
+
 	return (
 		<TeamContainer pageTitle="Playlists" router={router}>
 			<PageModal
@@ -157,55 +174,193 @@ const PlaylistsPage = () => {
 					deleteHit={() => setShowConfirmDeletePlaylist(true)}
 					destructiveText="Archive"
 				>
-					<TeamModalInput
-						title="Title"
-						placeholder="Playlist Title"
-						value={selectedPlaylist.name}
-						setValue={(value: string) => {
-							if (value != selectedPlaylist.name) {
-								inputChange({ name: value });
-							} else {
-								deleteChange("name");
-							}
-						}}
+					<TeamModalTabBar
+						tabs={PlaylistInspectorTabs}
+						activeTab={activePlaylistInspectorTab}
+						setActiveTab={setActivePlaylistInspectorTab}
 					/>
-					<TeamModalTextarea
-						title="Description"
-						placeholder="Playlist Description"
-						value={selectedPlaylist.description}
-						className="h-[150px]"
-						setValue={(value: string) => {
-							if (value != selectedPlaylist.description) {
-								inputChange({ description: value });
-							} else {
-								deleteChange("description");
-							}
-						}}
-					/>
-					<TeamModalInput
-						title="Route"
-						placeholder="Playlist Source Route"
-						value={selectedPlaylist.route}
-						setValue={(value: string) => {
-							if (value != selectedPlaylist.route) {
-								inputChange({ route: value });
-							} else {
-								deleteChange("route");
-							}
-						}}
-					/>
-					<TeamModalInput
-						title="Banner Image URL"
-						placeholder="Playlist Banner Image URL"
-						value={selectedPlaylist.banner_image}
-						setValue={(value: string) => {
-							if (value != selectedPlaylist.banner_image) {
-								inputChange({ banner_image: value });
-							} else {
-								deleteChange("banner_image");
-							}
-						}}
-					/>
+					{activePlaylistInspectorTab == PlaylistInspectorTabs[0] ? (
+						<div className="flex gap-6 flex-col">
+							<TeamModalInput
+								title="Title"
+								placeholder="Playlist Title"
+								value={selectedPlaylist.name}
+								setValue={(value: string) => {
+									if (value != selectedPlaylist.name) {
+										inputChange({ name: value });
+									} else {
+										deleteChange("name");
+									}
+								}}
+							/>
+							<TeamModalTextarea
+								title="Description"
+								placeholder="Playlist Description"
+								value={selectedPlaylist.description}
+								className="h-[150px]"
+								setValue={(value: string) => {
+									if (value != selectedPlaylist.description) {
+										inputChange({ description: value });
+									} else {
+										deleteChange("description");
+									}
+								}}
+							/>
+							<TeamModalInput
+								title="Route"
+								placeholder="Playlist Source Route"
+								value={selectedPlaylist.route}
+								setValue={(value: string) => {
+									if (value != selectedPlaylist.route) {
+										inputChange({ route: value });
+									} else {
+										deleteChange("route");
+									}
+								}}
+							/>
+							<TeamModalInput
+								title="Banner Image URL"
+								placeholder="Playlist Banner Image URL"
+								value={selectedPlaylist.banner_image}
+								setValue={(value: string) => {
+									if (
+										value != selectedPlaylist.banner_image
+									) {
+										inputChange({ banner_image: value });
+									} else {
+										deleteChange("banner_image");
+									}
+								}}
+							/>
+						</div>
+					) : null}
+					{activePlaylistInspectorTab == PlaylistInspectorTabs[1] ? (
+						<div className="flex gap-6 flex-col">
+							<TeamModalInput
+								title="Lookup Video"
+								placeholder="Start typing a video..."
+								value={""}
+								dropdownClick={(item) => {
+									setSearchResults(null);
+									if (
+										selectedPlaylist.videos.find(
+											(v: Video) => v.id == item.id
+										)
+									) {
+										toast.error("Video already added");
+									} else {
+										let arrChanges = changes?.add_videos;
+										if (!arrChanges) {
+											arrChanges = [];
+										}
+										arrChanges.push(item.id);
+										inputChange({
+											add_videos: arrChanges,
+										});
+										setSelectedPlaylist({
+											...selectedPlaylist,
+											videos: [
+												item,
+												...selectedPlaylist.videos,
+											],
+										});
+									}
+								}}
+								dropdown={
+									searchResults
+										? GenerateGeneralNSM(searchResults)
+										: undefined
+								}
+								setDelayedValue={async (
+									value: string
+								): Promise<void> => {
+									if (value.length < 3) return;
+									const response = await NewRequest({
+										method: "GET",
+										route: "/core/v1.1/admin/videos",
+										params: {
+											search: value,
+											limit: 5,
+											offset: 0,
+										},
+										auth: true,
+									});
+									if (response.success) {
+										let data = response.data.data;
+										setSearchResults(data);
+									} else {
+										setSearchResults(null);
+										toast.error("Failed to search videos");
+									}
+								}}
+								setValue={(value: string) => {
+									if (value.length == 0) {
+										setSearchResults(null);
+									}
+								}}
+							/>
+							<TeamModalList
+								title={"Playlist Videos"}
+								list={GenerateGeneralNSM(
+									selectedPlaylist.videos
+								)}
+								destructiveClick={(item) => {
+									// add to remove_videos
+									if (
+										changes?.add_videos?.indexOf(item.id) >
+										-1
+									) {
+										// remove from add_videos
+										let arrChanges = changes?.add_videos;
+										if (arrChanges.length == 1) {
+											deleteChange("add_videos");
+										} else {
+											if (!arrChanges) {
+												arrChanges = [];
+											}
+											arrChanges.splice(
+												arrChanges.indexOf(item.id),
+												1
+											);
+											inputChange({
+												add_videos: arrChanges,
+											});
+										}
+									} else {
+										// add to remove_videos
+										if (
+											changes?.remove_videos?.length == 1
+										) {
+											deleteChange("remove_videos");
+										} else {
+											let arr = [];
+											if (changes?.remove_videos) {
+												arr = changes.remove_videos;
+											}
+											arr.push(item.id);
+											inputChange({
+												remove_videos: arr,
+											});
+										}
+									}
+									setSelectedPlaylist({
+										...selectedPlaylist,
+										videos: selectedPlaylist.videos.filter(
+											(video: Video) =>
+												video.id != item.id
+										),
+									});
+								}}
+								itemClick={(item) => {
+									window.open(
+										"https://hillview.tv/watch?v=" +
+											item.id,
+										"_blank"
+									);
+								}}
+							/>
+						</div>
+					) : null}
 				</TeamModal>
 			) : null}
 			{/* Team Heading */}
@@ -213,12 +368,13 @@ const PlaylistsPage = () => {
 			{/* Data Body */}
 			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
 				<div className="w-[300px]" />
-				<p className="w-1/2 font-semibold">Title</p>
-				<p className="w-1/2 font-semibold">Route</p>
+				<p className="w-[calc(33%-170px)] font-semibold">Title</p>
+				<p className="w-[calc(33%-170px)] font-semibold">Route</p>
+				<p className="w-[calc(33%-170px)] font-semibold"># Videos</p>
 				<div className="w-[200px]" />
 				<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
 			</div>
-			<div className="w-full h-[calc(100%-170px)] overflow-y-auto overflow-x-auto">
+			<div className="w-full h-[calc(100%-170px)] overflow-y-scroll overflow-x-auto">
 				{/* Table Body */}
 				<div className="w-full h-[calc(100%-70px)]">
 					<>
@@ -254,9 +410,14 @@ const PlaylistsPage = () => {
 												/>
 											</div>
 										</div>
-										<p className="w-1/2">{playlist.name}</p>
-										<p className="w-1/2">
+										<p className="w-[calc(33%-170px)]">
+											{playlist.name}
+										</p>
+										<p className="w-[calc(33%-170px)]">
 											/{playlist.route}
+										</p>
+										<p className="w-[calc(33%-170px)]">
+											{playlist.videos.length} Videos
 										</p>
 										<div className="w-[200px] flex gap-2 pr-10">
 											<button

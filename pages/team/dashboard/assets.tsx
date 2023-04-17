@@ -33,6 +33,9 @@ const AssetsPage = () => {
 		null
 	);
 
+	// create asset modal
+	const [showCreateAsset, setShowCreateAsset] = useState<boolean>(false);
+
 	useEffect(() => {
 		if (selectedAsset) {
 			setSelectedAssetImage(selectedAsset.image_url);
@@ -161,6 +164,91 @@ const AssetsPage = () => {
 				setShow={setShowConfirmDeleteAsset}
 				show={showConfirmDeleteAsset}
 			/>
+			{/* Create Asset Modal */}
+			{showCreateAsset ? (
+				<TeamModal
+					className="gap-6"
+					showDestructive={false}
+					cancelHit={() => setShowCreateAsset(false)}
+					saveHit={() => {
+						console.log("save hit");
+					}}
+				>
+					<div className="flex gap-4 justify-between">
+						<TeamModalInput
+							title="Asset"
+							placeholder="Enter an Asset Name..."
+							value={""}
+							required
+							setValue={function (value: string): void {
+								throw new Error("Function not implemented.");
+							}}
+						/>
+						<TeamModalInput
+							title="Identifier"
+							placeholder="Enter an Asset Identifier..."
+							value={""}
+							required
+							setValue={function (value: string): void {
+								throw new Error("Function not implemented.");
+							}}
+						/>
+					</div>
+					<TeamModalSelect
+						title="Category"
+						values={AssetCategories}
+						value={AssetCategories[0]}
+						required
+						setValue={(value) => {
+							console.log(value);
+						}}
+					/>
+					<TeamModalInput
+						title="Manufacturer"
+						placeholder="Enter the Asset Manufacturer..."
+						value={""}
+						required
+						setValue={function (value: string): void {
+							throw new Error("Function not implemented.");
+						}}
+					/>
+					<TeamModalInput
+						title="Model"
+						placeholder="Enter the Asset Model Number..."
+						value={""}
+						required
+						setValue={function (value: string): void {
+							throw new Error("Function not implemented.");
+						}}
+					/>
+					<TeamModalInput
+						title="Serial Number"
+						placeholder="Enter the Asset Serial Number..."
+						value={""}
+						required
+						setValue={function (value: string): void {
+							throw new Error("Function not implemented.");
+						}}
+					/>
+					<TeamModalTextarea
+						title="Description"
+						required
+						placeholder="Enter a description of the asset... e.g. 'SD Card C'"
+						value={""}
+						setValue={function (value: string): void {
+							throw new Error("Function not implemented.");
+						}}
+					/>
+					<TeamModalTextarea
+						title="Notes"
+						placeholder="Enter any additional notes about the asset..."
+						value={""}
+						setValue={function (value: string): void {
+							throw new Error("Function not implemented.");
+						}}
+					/>
+				</TeamModal>
+			) : null}
 			{/* Modal */}
 			{selectedAsset && selectedAssetImage ? (
 				<TeamModal
@@ -273,7 +361,16 @@ const AssetsPage = () => {
 				</TeamModal>
 			) : null}
 			{/* Team Heading */}
-			<TeamHeader title="System Assets" />
+			<TeamHeader title="System Assets">
+				<button
+					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
+					onClick={() => {
+						setShowCreateAsset(true);
+					}}
+				>
+					Create Asset
+				</button>
+			</TeamHeader>
 			{/* Data Content */}
 			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
 				<div className="w-[110px]" />

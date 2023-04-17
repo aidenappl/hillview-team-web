@@ -6,6 +6,7 @@ interface Props {
 	runner?: string;
 	wrapperClassName?: string;
 	className?: string;
+	required?: boolean;
 
 	value: string;
 	setValue: (value: string) => void;
@@ -15,7 +16,10 @@ const TeamModalTextarea = (props: Props) => {
 	const [value, setValue] = useState(props.value);
 	return (
 		<div className={"flex flex-col gap-2 " + props.wrapperClassName}>
-			<label className="font-medium text-[#101827]">{props.title}</label>
+			<label className="font-medium text-[#101827] flex gap-1">
+				{props.title}
+				{props.required ? <p className="text-red-700">*</p> : null}
+			</label>
 			<textarea
 				placeholder={props.placeholder}
 				className={

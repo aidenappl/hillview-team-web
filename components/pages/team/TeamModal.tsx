@@ -4,6 +4,7 @@ interface Props {
 	children: React.ReactNode;
 	className?: string;
 	loader?: boolean;
+	showDestructive?: boolean;
 	saveActive?: boolean;
 	destructiveText?: string;
 
@@ -13,7 +14,12 @@ interface Props {
 }
 
 const TeamModal = (props: Props) => {
-	const { loader = false, deleteHit = () => {}, destructiveText="Delete" } = props;
+	const {
+		loader = false,
+		deleteHit = () => {},
+		showDestructive = true,
+		destructiveText = "Delete",
+	} = props;
 
 	return (
 		<>
@@ -30,14 +36,16 @@ const TeamModal = (props: Props) => {
 				<div className="mt-8 w-full h-[75px] flex justify-between items-center relative">
 					<div className="w-[calc(100%+64px)] h-[1px] bg-[#d4d8dc] absolute top-0 left-[-32px]" />
 					<div className="flex gap-1">
-						<button
-							className={
-								"w-[70px] h-[36px] flex items-center justify-center text-white font-medium rounded-md text-sm bg-red-600 hover:bg-red-700"
-							}
-							onClick={() => deleteHit()}
-						>
-							<span>{destructiveText}</span>
-						</button>
+						{showDestructive ? (
+							<button
+								className={
+									"w-[70px] h-[36px] flex items-center justify-center text-white font-medium rounded-md text-sm bg-red-600 hover:bg-red-700"
+								}
+								onClick={() => deleteHit()}
+							>
+								<span>{destructiveText}</span>
+							</button>
+						) : null}
 					</div>
 					<div className="flex gap-1">
 						<button
