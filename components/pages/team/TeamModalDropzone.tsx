@@ -1,13 +1,17 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPhotoFilm } from "@fortawesome/pro-duotone-svg-icons";
+import Spinner from "../../general/Spinner";
 
 interface Props {
 	title?: string;
 	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	state?: DropzoneStates;
 }
 
+export type DropzoneStates = "default" | "loading";
+
 const TeamModalDropzone = (props: Props) => {
-	const { onChange = () => {} } = props;
+	const { onChange = () => {}, state = "default" } = props;
 
 	return (
 		<div className="flex flex-col gap-2 w-full relative">
@@ -22,32 +26,39 @@ const TeamModalDropzone = (props: Props) => {
 					document.getElementById("file-upload")?.click();
 				}}
 			>
-				<div className="text-center">
-					<FontAwesomeIcon
-						icon={faPhotoFilm}
-						className="text-4xl text-blue-500"
-					/>
-					<div className="mt-4 flex text-sm leading-6 text-gray-600 text-center justify-center">
-						<label
-							htmlFor="file-upload"
-							className="relative cursor-pointer rounded-md bg-white font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500"
-							id="file-upload-label"
-						>
-							<span>Upload a file</span>
-							<input
-								id="file-upload"
-								name="file-upload"
-								type="file"
-								accept="video/mp4,video/x-m4v"
-								className="sr-only"
-								onChange={onChange}
-							/>
-						</label>
+				{state == "default" ? (
+					<div className="text-center">
+						<FontAwesomeIcon
+							icon={faPhotoFilm}
+							className="text-4xl text-blue-500"
+						/>
+						<div className="mt-4 flex text-sm leading-6 text-gray-600 text-center justify-center">
+							<label
+								htmlFor="file-upload"
+								className="relative cursor-pointer rounded-md bg-white font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500"
+								id="file-upload-label"
+							>
+								<span>Upload a file</span>
+								<input
+									id="file-upload"
+									name="file-upload"
+									type="file"
+									accept="video/mp4,video/x-m4v"
+									className="sr-only"
+									onChange={onChange}
+								/>
+							</label>
+						</div>
+						<p className="text-xs leading-5 text-gray-600">
+							MP4s or M4Vs up to 10GB
+						</p>
 					</div>
-					<p className="text-xs leading-5 text-gray-600">
-						MP4s or M4Vs up to 10GB
-					</p>
-				</div>
+				) : null}
+				{state == "loading" ? (
+					<div className="text-center">
+						<Spinner />
+					</div>
+				) : null}
 			</div>
 		</div>
 	);

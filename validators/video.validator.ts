@@ -4,7 +4,11 @@ const pattern = "^https://content.hillview.tv/";
 
 const ValidVideo = (asset: any) => {
 	const schema = Joi.object({
-		name: Joi.string().required(),
+		title: Joi.string().required(),
+		url: Joi.string().required(),
+		thumbnail: Joi.string().required(),
+		description: Joi.string().required(),
+		download_url: Joi.string().pattern(new RegExp(pattern)).optional(),
 	});
 
 	return schema.validate(asset);

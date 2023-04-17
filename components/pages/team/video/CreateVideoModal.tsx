@@ -1,18 +1,12 @@
-import { ChangeEventHandler, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import TeamModal from "../TeamModal";
 import { NewRequest } from "../../../../services/http/requestHandler";
 import toast from "react-hot-toast";
 import TeamModalInput from "../TeamModalInput";
-import TeamModalUploader from "../TeamModalUploader";
-import UploadImage from "../../../../services/uploadHandler";
 import TeamModalTextarea from "../TeamModalTextarea";
 import ValidVideo from "../../../../validators/video.validator";
-import TeamModalList from "../TeamModalList";
-import {
-	GeneralNSM,
-	GenerateGeneralNSM,
-} from "../../../../models/generalNSM.model";
-import TeamModalDropzone from "../TeamModalDropzone";
+import TeamModalDropzone, { DropzoneStates } from "../TeamModalDropzone";
+import UploadVideo from "../../../../services/uploadVideo";
 
 interface Props {
 	cancelHit?: () => void;
@@ -24,8 +18,8 @@ const CreateVideoModal = (props: Props) => {
 	const [video, setVideo] = useState<any>({});
 	const [saving, setSaving] = useState<boolean>(false);
 	const [saveActive, setSaveActive] = useState<boolean>(false);
-	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
-	const [searchResults, setSearchResults] = useState<GeneralNSM[] | null>([]);
+	const [dropzoneState, setDropzoneState] =
+		useState<DropzoneStates>("default");
 
 	const {
 		cancelHit = () => {},
@@ -76,13 +70,14 @@ const CreateVideoModal = (props: Props) => {
 			saveDone();
 		} else {
 			console.error(response);
+			setSaving(false);
 			toast.error(response.message);
 		}
 	};
 
 	useEffect(() => {
 		setVideo({
-			banner_image: "https://content.hillview.tv/thumbnails/default.jpg",
+			thumbnail: "https://content.hillview.tv/thumbnails/default.jpg",
 		});
 	}, []);
 
@@ -112,7 +107,7 @@ const CreateVideoModal = (props: Props) => {
 			<TeamModalInput
 				title="Title"
 				placeholder="Enter the Title of the video..."
-				value={""}
+				value={video.title}
 				required
 				setValue={(value: string): void => {
 					if (value.length > 0) {
@@ -128,7 +123,7 @@ const CreateVideoModal = (props: Props) => {
 				title="Description"
 				className="h-[200px]"
 				placeholder="Enter the Description of the video..."
-				value={""}
+				value={video.description}
 				required
 				setValue={(value: string): void => {
 					if (value.length > 0) {
@@ -143,7 +138,7 @@ const CreateVideoModal = (props: Props) => {
 			<TeamModalInput
 				title="Source URL"
 				placeholder="Enter the Source URL of the video..."
-				value={""}
+				value={video.url}
 				required
 				setValue={(value: string): void => {
 					if (value.length > 0) {
@@ -155,11 +150,47 @@ const CreateVideoModal = (props: Props) => {
 					}
 				}}
 			/>
-			<TeamModalDropzone/>
+			<TeamModalDropzone
+				state={dropzoneState}
+				onChange={async (e) => {
+					if (e.target.files && e.target.files.length > 0) {
+						let file = e.target.files[0];
+						setDropzoneState("loading");
+						// set the file name to be video title if empty
+						if (!video.title || video.title?.length == 0) {
+							inputChange({
+								title: file.name.replace(/\.[^/.]+$/, ""),
+							});
+						}
+
+						// upload the file
+						const response = await UploadVideo({
+							upload: file,
+						});
+						if (response.success) {
+							if (!video.title || video.title?.length == 0) {
+								inputChange({
+									url: response.data.url,
+									thumbnail: response.data.thumbnail,
+									title: file.name.replace(/\.[^/.]+$/, ""),
+								});
+							} else {
+								inputChange({
+									url: response.data.url,
+									thumbnail: response.data.thumbnail,
+								});
+							}
+						} else {
+							toast.error(response.message);
+						}
+						setDropzoneState("default");
+					}
+				}}
+			/>
 			<TeamModalInput
 				title="Thumbnail URL"
 				placeholder="Enter the Thumbnail URL of the video..."
-				value={""}
+				value={video.thumbnail}
 				required
 				setValue={(value: string): void => {
 					if (value.length > 0) {
@@ -174,7 +205,7 @@ const CreateVideoModal = (props: Props) => {
 			<TeamModalInput
 				title="Download URL"
 				placeholder="Enter the Download URL of the video..."
-				value={""}
+				value={video.download_url}
 				setValue={(value: string): void => {
 					if (value.length > 0) {
 						inputChange({
