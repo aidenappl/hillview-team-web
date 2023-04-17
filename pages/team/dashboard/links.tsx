@@ -9,6 +9,7 @@ import PageModal from "../../../components/general/PageModal";
 import TeamModal from "../../../components/pages/team/TeamModal";
 import TeamModalInput from "../../../components/pages/team/TeamModalInput";
 import toast from "react-hot-toast";
+import CreateLinkModal from "../../../components/pages/team/link/CreateLinkModal";
 
 const LinksPage = () => {
 	const router = useRouter();
@@ -20,6 +21,7 @@ const LinksPage = () => {
 	const [selectedLink, setSelectedLink] = useState<Link | null>(null);
 	const [saving, setSaving] = useState<boolean>(false);
 	const [changes, setChanges] = useState<any>(null);
+	const [showCreateLink, setShowCreateLink] = useState<boolean>(false);
 
 	useEffect(() => {
 		initialize();
@@ -141,6 +143,17 @@ const LinksPage = () => {
 				setShow={setShowConfirmDeleteLink}
 				show={showConfirmDeleteLink}
 			/>
+			{showCreateLink ? (
+				<CreateLinkModal
+					cancelHit={() => {
+						setShowCreateLink(false);
+					}}
+					saveHit={() => {
+						setShowCreateLink(false);
+						initialize();
+					}}
+				/>
+			) : null}
 			{selectedLink ? (
 				<TeamModal
 					className="gap-6"
@@ -179,7 +192,16 @@ const LinksPage = () => {
 				</TeamModal>
 			) : null}
 			{/* Team Heading */}
-			<TeamHeader title="Custom Links" />
+			<TeamHeader title="Custom Links">
+				<button
+					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
+					onClick={() => {
+						setShowCreateLink(true);
+					}}
+				>
+					Create Link
+				</button>
+			</TeamHeader>
 			{/* Data Body */}
 			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
 				<p className="w-1/3 font-semibold">Route</p>
