@@ -1,3 +1,5 @@
 export const PlaylistStatus = {
-    Archived: 1,
+    Active: 1,
+    Archived: 2,
+    Hidden: 3,
 }

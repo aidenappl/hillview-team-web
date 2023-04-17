@@ -18,7 +18,14 @@ const TeamModalList = (props: Props) => {
 			<label className="font-medium text-[#101827] flex gap-1">
 				{props.title}
 			</label>
-			<div className="flex flex-col gap-1 w-full h-fit max-h-[300px] overflow-y-scroll flex-shrink-0">
+			<div
+				className={
+					"flex flex-col gap-1 w-full h-fit max-h-[300px] flex-shrink-0 " +
+					(props.list.length == 0
+						? "overflow-y-none"
+						: "overflow-y-scroll")
+				}
+			>
 				{props.list.length > 0 ? (
 					props.list.map((item, index) => {
 						return (

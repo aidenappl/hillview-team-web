@@ -7,7 +7,7 @@ const MetadataSchema = Joi.object({
 	notes: Joi.string().optional(),
 });
 
-const pattern = "^https://content.hillview.tv/";
+const pattern = "^https://content.hillview.tv/thumbnails/";
 
 const ValidAsset = (asset: any) => {
 	const schema = Joi.object({
@@ -22,7 +22,8 @@ const ValidAsset = (asset: any) => {
 			.regex(new RegExp(pattern))
 			.required()
 			.messages({
-				"string.pattern.base": "Image URL must be a valid Hillview CDN URL",
+				"string.pattern.base":
+					"Image URL must be a valid Hillview Thumbnails CDN URL",
 			}),
 		metadata: MetadataSchema.required(),
 	});

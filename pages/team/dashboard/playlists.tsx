@@ -20,6 +20,7 @@ import {
 } from "../../../models/generalNSM.model";
 import TeamModalList from "../../../components/pages/team/TeamModalList";
 import { Video } from "../../../models/video.model";
+import CreatePlaylistModal from "../../../components/pages/team/playlist/CreatePlaylistModal";
 
 const PlaylistInspectorTabs = GenerateGeneralNSM(["General", "Videos"]);
 
@@ -38,6 +39,8 @@ const PlaylistsPage = () => {
 	const [activePlaylistInspectorTab, setActivePlaylistInspectorTab] =
 		useState<GeneralNSM>(PlaylistInspectorTabs[0]);
 	const [searchResults, setSearchResults] = useState<Video[] | null>(null);
+	const [showCreatePlaylist, setShowCreatePlaylist] =
+		useState<boolean>(false);
 
 	const initialize = async () => {
 		setPlaylists(null);
@@ -117,7 +120,7 @@ const PlaylistsPage = () => {
 	const archiveVideo = async () => {
 		const response = await NewRequest({
 			method: "PUT",
-			route: "/core/v1.1/admin/asset/" + selectedPlaylist!.id,
+			route: "/core/v1.1/admin/playlist/" + selectedPlaylist!.id,
 			body: {
 				id: selectedPlaylist!.id,
 				changes: {
@@ -164,6 +167,17 @@ const PlaylistsPage = () => {
 				setShow={setShowConfirmDeletePlaylist}
 				show={showConfirmDeletePlaylist}
 			/>
+			{showCreatePlaylist ? (
+				<CreatePlaylistModal
+					saveDone={() => {
+						setShowCreatePlaylist(false);
+						initialize();
+					}}
+					cancelHit={() => {
+						setShowCreatePlaylist(false);
+					}}
+				/>
+			) : null}
 			{selectedPlaylist ? (
 				<TeamModal
 					className="gap-6"
@@ -364,7 +378,16 @@ const PlaylistsPage = () => {
 				</TeamModal>
 			) : null}
 			{/* Team Heading */}
-			<TeamHeader title="System Playlists" />
+			<TeamHeader title="System Playlists">
+				<button
+					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
+					onClick={() => {
+						setShowCreatePlaylist(true);
+					}}
+				>
+					Create Playlist
+				</button>
+			</TeamHeader>
 			{/* Data Body */}
 			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
 				<div className="w-[300px]" />

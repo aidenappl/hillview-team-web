@@ -54,7 +54,7 @@ const TeamModalInput = (props: Props) => {
 				}}
 				className="shadow-sm w-full h-[40px] border rounded-md px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
 			/>
-			{props.dropdown ? (
+			{props.dropdown && props.dropdown.length > 0 ? (
 				<div className="absolute top-[75px] z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
 					{props.dropdown.map((item, index) => (
 						<div

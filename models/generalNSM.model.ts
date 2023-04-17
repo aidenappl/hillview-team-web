@@ -4,7 +4,13 @@ export interface GeneralNSM {
 	short_name: string;
 }
 
-export const GenerateGeneralNSM = (names: string[] | any[]): GeneralNSM[] => {
+export const GenerateGeneralNSM = (
+	names: string[] | any[] | null
+): GeneralNSM[] => {
+	// check if names is null
+	if (names === undefined || names === null) {
+		return [];
+	}
 	// check if names is an array of strings
 	if (typeof names[0] === "string") {
 		// if it is, return the array of objects
