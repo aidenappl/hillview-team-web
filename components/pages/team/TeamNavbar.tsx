@@ -1,5 +1,6 @@
 import { IconProp, SizeProp, icon } from "@fortawesome/fontawesome-svg-core";
 import {
+	faArrowRightToBracket,
 	faBoxArchive,
 	faCheckSquare,
 	faFilm,
@@ -127,6 +128,17 @@ const TeamNavbar = (props: Props) => {
 							href="/team/dashboard/users"
 						/>
 					</div>
+				</div>
+			</div>
+			<div className="absolute bottom-[40px] w-[calc(100%-80px)]">
+				<div className="flex flex-col gap-0.5">
+					<Option
+						icon={faArrowRightToBracket}
+						text="Logout"
+						iconClassName="scale-95"
+						selected={false}
+						href="/logout"
+					/>
 				</div>
 			</div>
 			{/* Vl Breaker */}
