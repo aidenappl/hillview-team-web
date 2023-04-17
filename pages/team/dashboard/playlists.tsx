@@ -10,7 +10,10 @@ import { NewRequest } from "../../../services/http/requestHandler";
 import TeamModal from "../../../components/pages/team/TeamModal";
 import TeamModalInput from "../../../components/pages/team/TeamModalInput";
 import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea";
-import { PlaylistStatus } from "../../../models/playlistStatus.model";
+import {
+	PlaylistStatus,
+	PlaylistStatuses,
+} from "../../../models/playlistStatus.model";
 import toast from "react-hot-toast";
 import PageModal from "../../../components/general/PageModal";
 import TeamModalTabBar from "../../../components/pages/team/TeamModalTabBar";
@@ -21,6 +24,7 @@ import {
 import TeamModalList from "../../../components/pages/team/TeamModalList";
 import { Video } from "../../../models/video.model";
 import CreatePlaylistModal from "../../../components/pages/team/playlist/CreatePlaylistModal";
+import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
 
 const PlaylistInspectorTabs = GenerateGeneralNSM(["General", "Videos"]);
 
@@ -44,7 +48,7 @@ const PlaylistsPage = () => {
 
 	const initialize = async () => {
 		setPlaylists(null);
-		setActivePlaylistInspectorTab(PlaylistInspectorTabs[1]);
+		setActivePlaylistInspectorTab(PlaylistInspectorTabs[0]);
 		const response = await NewRequest({
 			method: "GET",
 			route: "/core/v1.1/admin/playlists",
@@ -229,6 +233,20 @@ const PlaylistsPage = () => {
 										inputChange({ route: value });
 									} else {
 										deleteChange("route");
+									}
+								}}
+							/>
+							<TeamModalSelect
+								title="Status"
+								values={PlaylistStatuses}
+								value={selectedPlaylist.status}
+								setValue={(value) => {
+									if (
+										value.id != selectedPlaylist.status.id
+									) {
+										inputChange({ status: value.id });
+									} else {
+										deleteChange("status");
 									}
 								}}
 							/>
