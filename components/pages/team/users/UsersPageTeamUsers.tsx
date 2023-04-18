@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import Spinner from "../../../general/Spinner";
 import Image from "next/image";
 import { User } from "../../../../models/user.model";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 const UsersPageTeamUsers = () => {
 	const [pageLoading, setPageLoading] = useState<boolean>(true);
@@ -47,7 +50,7 @@ const UsersPageTeamUsers = () => {
 					<div className="w-full h-[60px] flex items-center justify-between pr-[15px] relative">
 						<div className="w-[100px] flex-shrink-0" />
 						<p className="w-1/5 font-medium">Name</p>
-						<p className="w-1/5 font-medium">Username</p>
+						<p className="w-1/6 font-medium">Username</p>
 						<p className="w-1/5 font-medium">Email</p>
 						<p className="w-1/5 font-medium">Status</p>
 						<p className="w-1/5 font-medium">Last Active</p>
@@ -76,12 +79,26 @@ const UsersPageTeamUsers = () => {
 										</div>
 									</div>
 									<p className="w-1/5">{user.name}</p>
-									<p className="w-1/5">{user.username}</p>
+									{user.username ? (
+										<a className="w-1/6 text-blue-600 font-medium">
+											@{user.username}
+										</a>
+									) : (
+										<a className="w-1/6 text-blue-950 font-medium cursor-pointer">
+											Claim
+										</a>
+									)}
 									<p className="w-1/5">{user.email}</p>
 									<p className="w-1/5">
 										{user.authentication.name}
 									</p>
-									<p className="w-1/5">{user.last_active}</p>
+									{user.last_active ? (
+										<p className="w-1/5">
+											{dayjs(user.last_active).fromNow()}
+										</p>
+									) : (
+										<p className="w-1/5">No Activity</p>
+									)}
 									<div className="flex items-center h-full w-[150px] flex-shrink-0">
 										<button
 											className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
