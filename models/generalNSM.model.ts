@@ -1,13 +1,13 @@
-export interface GeneralNSN {
+export interface GeneralNSM {
 	id: number;
 	name: string;
 	short_name: string;
 	hidden?: boolean;
 }
 
-export const GenerateGeneralNSN = (
+export const GenerateGeneralNSM = (
 	names: string[] | any[] | null
-): GeneralNSN[] => {
+): GeneralNSM[] => {
 	// check if names is null
 	if (names === undefined || names === null) {
 		return [];

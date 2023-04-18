@@ -18,9 +18,9 @@ import toast from "react-hot-toast";
 import PageModal from "../../../components/general/PageModal";
 import TeamModalTabBar from "../../../components/pages/team/TeamModalTabBar";
 import {
-	GeneralNSN,
-	GenerateGeneralNSN,
-} from "../../../models/GeneralNSN.model";
+	GeneralNSM,
+	GenerateGeneralNSM,
+} from "../../../models/generalNSM.model";
 import TeamModalList from "../../../components/pages/team/TeamModalList";
 import { Video } from "../../../models/video.model";
 import CreatePlaylistModal from "../../../components/pages/team/playlist/CreatePlaylistModal";
@@ -28,7 +28,7 @@ import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
 import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
 import UploadImage from "../../../services/uploadHandler";
 
-const PlaylistInspectorTabs = GenerateGeneralNSN(["General", "Videos"]);
+const PlaylistInspectorTabs = GenerateGeneralNSM(["General", "Videos"]);
 
 const PlaylistsPage = () => {
 	const router = useRouter();
@@ -43,7 +43,7 @@ const PlaylistsPage = () => {
 		null
 	);
 	const [activePlaylistInspectorTab, setActivePlaylistInspectorTab] =
-		useState<GeneralNSN>(PlaylistInspectorTabs[0]);
+		useState<GeneralNSM>(PlaylistInspectorTabs[0]);
 	const [searchResults, setSearchResults] = useState<Video[] | null>(null);
 	const [showCreatePlaylist, setShowCreatePlaylist] =
 		useState<boolean>(false);
@@ -338,7 +338,7 @@ const PlaylistsPage = () => {
 								}}
 								dropdown={
 									searchResults
-										? GenerateGeneralNSN(searchResults)
+										? GenerateGeneralNSM(searchResults)
 										: undefined
 								}
 								setDelayedValue={async (
@@ -371,7 +371,7 @@ const PlaylistsPage = () => {
 							/>
 							<TeamModalList
 								title={"Playlist Videos"}
-								list={GenerateGeneralNSN(
+								list={GenerateGeneralNSM(
 									selectedPlaylist.videos
 								)}
 								destructiveClick={(item) => {

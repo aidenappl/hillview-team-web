@@ -1,5 +1,5 @@
+import { GeneralNSM } from "./generalNSM.model";
 import { Asset } from "./asset.model";
-import { GeneralNSN } from "./GeneralNSN.model";
 
 export interface Checkout {
 	id: number;
@@ -8,7 +8,7 @@ export interface Checkout {
 	asset: Asset;
 	asset_id: number;
 	offsite: number;
-	checkout_status: GeneralNSN;
+	checkout_status: GeneralNSM;
 	checkout_notes: string;
 	time_out: string;
 	time_in: string;
@@ -20,7 +20,7 @@ export interface AssetUser {
 	name: string;
 	email: string;
 	identifier: string;
-	status: GeneralNSN;
+	status: GeneralNSM;
 	profile_image_url: string;
 	inserted_at: string;
 }

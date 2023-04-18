@@ -1,4 +1,4 @@
-import { GeneralNSN } from "./GeneralNSN.model"
+import { GeneralNSM } from "./generalNSM.model"
 
 export const PlaylistStatus = {
     Active: 1,
@@ -6,7 +6,7 @@ export const PlaylistStatus = {
     Hidden: 3,
 }
 
-export const PlaylistStatuses: GeneralNSN[] = [
+export const PlaylistStatuses: GeneralNSM[] = [
     {
         id: PlaylistStatus.Active,
         name: 'Active',

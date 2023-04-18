@@ -1,4 +1,4 @@
-import { GeneralNSN } from "./GeneralNSN.model";
+import { GeneralNSM } from "./generalNSM.model";
 
 export interface User {
 	id: number;
@@ -6,7 +6,7 @@ export interface User {
 	name: string;
 	email: string;
 	profile_image_url: string;
-	authentication: GeneralNSN;
+	authentication: GeneralNSM;
 	inserted_at: string;
 	last_active: string;
 	strategies: Strategies;
@@ -24,7 +24,7 @@ export const UserType = {
   Deleted: 9,
 }
 
-export const UserTypes: GeneralNSN[] = [
+export const UserTypes: GeneralNSM[] = [
 	{
 		id: 1,
 		name: "Unauthorized",

@@ -9,9 +9,9 @@ import TeamModalTextarea from "../TeamModalTextarea";
 import ValidPlaylist from "../../../../validators/playlist.validator";
 import TeamModalList from "../TeamModalList";
 import {
-	GeneralNSN,
-	GenerateGeneralNSN,
-} from "../../../../models/GeneralNSN.model";
+	GeneralNSM,
+	GenerateGeneralNSM,
+} from "../../../../models/generalNSM.model";
 
 interface Props {
 	cancelHit?: () => void;
@@ -24,7 +24,7 @@ const CreatePlaylistModal = (props: Props) => {
 	const [saving, setSaving] = useState<boolean>(false);
 	const [saveActive, setSaveActive] = useState<boolean>(false);
 	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
-	const [searchResults, setSearchResults] = useState<GeneralNSN[] | null>([]);
+	const [searchResults, setSearchResults] = useState<GeneralNSM[] | null>([]);
 
 	const {
 		cancelHit = () => {},
@@ -231,7 +231,7 @@ const CreatePlaylistModal = (props: Props) => {
 				}}
 				dropdown={
 					searchResults
-						? GenerateGeneralNSN(searchResults)
+						? GenerateGeneralNSM(searchResults)
 						: undefined
 				}
 				setDelayedValue={async (value: string): Promise<void> => {
@@ -262,7 +262,7 @@ const CreatePlaylistModal = (props: Props) => {
 			/>
 			<TeamModalList
 				title={"Playlist Videos"}
-				list={GenerateGeneralNSN(playlist.videos)}
+				list={GenerateGeneralNSM(playlist.videos)}
 				destructiveClick={(item) => {
 					let index = playlist.videos
 						.map((e: any) => e.id)

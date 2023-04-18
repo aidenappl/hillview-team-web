@@ -3,7 +3,7 @@ import { NewRequest } from "../../../../services/http/requestHandler";
 import { useEffect, useState } from "react";
 import Spinner from "../../../general/Spinner";
 import Image from "next/image";
-import { GeneralNSN } from "../../../../models/GeneralNSN.model";
+import { GeneralNSM } from "../../../../models/generalNSM.model";
 import TeamModal from "../TeamModal";
 import TeamModalInput from "../TeamModalInput";
 import PageModal from "../../../general/PageModal";
@@ -14,7 +14,7 @@ type MobileUser = {
 	email: string;
 	identifier: string;
 	profile_image_url: string;
-	status: GeneralNSN;
+	status: GeneralNSM;
 	inserted_at: string;
 };
 
@@ -24,7 +24,7 @@ const MobileUserType = {
 	Deactivated: 3,
 };
 
-const MobileUserTypes: GeneralNSN[] = [
+const MobileUserTypes: GeneralNSM[] = [
 	{
 		id: 1,
 		name: "Active",

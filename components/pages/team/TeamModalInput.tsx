@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { GeneralNSN } from "../../../models/GeneralNSN.model";
+import { GeneralNSM } from "../../../models/generalNSM.model";
 
 interface Props {
 	placeholder?: string;
 	title?: string;
 	required?: boolean;
 
-	dropdown?: GeneralNSN[];
-	dropdownClick?: (item: GeneralNSN) => void;
+	dropdown?: GeneralNSM[];
+	dropdownClick?: (item: GeneralNSM) => void;
 
 	value: string;
 	setValue?: (value: string) => void;
