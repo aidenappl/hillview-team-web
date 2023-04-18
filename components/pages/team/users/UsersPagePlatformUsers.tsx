@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Spinner from "../../../general/Spinner";
 import Image from "next/image";
 import { GeneralNSM } from "../../../../models/generalNSM.model";
+import TeamModal from "../TeamModal";
+import TeamModalInput from "../TeamModalInput";
 
 type MobileUser = {
 	id: number;
@@ -18,6 +20,7 @@ type MobileUser = {
 const UsersPagePlatformUsers = () => {
 	const [pageLoading, setPageLoading] = useState<boolean>(true);
 	const [users, setUsers] = useState<MobileUser[] | null>(null);
+	const [selectedUser, setSelectedUser] = useState<MobileUser | null>(null);
 
 	useEffect(() => {
 		initialize();
@@ -47,25 +50,75 @@ const UsersPagePlatformUsers = () => {
 
 	return (
 		<>
-			{pageLoading && !users ? (
-				<div className="w-full h-fit flex items-center justify-center mt-10">
-					<Spinner />
+			{selectedUser ? (
+				<TeamModal
+					className="gap-4"
+					cancelHit={(): void => {
+						setSelectedUser(null);
+					}}
+					saveHit={(): void => {
+						setSelectedUser(null);
+					}}
+				>
+					<TeamModalInput
+						title="Name"
+						placeholder="Enter the user's name..."
+						value={selectedUser.name}
+						setValue={(value) => {
+							setSelectedUser({ ...selectedUser, name: value });
+						}}
+					/>
+					<TeamModalInput
+						title="Email"
+						placeholder="Enter the user's email..."
+						value={selectedUser.email}
+						setValue={(value) => {
+							setSelectedUser({ ...selectedUser, email: value });
+						}}
+					/>
+					<TeamModalInput
+						title="Identifier"
+						placeholder="Enter the user's identifier..."
+						value={selectedUser.identifier}
+						setValue={(value) => {
+							setSelectedUser({
+								...selectedUser,
+								identifier: value,
+							});
+						}}
+					/>
+					<TeamModalInput
+						title="Profile Image URL"
+						placeholder="Enter the user's profile image url..."
+						value={selectedUser.profile_image_url}
+						setValue={(value) => {
+							setSelectedUser({
+								...selectedUser,
+								profile_image_url: value,
+							});
+						}}
+					/>
+				</TeamModal>
+			) : null}
+			<div className="w-full h-[calc(100%-100px)] flex flex-col">
+				{/* List Header */}
+				<div className="w-full h-[60px] flex items-center justify-between pr-[15px] relative">
+					<div className="w-[100px] flex-shrink-0" />
+					<p className="w-1/4 font-medium">Name</p>
+					<p className="w-1/4 font-medium">Email</p>
+					<p className="w-1/4 font-medium">Identifier</p>
+					<p className="w-1/4 font-medium">Status</p>
+					<div className="w-[150px] flex-shrink-0" />
+					<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
 				</div>
-			) : (
-				<div className="w-full h-[calc(100%-100px)] flex flex-col">
-					{/* List Header */}
-					<div className="w-full h-[60px] flex items-center justify-between pr-[15px] relative">
-						<div className="w-[100px] flex-shrink-0" />
-						<p className="w-1/4 font-medium">Name</p>
-						<p className="w-1/4 font-medium">Email</p>
-						<p className="w-1/4 font-medium">Identifier</p>
-						<p className="w-1/4 font-medium">Status</p>
-						<div className="w-[150px] flex-shrink-0" />
-						<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
-					</div>
-					{/* List Body */}
-					<div className="w-full h-[calc(100%-60px)] overflow-y-scroll overflow-x-hidden">
-						{users?.map((user, index) => {
+				{/* List Body */}
+				<div className="w-full h-[calc(100%-60px)] overflow-y-scroll overflow-x-hidden">
+					{pageLoading && !users ? (
+						<div className="w-full h-fit flex items-center justify-center mt-10">
+							<Spinner />
+						</div>
+					) : (
+						users?.map((user, index) => {
 							return (
 								<div
 									key={index}
@@ -92,7 +145,7 @@ const UsersPagePlatformUsers = () => {
 										<button
 											className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
 											onClick={() => {
-												// setSelectedAsset(asset);
+												setSelectedUser({ ...user });
 											}}
 										>
 											Inspect
@@ -100,10 +153,10 @@ const UsersPagePlatformUsers = () => {
 									</div>
 								</div>
 							);
-						})}
-					</div>
+						})
+					)}
 				</div>
-			)}
+			</div>
 		</>
 	);
 };
