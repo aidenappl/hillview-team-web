@@ -7,6 +7,7 @@ import { Checkout } from "../../../models/checkout.model";
 import Image from "next/image";
 import { NewRequest } from "../../../services/http/requestHandler";
 import dayjs from "dayjs";
+import toast from "react-hot-toast";
 require("dayjs/locale/en");
 
 const CheckoutsPage = () => {
@@ -57,10 +58,10 @@ const CheckoutsPage = () => {
 							checkouts.map((checkout, index) => {
 								checkout.time_in = dayjs(checkout.time_in)
 									.locale("en")
-									.format("ddd MMM DD, HH:MM");
+									.format("ddd MMM DD, hh:mm A");
 								checkout.time_out = dayjs(checkout.time_out)
 									.locale("en")
-									.format("ddd MMM DD, HH:MM");
+									.format("ddd MMM DD, hh:mm A");
 								return (
 									<div
 										key={index}
@@ -107,8 +108,35 @@ const CheckoutsPage = () => {
 												.short_name == "checked_out" ? (
 												<button
 													className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
-													onClick={() => {
-														// setSelectedAsset(asset);
+													onClick={async () => {
+														const response =
+															await NewRequest({
+																method: "PUT",
+																route:
+																	"/core/v1.1/admin/checkout/" +
+																	checkout.id,
+																body: {
+																	changes: {
+																		check_in:
+																			true,
+																	},
+																},
+																auth: true,
+															});
+														if (response.success) {
+															toast.success(
+																"Checked In Successfully"
+															);
+															initialize();
+														} else {
+															toast.error(
+																"Failed to check in: " +
+																	response.message
+															);
+															console.error(
+																response
+															);
+														}
 													}}
 												>
 													Check In
