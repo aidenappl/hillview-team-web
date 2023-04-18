@@ -1,13 +1,13 @@
 import { faMinusCircle } from "@fortawesome/pro-duotone-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { GeneralNSM } from "../../../models/generalNSM.model";
+import { GeneralNSN } from "../../../models/GeneralNSN.model";
 
 interface Props {
 	title?: string;
-	list: GeneralNSM[];
+	list: GeneralNSN[];
 
-	destructiveClick?: (item: GeneralNSM) => void;
-	itemClick?: (item: GeneralNSM) => void;
+	destructiveClick?: (item: GeneralNSN) => void;
+	itemClick?: (item: GeneralNSN) => void;
 }
 
 const TeamModalList = (props: Props) => {

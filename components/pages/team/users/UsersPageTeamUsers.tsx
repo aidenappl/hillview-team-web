@@ -3,17 +3,22 @@ import { NewRequest } from "../../../../services/http/requestHandler";
 import { useEffect, useState } from "react";
 import Spinner from "../../../general/Spinner";
 import Image from "next/image";
-import { User } from "../../../../models/user.model";
+import { User, UserTypes } from "../../../../models/user.model";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import TeamModal from "../TeamModal";
 import TeamModalInput from "../TeamModalInput";
+import TeamModalSelect from "../TeamModalSelect";
 dayjs.extend(relativeTime);
 
 const UsersPageTeamUsers = () => {
 	const [pageLoading, setPageLoading] = useState<boolean>(true);
 	const [users, setUsers] = useState<User[] | null>(null);
+
+	// Inspect User Modal
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
+	const [changes, setChanges] = useState<any>(null);
+	const [saveLoading, setSaveLoading] = useState<boolean>(false);
 
 	useEffect(() => {
 		initialize();
@@ -41,16 +46,56 @@ const UsersPageTeamUsers = () => {
 		setPageLoading(false);
 	};
 
+	const inputChange = (modifier: Object) => {
+		setChanges({ ...changes, ...modifier });
+	};
+
+	const deleteChange = (key: string) => {
+		const newChanges = { ...changes };
+		delete newChanges[key];
+		setChanges(newChanges);
+	};
+
+	const triggerSave = async () => {
+		if (changes ? Object.keys(changes).length === 0 : true) {
+			toast.error("No changes to save");
+		} else {
+			setSaveLoading(true);
+			const response = await NewRequest({
+				route: `/core/v1.1/admin/user/${selectedUser!.id}`,
+				method: "PUT",
+				body: {
+					changes,
+				},
+				auth: true,
+			});
+			if (response.success) {
+				toast.success("User updated");
+				setChanges(null);
+				setSelectedUser(null);
+				initialize();
+			} else {
+				console.error(response);
+				toast.error("Failed to update user");
+			}
+			setSaveLoading(false);
+		}
+	};
+
 	return (
 		<>
 			{selectedUser ? (
 				<TeamModal
 					className="gap-4"
+					loader={saveLoading}
+					saveActive={
+						changes ? Object.keys(changes).length > 0 : false
+					}
 					cancelHit={(): void => {
 						setSelectedUser(null);
 					}}
 					saveHit={(): void => {
-						setSelectedUser(null);
+						triggerSave();
 					}}
 				>
 					<TeamModalInput
@@ -58,7 +103,11 @@ const UsersPageTeamUsers = () => {
 						placeholder="Enter the user's name..."
 						value={selectedUser.name}
 						setValue={(value) => {
-							setSelectedUser({ ...selectedUser, name: value });
+							if (selectedUser.name === value) {
+								deleteChange("name");
+							} else {
+								inputChange({ name: value });
+							}
 						}}
 					/>
 					<TeamModalInput
@@ -66,7 +115,11 @@ const UsersPageTeamUsers = () => {
 						placeholder="Enter the user's email..."
 						value={selectedUser.email}
 						setValue={(value) => {
-							setSelectedUser({ ...selectedUser, email: value });
+							if (selectedUser.email === value) {
+								deleteChange("email");
+							} else {
+								inputChange({ email: value });
+							}
 						}}
 					/>
 					<TeamModalInput
@@ -74,10 +127,23 @@ const UsersPageTeamUsers = () => {
 						placeholder="Enter the user's username..."
 						value={selectedUser.username}
 						setValue={(value) => {
-							setSelectedUser({
-								...selectedUser,
-								username: value,
-							});
+							if (selectedUser.username === value) {
+								deleteChange("username");
+							} else {
+								inputChange({ username: value });
+							}
+						}}
+					/>
+					<TeamModalSelect
+						values={UserTypes}
+						title="Account Type"
+						value={selectedUser.authentication}
+						setValue={(value): void => {
+							if (selectedUser.authentication === value) {
+								deleteChange("authentication");
+							} else {
+								inputChange({ authentication: value.id });
+							}
 						}}
 					/>
 					<TeamModalInput
@@ -85,10 +151,11 @@ const UsersPageTeamUsers = () => {
 						placeholder="Enter the user's profile image url..."
 						value={selectedUser.profile_image_url}
 						setValue={(value) => {
-							setSelectedUser({
-								...selectedUser,
-								profile_image_url: value,
-							});
+							if (selectedUser.profile_image_url === value) {
+								deleteChange("profile_image_url");
+							} else {
+								inputChange({ profile_image_url: value });
+							}
 						}}
 					/>
 				</TeamModal>

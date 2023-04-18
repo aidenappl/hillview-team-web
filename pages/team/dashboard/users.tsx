@@ -3,9 +3,9 @@ import TeamContainer from "../../../components/pages/team/TeamContainer";
 import TeamHeader from "../../../components/pages/team/TeamHeader";
 import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
 import {
-	GeneralNSM,
-	GenerateGeneralNSM,
-} from "../../../models/generalNSM.model";
+	GeneralNSN,
+	GenerateGeneralNSN,
+} from "../../../models/GeneralNSN.model";
 import { useState } from "react";
 import UsersPagePlatformUsers from "../../../components/pages/team/users/UsersPagePlatformUsers";
 import UsersPageTeamUsers from "../../../components/pages/team/users/UsersPageTeamUsers";
@@ -15,7 +15,7 @@ type PageStates = "Platform" | "Team";
 const UsersPage = () => {
 	const router = useRouter();
 
-	const pages = GenerateGeneralNSM(["Team", "Platform"]);
+	const pages = GenerateGeneralNSN(["Team", "Platform"]);
 	const [pageState, setPageState] = useState<PageStates>("Team");
 
 	return (

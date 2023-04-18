@@ -1,4 +1,4 @@
-import { GeneralNSM } from "./generalNSM.model"
+import { GeneralNSN } from "./GeneralNSN.model"
 
 export interface Video {
     id: number
@@ -9,6 +9,6 @@ export interface Video {
     url: string
     download_url: string;
     allow_downloads: boolean;
-    status: GeneralNSM
+    status: GeneralNSN
     inserted_at: string
   }

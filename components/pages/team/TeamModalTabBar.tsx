@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { GeneralNSM } from "../../../models/generalNSM.model";
+import { GeneralNSN } from "../../../models/GeneralNSN.model";
 
 interface Props {
-	tabs: GeneralNSM[];
+	tabs: GeneralNSN[];
 
-	activeTab: GeneralNSM;
-	setActiveTab: (tab: GeneralNSM) => void;
+	activeTab: GeneralNSN;
+	setActiveTab: (tab: GeneralNSN) => void;
 
 	className?: string;
 }

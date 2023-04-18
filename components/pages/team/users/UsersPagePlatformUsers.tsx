@@ -3,7 +3,7 @@ import { NewRequest } from "../../../../services/http/requestHandler";
 import { useEffect, useState } from "react";
 import Spinner from "../../../general/Spinner";
 import Image from "next/image";
-import { GeneralNSM } from "../../../../models/generalNSM.model";
+import { GeneralNSN } from "../../../../models/GeneralNSN.model";
 import TeamModal from "../TeamModal";
 import TeamModalInput from "../TeamModalInput";
 
@@ -13,7 +13,7 @@ type MobileUser = {
 	email: string;
 	identifier: string;
 	profile_image_url: string;
-	status: GeneralNSM;
+	status: GeneralNSN;
 	inserted_at: string;
 };
 
