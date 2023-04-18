@@ -10,6 +10,7 @@ import TeamModal from "../TeamModal";
 import TeamModalInput from "../TeamModalInput";
 import TeamModalSelect from "../TeamModalSelect";
 import PageModal from "../../../general/PageModal";
+import ValidUser from "../../../../validators/user.validator";
 dayjs.extend(relativeTime);
 
 const UsersPageTeamUsers = () => {
@@ -61,8 +62,14 @@ const UsersPageTeamUsers = () => {
 
 	const triggerSave = async () => {
 		if (changes ? Object.keys(changes).length === 0 : true) {
-			toast.error("No changes to save");
+			setSelectedUser(null);
 		} else {
+			let validator = ValidUser(changes, true);
+			console.log(validator);
+			if (validator.error) {
+				toast.error(validator.error!.message);
+				return;
+			}
 			setSaveLoading(true);
 			const response = await NewRequest({
 				route: `/core/v1.1/admin/user/${selectedUser!.id}`,
@@ -106,6 +113,10 @@ const UsersPageTeamUsers = () => {
 		}
 	};
 
+	useEffect(() => {
+		console.log(changes);
+	}, [changes]);
+
 	return (
 		<>
 			<PageModal
@@ -127,7 +138,10 @@ const UsersPageTeamUsers = () => {
 					className="gap-4"
 					loader={saveLoading}
 					saveActive={
-						changes ? Object.keys(changes).length > 0 : false
+						changes
+							? Object.keys(changes).length > 0 &&
+							  !ValidUser(changes, true).error
+							: false
 					}
 					cancelHit={(): void => {
 						setSelectedUser(null);
@@ -166,11 +180,12 @@ const UsersPageTeamUsers = () => {
 					<TeamModalInput
 						title="Username"
 						placeholder="Enter the user's username..."
-						value={selectedUser.username}
+						value={changes?.username || selectedUser.username}
 						setValue={(value) => {
 							if (selectedUser.username === value) {
 								deleteChange("username");
 							} else {
+								value = value.replaceAll(" ", "-");
 								inputChange({ username: value });
 							}
 						}}
@@ -180,7 +195,7 @@ const UsersPageTeamUsers = () => {
 						title="Account Type"
 						value={selectedUser.authentication}
 						setValue={(value): void => {
-							if (selectedUser.authentication === value) {
+							if (selectedUser.authentication.id === value.id) {
 								deleteChange("authentication");
 							} else {
 								inputChange({ authentication: value.id });
