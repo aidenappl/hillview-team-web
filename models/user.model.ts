@@ -17,6 +17,13 @@ export interface Strategies {
 	password: any;
 }
 
+export const UserType = {
+  Unauthorized: 1,
+  Student: 2,
+  Admin: 3,
+  Deleted: 9,
+}
+
 export const UserTypes: GeneralNSN[] = [
 	{
 		id: 1,
@@ -37,5 +44,6 @@ export const UserTypes: GeneralNSN[] = [
 		id: 9,
 		name: "Deleted",
 		short_name: "deleted",
+    hidden: true,
 	},
 ];

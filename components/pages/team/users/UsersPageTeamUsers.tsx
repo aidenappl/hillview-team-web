@@ -3,12 +3,13 @@ import { NewRequest } from "../../../../services/http/requestHandler";
 import { useEffect, useState } from "react";
 import Spinner from "../../../general/Spinner";
 import Image from "next/image";
-import { User, UserTypes } from "../../../../models/user.model";
+import { User, UserType, UserTypes } from "../../../../models/user.model";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import TeamModal from "../TeamModal";
 import TeamModalInput from "../TeamModalInput";
 import TeamModalSelect from "../TeamModalSelect";
+import PageModal from "../../../general/PageModal";
 dayjs.extend(relativeTime);
 
 const UsersPageTeamUsers = () => {
@@ -19,6 +20,7 @@ const UsersPageTeamUsers = () => {
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
 	const [changes, setChanges] = useState<any>(null);
 	const [saveLoading, setSaveLoading] = useState<boolean>(false);
+	const [showDeleteUser, setShowDeleteUser] = useState<boolean>(false);
 
 	useEffect(() => {
 		initialize();
@@ -82,8 +84,43 @@ const UsersPageTeamUsers = () => {
 		}
 	};
 
+	const archiveUser = async () => {
+		const response = await NewRequest({
+			route: `/core/v1.1/admin/user/${selectedUser!.id}`,
+			method: "PUT",
+			body: {
+				changes: {
+					authentication: UserType.Deleted,
+				},
+			},
+			auth: true,
+		});
+		if (response.success) {
+			toast.success("User deleted");
+			setSelectedUser(null);
+			initialize();
+		} else {
+			console.error(response);
+			toast.error("Failed to delete user");
+		}
+	};
+
 	return (
 		<>
+			<PageModal
+				titleText="Delete User"
+				bodyText="Are you sure you want to delete this user? This action is irreversible."
+				primaryText="Delete"
+				secondaryText="Cancel"
+				cancelHit={() => {
+					// do nothing
+				}}
+				actionHit={() => {
+					archiveUser();
+				}}
+				setShow={setShowDeleteUser}
+				show={showDeleteUser}
+			/>
 			{selectedUser ? (
 				<TeamModal
 					className="gap-4"
@@ -93,6 +130,9 @@ const UsersPageTeamUsers = () => {
 					}
 					cancelHit={(): void => {
 						setSelectedUser(null);
+					}}
+					deleteHit={(): void => {
+						setShowDeleteUser(true);
 					}}
 					saveHit={(): void => {
 						triggerSave();

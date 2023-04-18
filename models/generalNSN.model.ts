@@ -2,6 +2,7 @@ export interface GeneralNSN {
 	id: number;
 	name: string;
 	short_name: string;
+	hidden?: boolean;
 }
 
 export const GenerateGeneralNSN = (
