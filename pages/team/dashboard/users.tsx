@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import UsersPagePlatformUsers from "../../../components/pages/team/users/UsersPagePlatformUsers";
 import UsersPageTeamUsers from "../../../components/pages/team/users/UsersPageTeamUsers";
+import CreatePlatformUserModal from "../../../components/pages/team/users/CreatePlatformUserModal";
 
 type PageStates = "Platform" | "Team";
 
@@ -17,20 +18,34 @@ const UsersPage = () => {
 
 	const pages = GenerateGeneralNSM(["Team", "Platform"]);
 	const [pageState, setPageState] = useState<PageStates>("Team");
+	const [showCreateUser, setShowCreateUser] = useState<boolean>(false);
 
 	return (
 		<TeamContainer pageTitle="Users" router={router}>
 			<TeamHeader title={"Platform Users"}>
-				<div className="w-[150px]">
-					<TeamModalSelect
-						values={pages}
-						value={pages[0]}
-						setValue={(value): void => {
-							setPageState(value.name as PageStates);
-						}}
-					/>
+				<div className="flex gap-4 items-center h-full">
+					{pageState === "Platform" ? (
+						<button
+							className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
+							onClick={() => {
+								setShowCreateUser(true);
+							}}
+						>
+							Create User
+						</button>
+					) : null}
+					<div className="w-[150px] h-fit">
+						<TeamModalSelect
+							values={pages}
+							value={pages[0]}
+							setValue={(value): void => {
+								setPageState(value.name as PageStates);
+							}}
+						/>
+					</div>
 				</div>
 			</TeamHeader>
+			{showCreateUser ? <CreatePlatformUserModal /> : null}
 			{pageState === "Platform" ? <UsersPagePlatformUsers /> : null}
 			{pageState === "Team" ? <UsersPageTeamUsers /> : null}
 		</TeamContainer>

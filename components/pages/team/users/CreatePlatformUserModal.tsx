@@ -1,0 +1,131 @@
+import { useEffect, useState } from "react";
+import { User } from "../../../../models/user.model";
+import TeamModal from "../TeamModal";
+import TeamModalInput from "../TeamModalInput";
+import TeamModalSelect from "../TeamModalSelect";
+import TeamModalTextarea from "../TeamModalTextarea";
+import { NewRequest } from "../../../../services/http/requestHandler";
+import toast from "react-hot-toast";
+import ValidMobileUser from "../../../../validators/mobileUser.validator";
+
+interface Props {
+	cancelHit?: () => void;
+	saveHit?: () => void;
+	saveDone?: () => void;
+}
+
+const CreatePlatformUserModal = (props: Props) => {
+	const [user, setUser] = useState<any>({});
+	const [saving, setSaving] = useState<boolean>(false);
+
+	const {
+		cancelHit = () => {},
+		saveHit = () => {},
+		saveDone = () => {},
+	} = props;
+
+	const inputChange = async (modifier: Object) => {
+		setUser({ ...user, ...modifier });
+	};
+
+	const deleteChange = async (key: string, forcedArr?: any) => {
+		let splitKey = key.split(".");
+		let newChanges;
+		if (forcedArr) {
+			newChanges = { ...forcedArr };
+		} else {
+			newChanges = { ...user };
+		}
+		for (var k in newChanges) {
+			if (k == key) {
+				delete newChanges[key];
+				setUser(newChanges);
+			} else if (typeof newChanges[k] === "object" && splitKey[0] == k) {
+				deleteChange(splitKey[1], newChanges[k]);
+			}
+		}
+	};
+
+	const runCreateUser = async () => {
+		if (saving) return;
+		let validator = ValidMobileUser(user, true);
+		if (validator.error) {
+			toast.error(validator.error!.message);
+			return;
+		}
+		setSaving(true);
+		const response = await NewRequest({
+			method: "POST",
+			route: "/core/v1.1/admin/mobileUser",
+			body: validator.value,
+			auth: true,
+		});
+		if (response.success) {
+			console.log(response.data);
+			toast.success("User Created");
+			setSaving(false);
+			saveDone();
+		} else {
+			console.error(response);
+			toast.error(response.message);
+		}
+	};
+
+	return (
+		<TeamModal
+			className="gap-6"
+			showDestructive={false}
+			loader={saving}
+			saveActive={ValidMobileUser(user).error ? false : true}
+			cancelHit={() => {
+				cancelHit();
+			}}
+			saveHit={() => {
+				runCreateUser();
+				saveHit();
+			}}
+		>
+			<TeamModalInput
+				title="Name"
+				placeholder="Enter an User Name..."
+				value={""}
+				required
+				setValue={(value: string): void => {
+					if (value.length > 0) {
+						inputChange({ name: value });
+					} else {
+						deleteChange("name");
+					}
+				}}
+			/>
+			<TeamModalInput
+				title="Email"
+				placeholder="Enter an Email..."
+				value={""}
+				required
+				setValue={(value: string): void => {
+					if (value.length > 0) {
+						inputChange({ email: value });
+					} else {
+						deleteChange("email");
+					}
+				}}
+			/>
+			<TeamModalInput
+				title="Student ID"
+				placeholder="Enter a Student ID..."
+				value={""}
+				required
+				setValue={(value: string): void => {
+					if (value.length > 0) {
+						inputChange({ identifier: value });
+					} else {
+						deleteChange("identifier");
+					}
+				}}
+			/>
+		</TeamModal>
+	);
+};
+
+export default CreatePlatformUserModal;

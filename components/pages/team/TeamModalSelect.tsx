@@ -35,13 +35,15 @@ const TeamModalSelect = (props: Props) => {
 		>
 			{({ open }) => (
 				<div className="flex flex-col">
-					<label className="font-medium text-[#101827] flex gap-1">
-						{props.title}
-						{props.required ? (
-							<p className="text-red-700">*</p>
-						) : null}
-					</label>
-					<div className="relative mt-2">
+					{props.title ? (
+						<label className="font-medium text-[#101827] flex gap-1">
+							{props.title}
+							{props.required ? (
+								<p className="text-red-700">*</p>
+							) : null}
+						</label>
+					) : null}
+					<div className={"relative " + (props.title ? "mt-2" : "")}>
 						<Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-1 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6">
 							<span className="flex items-center">
 								<span className="ml-3 block truncate">
