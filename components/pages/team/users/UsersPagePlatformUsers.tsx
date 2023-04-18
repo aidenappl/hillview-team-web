@@ -7,6 +7,7 @@ import { GeneralNSM } from "../../../../models/generalNSM.model";
 import TeamModal from "../TeamModal";
 import TeamModalInput from "../TeamModalInput";
 import PageModal from "../../../general/PageModal";
+import ValidMobileUser from "../../../../validators/mobileUser.validator";
 
 type MobileUser = {
 	id: number;
@@ -58,6 +59,7 @@ const UsersPagePlatformUsers = () => {
 	}, []);
 
 	const initialize = async () => {
+		setChanges(null);
 		setUsers(null);
 		setPageLoading(true);
 		const response = await NewRequest({
@@ -92,8 +94,13 @@ const UsersPagePlatformUsers = () => {
 
 	const triggerSave = async () => {
 		if (changes ? Object.keys(changes).length === 0 : true) {
-			toast.error("No changes to save");
+			setSelectedUser(null);
 		} else {
+			let validator = ValidMobileUser(changes, true);
+			if (validator.error) {
+				toast.error(validator.error!.message);
+				return;
+			}
 			setSaveLoading(true);
 			const response = await NewRequest({
 				route: `/core/v1.1/admin/mobileUser/${selectedUser!.id}`,
@@ -158,10 +165,14 @@ const UsersPagePlatformUsers = () => {
 					className="gap-4"
 					loader={saveLoading}
 					saveActive={
-						changes ? Object.keys(changes).length > 0 : false
+						changes
+							? Object.keys(changes).length > 0 &&
+							  !ValidMobileUser(changes, true).error
+							: false
 					}
 					cancelHit={(): void => {
 						setSelectedUser(null);
+						setChanges(null);
 					}}
 					deleteHit={(): void => {
 						setShowDeleteUser(true);

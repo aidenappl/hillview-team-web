@@ -65,7 +65,6 @@ const UsersPageTeamUsers = () => {
 			setSelectedUser(null);
 		} else {
 			let validator = ValidUser(changes, true);
-			console.log(validator);
 			if (validator.error) {
 				toast.error(validator.error!.message);
 				return;
@@ -113,10 +112,6 @@ const UsersPageTeamUsers = () => {
 		}
 	};
 
-	useEffect(() => {
-		console.log(changes);
-	}, [changes]);
-
 	return (
 		<>
 			<PageModal
@@ -145,6 +140,7 @@ const UsersPageTeamUsers = () => {
 					}
 					cancelHit={(): void => {
 						setSelectedUser(null);
+						setChanges(null);
 					}}
 					deleteHit={(): void => {
 						setShowDeleteUser(true);
