@@ -96,19 +96,24 @@ const CheckoutsPage = () => {
 										</p>
 										<p className="w-1/4">
 											{checkout.checkout_status
-												.short_name == "checked_in"
-												? checkout.time_in
-												: <b>Checked Out</b>}
+												.short_name == "checked_in" ? (
+												checkout.time_in
+											) : (
+												<b>Checked Out</b>
+											)}
 										</p>
 										<div className="w-[200px]">
-											<button
-												className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
-												onClick={() => {
-													// setSelectedAsset(asset);
-												}}
-											>
-												Inspect
-											</button>
+											{checkout.checkout_status
+												.short_name == "checked_out" ? (
+												<button
+													className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
+													onClick={() => {
+														// setSelectedAsset(asset);
+													}}
+												>
+													Check In
+												</button>
+											) : null}
 										</div>
 									</div>
 								);
