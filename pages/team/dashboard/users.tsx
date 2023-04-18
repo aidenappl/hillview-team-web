@@ -45,8 +45,12 @@ const UsersPage = () => {
 					</div>
 				</div>
 			</TeamHeader>
-			{showCreateUser ? <CreatePlatformUserModal /> : null}
-			{pageState === "Platform" ? <UsersPagePlatformUsers /> : null}
+			{pageState === "Platform" ? (
+				<UsersPagePlatformUsers
+					showCreateUser={showCreateUser}
+					setShowCreateUser={setShowCreateUser}
+				/>
+			) : null}
 			{pageState === "Team" ? <UsersPageTeamUsers /> : null}
 		</TeamContainer>
 	);

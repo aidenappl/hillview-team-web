@@ -48,7 +48,7 @@ const CreatePlatformUserModal = (props: Props) => {
 
 	const runCreateUser = async () => {
 		if (saving) return;
-		let validator = ValidMobileUser(user, true);
+		let validator = ValidMobileUser(user);
 		if (validator.error) {
 			toast.error(validator.error!.message);
 			return;
@@ -67,9 +67,17 @@ const CreatePlatformUserModal = (props: Props) => {
 			saveDone();
 		} else {
 			console.error(response);
+			setSaving(false);
 			toast.error(response.message);
 		}
 	};
+
+	useEffect(() => {
+		inputChange({
+			profile_image_url:
+				"https://content.hillview.tv/images/mobile/default.jpg",
+		});
+	}, []);
 
 	return (
 		<TeamModal
@@ -121,6 +129,19 @@ const CreatePlatformUserModal = (props: Props) => {
 						inputChange({ identifier: value });
 					} else {
 						deleteChange("identifier");
+					}
+				}}
+			/>
+			<TeamModalInput
+				title="Profile Image URL"
+				placeholder="Enter a Profile Image URL..."
+				value={user?.profile_image_url || ""}
+				required
+				setValue={(value: string): void => {
+					if (value.length > 0) {
+						inputChange({ profile_image_url: value });
+					} else {
+						deleteChange("profile_image_url");
 					}
 				}}
 			/>

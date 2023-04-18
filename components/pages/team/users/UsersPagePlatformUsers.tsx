@@ -8,6 +8,7 @@ import TeamModal from "../TeamModal";
 import TeamModalInput from "../TeamModalInput";
 import PageModal from "../../../general/PageModal";
 import ValidMobileUser from "../../../../validators/mobileUser.validator";
+import CreatePlatformUserModal from "./CreatePlatformUserModal";
 
 type MobileUser = {
 	id: number;
@@ -44,7 +45,12 @@ const MobileUserTypes: GeneralNSM[] = [
 	},
 ];
 
-const UsersPagePlatformUsers = () => {
+interface Props {
+	setShowCreateUser?: (show: boolean) => void;
+	showCreateUser?: boolean;
+}
+
+const UsersPagePlatformUsers = (props: Props) => {
 	const [pageLoading, setPageLoading] = useState<boolean>(true);
 	const [users, setUsers] = useState<MobileUser[] | null>(null);
 
@@ -53,6 +59,8 @@ const UsersPagePlatformUsers = () => {
 	const [changes, setChanges] = useState<any>(null);
 	const [saveLoading, setSaveLoading] = useState<boolean>(false);
 	const [showDeleteUser, setShowDeleteUser] = useState<boolean>(false);
+
+	const { setShowCreateUser = () => {}, showCreateUser = false } = props;
 
 	useEffect(() => {
 		initialize();
@@ -129,7 +137,7 @@ const UsersPagePlatformUsers = () => {
 			method: "PUT",
 			body: {
 				changes: {
-					authentication: MobileUserType.Deactivated,
+					status: MobileUserType.Deactivated,
 				},
 			},
 			auth: true,
@@ -146,6 +154,17 @@ const UsersPagePlatformUsers = () => {
 
 	return (
 		<>
+			{showCreateUser ? (
+				<CreatePlatformUserModal
+					saveDone={() => {
+						initialize();
+						setShowCreateUser(false);
+					}}
+					cancelHit={() => {
+						setShowCreateUser(false);
+					}}
+				/>
+			) : null}
 			<PageModal
 				titleText="Delete Mobile User"
 				bodyText="Are you sure you want to delete this mobile user? This action is irreversible."
