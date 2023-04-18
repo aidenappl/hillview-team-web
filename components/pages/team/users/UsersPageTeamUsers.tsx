@@ -27,6 +27,7 @@ const UsersPageTeamUsers = () => {
 	}, []);
 
 	const initialize = async () => {
+		setUsers(null);
 		setPageLoading(true);
 		const response = await NewRequest({
 			route: "/core/v1.1/admin/users",
