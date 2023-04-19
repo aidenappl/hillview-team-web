@@ -20,6 +20,10 @@ const CreateVideoModal = (props: Props) => {
 	const [saveActive, setSaveActive] = useState<boolean>(false);
 	const [dropzoneState, setDropzoneState] =
 		useState<DropzoneStates>("default");
+	const [uploadProgress, setUploadProgress] = useState<number>(0);
+	const [uploadStatus, setUploadStatus] = useState<"progress" | "label">(
+		"progress"
+	);
 
 	const {
 		cancelHit = () => {},
@@ -152,6 +156,13 @@ const CreateVideoModal = (props: Props) => {
 			/>
 			<TeamModalDropzone
 				state={dropzoneState}
+				progress={uploadProgress}
+				uploadStatus={uploadStatus}
+				progressLabel={
+					uploadStatus == "progress"
+						? "Uploading..."
+						: "100% Processing..."
+				}
 				onChange={async (e) => {
 					if (e.target.files && e.target.files.length > 0) {
 						let file = e.target.files[0];
@@ -166,6 +177,12 @@ const CreateVideoModal = (props: Props) => {
 						// upload the file
 						const response = await UploadVideo({
 							upload: file,
+							uploadProgress: (progress: number) => {
+								setUploadProgress(progress);
+								if (progress === 100) {
+									setUploadStatus("label");
+								}
+							},
 						});
 						if (response.success) {
 							if (!video.title || video.title?.length == 0) {
@@ -184,6 +201,8 @@ const CreateVideoModal = (props: Props) => {
 							toast.error(response.message);
 						}
 						setDropzoneState("default");
+						setUploadProgress(0);
+						setUploadStatus("progress");
 					}
 				}}
 			/>

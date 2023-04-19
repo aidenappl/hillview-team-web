@@ -4,6 +4,7 @@ import { GetSessionAccessToken } from "./sessionHandler";
 
 interface UploadImageReq {
 	upload: any;
+	uploadProgress: (progress: number) => void;
 }
 
 const UploadVideo = async (req: UploadImageReq): Promise<GeneralResponse> => {
@@ -17,6 +18,10 @@ const UploadVideo = async (req: UploadImageReq): Promise<GeneralResponse> => {
 				headers: {
 					"Content-Type": "multipart/form-data",
 					Authorization: "Bearer " + GetSessionAccessToken(),
+				},
+				onUploadProgress: (progressEvent) => {
+					let percentage = Math.floor(progressEvent.progress! * 100);
+					req.uploadProgress(percentage);
 				},
 			}
 		);

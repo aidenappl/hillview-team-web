@@ -4,14 +4,23 @@ import Spinner from "../../general/Spinner";
 
 interface Props {
 	title?: string;
+	progress?: number;
 	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	state?: DropzoneStates;
+	uploadStatus?: "progress" | "label";
+	progressLabel?: string;
 }
 
 export type DropzoneStates = "default" | "loading";
 
 const TeamModalDropzone = (props: Props) => {
-	const { onChange = () => {}, state = "default" } = props;
+	const {
+		onChange = () => {},
+		state = "default",
+		progress = 0,
+		uploadStatus = "progress",
+		progressLabel = "Processing...",
+	} = props;
 
 	return (
 		<div className="flex flex-col gap-2 w-full relative">
@@ -55,8 +64,14 @@ const TeamModalDropzone = (props: Props) => {
 					</div>
 				) : null}
 				{state == "loading" ? (
-					<div className="text-center">
+					<div className="text-center flex flex-col justify-center items-center gap-3">
 						<Spinner />
+						{uploadStatus == "progress" ? (
+							<p>{progress}% Complete</p>
+						) : null}
+						{uploadStatus == "label" ? (
+							<p>{progressLabel}</p>
+						) : null}
 					</div>
 				) : null}
 			</div>
