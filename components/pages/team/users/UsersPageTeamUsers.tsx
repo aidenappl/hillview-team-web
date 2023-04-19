@@ -3,23 +3,32 @@ import { NewRequest } from "../../../../services/http/requestHandler";
 import { useEffect, useState } from "react";
 import Spinner from "../../../general/Spinner";
 import Image from "next/image";
-import { User } from "../../../../models/user.model";
+import { User, UserType, UserTypes } from "../../../../models/user.model";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import TeamModal from "../TeamModal";
 import TeamModalInput from "../TeamModalInput";
+import TeamModalSelect from "../TeamModalSelect";
+import PageModal from "../../../general/PageModal";
+import ValidUser from "../../../../validators/user.validator";
 dayjs.extend(relativeTime);
 
 const UsersPageTeamUsers = () => {
 	const [pageLoading, setPageLoading] = useState<boolean>(true);
 	const [users, setUsers] = useState<User[] | null>(null);
+
+	// Inspect User Modal
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
+	const [changes, setChanges] = useState<any>(null);
+	const [saveLoading, setSaveLoading] = useState<boolean>(false);
+	const [showDeleteUser, setShowDeleteUser] = useState<boolean>(false);
 
 	useEffect(() => {
 		initialize();
 	}, []);
 
 	const initialize = async () => {
+		setUsers(null);
 		setPageLoading(true);
 		const response = await NewRequest({
 			route: "/core/v1.1/admin/users",
@@ -41,16 +50,103 @@ const UsersPageTeamUsers = () => {
 		setPageLoading(false);
 	};
 
+	const inputChange = (modifier: Object) => {
+		setChanges({ ...changes, ...modifier });
+	};
+
+	const deleteChange = (key: string) => {
+		const newChanges = { ...changes };
+		delete newChanges[key];
+		setChanges(newChanges);
+	};
+
+	const triggerSave = async () => {
+		if (changes ? Object.keys(changes).length === 0 : true) {
+			setSelectedUser(null);
+		} else {
+			let validator = ValidUser(changes, true);
+			if (validator.error) {
+				toast.error(validator.error!.message);
+				return;
+			}
+			setSaveLoading(true);
+			const response = await NewRequest({
+				route: `/core/v1.1/admin/user/${selectedUser!.id}`,
+				method: "PUT",
+				body: {
+					changes,
+				},
+				auth: true,
+			});
+			if (response.success) {
+				toast.success("User updated");
+				setChanges(null);
+				setSelectedUser(null);
+				initialize();
+			} else {
+				console.error(response);
+				toast.error("Failed to update user");
+			}
+			setSaveLoading(false);
+		}
+	};
+
+	const archiveUser = async () => {
+		const response = await NewRequest({
+			route: `/core/v1.1/admin/user/${selectedUser!.id}`,
+			method: "PUT",
+			body: {
+				changes: {
+					authentication: UserType.Deleted,
+				},
+			},
+			auth: true,
+		});
+		if (response.success) {
+			toast.success("User deleted");
+			setSelectedUser(null);
+			initialize();
+		} else {
+			console.error(response);
+			toast.error("Failed to delete user");
+		}
+	};
+
 	return (
 		<>
+			<PageModal
+				titleText="Delete User"
+				bodyText="Are you sure you want to delete this user? This action is irreversible."
+				primaryText="Delete"
+				secondaryText="Cancel"
+				cancelHit={() => {
+					// do nothing
+				}}
+				actionHit={() => {
+					archiveUser();
+				}}
+				setShow={setShowDeleteUser}
+				show={showDeleteUser}
+			/>
 			{selectedUser ? (
 				<TeamModal
 					className="gap-4"
+					loader={saveLoading}
+					saveActive={
+						changes
+							? Object.keys(changes).length > 0 &&
+							  !ValidUser(changes, true).error
+							: false
+					}
 					cancelHit={(): void => {
 						setSelectedUser(null);
+						setChanges(null);
+					}}
+					deleteHit={(): void => {
+						setShowDeleteUser(true);
 					}}
 					saveHit={(): void => {
-						setSelectedUser(null);
+						triggerSave();
 					}}
 				>
 					<TeamModalInput
@@ -58,7 +154,11 @@ const UsersPageTeamUsers = () => {
 						placeholder="Enter the user's name..."
 						value={selectedUser.name}
 						setValue={(value) => {
-							setSelectedUser({ ...selectedUser, name: value });
+							if (selectedUser.name === value) {
+								deleteChange("name");
+							} else {
+								inputChange({ name: value });
+							}
 						}}
 					/>
 					<TeamModalInput
@@ -66,18 +166,36 @@ const UsersPageTeamUsers = () => {
 						placeholder="Enter the user's email..."
 						value={selectedUser.email}
 						setValue={(value) => {
-							setSelectedUser({ ...selectedUser, email: value });
+							if (selectedUser.email === value) {
+								deleteChange("email");
+							} else {
+								inputChange({ email: value });
+							}
 						}}
 					/>
 					<TeamModalInput
 						title="Username"
 						placeholder="Enter the user's username..."
-						value={selectedUser.username}
+						value={changes?.username || selectedUser.username}
 						setValue={(value) => {
-							setSelectedUser({
-								...selectedUser,
-								username: value,
-							});
+							if (selectedUser.username === value) {
+								deleteChange("username");
+							} else {
+								value = value.replaceAll(" ", "-");
+								inputChange({ username: value });
+							}
+						}}
+					/>
+					<TeamModalSelect
+						values={UserTypes}
+						title="Account Type"
+						value={selectedUser.authentication}
+						setValue={(value): void => {
+							if (selectedUser.authentication.id === value.id) {
+								deleteChange("authentication");
+							} else {
+								inputChange({ authentication: value.id });
+							}
 						}}
 					/>
 					<TeamModalInput
@@ -85,10 +203,11 @@ const UsersPageTeamUsers = () => {
 						placeholder="Enter the user's profile image url..."
 						value={selectedUser.profile_image_url}
 						setValue={(value) => {
-							setSelectedUser({
-								...selectedUser,
-								profile_image_url: value,
-							});
+							if (selectedUser.profile_image_url === value) {
+								deleteChange("profile_image_url");
+							} else {
+								inputChange({ profile_image_url: value });
+							}
 						}}
 					/>
 				</TeamModal>

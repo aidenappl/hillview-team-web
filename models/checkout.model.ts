@@ -1,5 +1,5 @@
-import { Asset } from "./asset.model";
 import { GeneralNSM } from "./generalNSM.model";
+import { Asset } from "./asset.model";
 
 export interface Checkout {
 	id: number;
