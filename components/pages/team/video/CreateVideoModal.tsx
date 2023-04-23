@@ -187,14 +187,16 @@ const CreateVideoModal = (props: Props) => {
 						if (response.success) {
 							if (!video.title || video.title?.length == 0) {
 								inputChange({
-									url: response.data.url,
-									thumbnail: response.data.thumbnail,
+									url: response.data.data.url,
+									download_url: response.data.data.s3_url,
+									thumbnail: response.data.data.thumbnail,
 									title: file.name.replace(/\.[^/.]+$/, ""),
 								});
 							} else {
 								inputChange({
-									url: response.data.url,
+									url: response.data.data.url,
 									thumbnail: response.data.thumbnail,
+									download_url: response.data.data.s3_url,
 								});
 							}
 						} else {
