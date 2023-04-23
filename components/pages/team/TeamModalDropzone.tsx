@@ -59,7 +59,7 @@ const TeamModalDropzone = (props: Props) => {
 							</label>
 						</div>
 						<p className="text-xs leading-5 text-gray-600">
-							MP4s or M4Vs up to 10GB
+							MP4s or M4Vs up to 5GB
 						</p>
 					</div>
 				) : null}
