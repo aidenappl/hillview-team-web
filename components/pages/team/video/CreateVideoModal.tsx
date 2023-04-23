@@ -116,10 +116,10 @@ const CreateVideoModal = (props: Props) => {
 				setValue={(value: string): void => {
 					if (value.length > 0) {
 						inputChange({
-							name: value,
+							title: value,
 						});
 					} else {
-						deleteChange("name");
+						deleteChange("title");
 					}
 				}}
 			/>
