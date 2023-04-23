@@ -300,14 +300,28 @@ const VideosPage = () => {
 												/>
 											</div>
 										</div>
-										<p className="w-[calc(33%-170px)]">
+										<p className="w-[calc(33%-170px)] pr-2">
 											{video.title}
 										</p>
-										<p className="w-[calc(33%-170px)]">
+										<p className="w-[calc(33%-170px)] pr-2">
 											{video.uuid}
 										</p>
 										<p className="w-[calc(33%-170px)]">
-											{video.status.name}
+											<a
+												className={
+													"px-3 py-1.5 text-sm rounded-md " +
+													(video.status.short_name ==
+													"public"
+														? "text-white bg-green-500"
+														: video.status
+																.short_name ==
+														  "unlisted"
+														? "text-white bg-green-700"
+														: "text-white bg-slate-500")
+												}
+											>
+												{video.status.name}
+											</a>
 										</p>
 										<div className="w-[200px] flex gap-2 pr-10">
 											<button
