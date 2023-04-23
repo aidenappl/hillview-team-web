@@ -230,10 +230,10 @@ const CreateVideoModal = (props: Props) => {
 				setValue={(value: string): void => {
 					if (value.length > 0) {
 						inputChange({
-							thumbnail: value,
+							download_url: value,
 						});
 					} else {
-						deleteChange("thumbnail");
+						deleteChange("download_url");
 					}
 				}}
 			/>
