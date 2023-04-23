@@ -195,7 +195,7 @@ const CreateVideoModal = (props: Props) => {
 							} else {
 								inputChange({
 									url: response.data.data.url,
-									thumbnail: response.data.thumbnail,
+									thumbnail: response.data.data.thumbnail,
 									download_url: response.data.data.s3_url,
 								});
 							}
