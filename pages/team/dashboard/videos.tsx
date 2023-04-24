@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import TeamContainer from "../../../components/pages/team/TeamContainer";
 import TeamHeader from "../../../components/pages/team/TeamHeader";
 import Spinner from "../../../components/general/Spinner";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Video } from "../../../models/video.model";
 import Image from "next/image";
 import { NewRequest } from "../../../services/http/requestHandler";
@@ -31,6 +31,21 @@ const VideosPage = () => {
 
 	// Video Uploader
 	const [showUploadVideo, setShowUploadVideo] = useState<boolean>(false);
+
+	// Escape Handlers
+	const escFunction = useCallback((e: any) => {
+		if (e.key === "Escape") {
+			cancelVideoInspection();
+		}
+	}, []);
+
+	useEffect(() => {
+		document.addEventListener("keydown", escFunction, false);
+
+		return () => {
+			document.removeEventListener("keydown", escFunction, false);
+		};
+	}, [escFunction]);
 
 	useEffect(() => {
 		initialize();
