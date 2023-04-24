@@ -253,18 +253,6 @@ const VideosPage = () => {
 							}
 						}}
 					/>
-					<TeamModalCheckbox
-						title="Allow Downloads"
-						runner="Do you want to allow video downloads for this video?"
-						value={selectedVideo.allow_downloads}
-						setValue={(value: boolean) => {
-							if (value != selectedVideo.allow_downloads) {
-								inputChange({ allow_downloads: value });
-							} else {
-								deleteChange("allow_downloads");
-							}
-						}}
-					/>
 					<TeamModalInput
 						title="Download URL"
 						placeholder="Video Download URL"
@@ -274,6 +262,18 @@ const VideosPage = () => {
 								inputChange({ download_url: value });
 							} else {
 								deleteChange("download_url");
+							}
+						}}
+					/>
+					<TeamModalCheckbox
+						title="Allow Downloads"
+						runner="Do you want to allow video downloads for this video?"
+						value={selectedVideo.allow_downloads}
+						setValue={(value: boolean) => {
+							if (value != selectedVideo.allow_downloads) {
+								inputChange({ allow_downloads: value });
+							} else {
+								deleteChange("allow_downloads");
 							}
 						}}
 					/>
