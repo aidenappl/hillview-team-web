@@ -156,7 +156,7 @@ const VideosPage = () => {
 	};
 
 	return (
-		<TeamContainer pageTitle="videos" router={router}>
+		<TeamContainer pageTitle="Videos" router={router}>
 			<PageModal
 				titleText="Archive Video"
 				bodyText="Are you sure you want to archive this video? This action is irreversible."
@@ -280,7 +280,7 @@ const VideosPage = () => {
 				</TeamModal>
 			) : null}
 			{/* Team Heading */}
-			<TeamHeader title="System videos">
+			<TeamHeader title="System Videos">
 				<button
 					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
 					onClick={() => {
