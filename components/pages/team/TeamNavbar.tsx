@@ -1,23 +1,26 @@
-import { IconProp, SizeProp, icon } from "@fortawesome/fontawesome-svg-core";
+import { IconProp, SizeProp } from "@fortawesome/fontawesome-svg-core";
 import {
 	faArrowRightToBracket,
 	faBoxArchive,
 	faCheckSquare,
 	faFilm,
 	faLink,
-	faSquareChevronDown,
 	faTag,
 	faUserGroup,
 } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { NextRouter } from "next/router";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../../redux/user/slice";
+import { User } from "../../../models/user.model";
 
 interface Props {
 	router: NextRouter;
 }
 
 const TeamNavbar = (props: Props) => {
+	const user: User = useSelector(selectUser);
 	const Option = (props: {
 		icon: IconProp;
 		text: string;
@@ -80,7 +83,7 @@ const TeamNavbar = (props: Props) => {
 					<h4 className="text-[#9fa9d3] tracking-tight text-base pb-3">
 						SYSTEM
 					</h4>
-					<div className="flex flex-col gap-0.5">
+					{user.authentication.short_name == "admin" ? <div className="flex flex-col gap-0.5">
 						<Option
 							icon={faTag}
 							text="Assets"
@@ -106,9 +109,23 @@ const TeamNavbar = (props: Props) => {
 							selected={pathname === "/team/dashboard/playlists"}
 							href="/team/dashboard/playlists"
 						/>
-					</div>
+					</div> : null}
+					{user.authentication.short_name == "student" ? <div className="flex flex-col gap-0.5">
+						<Option
+							icon={faFilm}
+							text="Videos"
+							selected={pathname === "/student/dashboard/videos"}
+							href="/student/dashboard/videos"
+						/>
+						<Option
+							icon={faBoxArchive}
+							text="Playlists"
+							selected={pathname === "/student/dashboard/playlists"}
+							href="/student/dashboard/playlists"
+						/>
+					</div> : null}
 				</div>
-				<div>
+				{user.authentication.short_name == "admin" ? <div>
 					<h4 className="text-[#9fa9d3] tracking-tight text-base pb-3">
 						CUSTOMIZATION
 					</h4>
@@ -128,7 +145,7 @@ const TeamNavbar = (props: Props) => {
 							href="/team/dashboard/users"
 						/>
 					</div>
-				</div>
+				</div>: null}
 			</div>
 			<div className="absolute bottom-[40px] w-[calc(100%-80px)]">
 				<div className="flex flex-col gap-0.5">

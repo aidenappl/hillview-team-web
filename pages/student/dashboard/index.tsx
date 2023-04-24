@@ -1,41 +1,10 @@
-import { useRouter } from 'next/router';
-import { useDispatch } from 'react-redux';
-import { KillSession } from '../../../services/sessionHandler';
+export default function Dashboard() {}
 
-const PendingPage = () => {
-	const dispatch = useDispatch();
-	const router = useRouter();
-	return (
-		<div className="flex items-center justify-center w-full h-screen">
-			<div className="hidden sm:block w-11 h-11 bg-[url(/logos/hillviewTVColor.png)] bg-contain bg-no-repeat absolute top-10 left-10"></div>
-			<div className="grid grid-cols-1 w-[calc(100%-70px)] sm:w-[600px]">
-				<h1 className="w-full text-4xl font-semibold text-center">
-					This page is Under Construction
-				</h1>
-				<p className="ml-[auto] mr-[auto] text-center mt-6 text-gray-500">
-					This page is currently under construction. Please check back later.
-				</p>
-				<button
-					className="w-[120px] h-[42px] bg-[#0070F3] text-white font-medium rounded-md ml-auto mr-auto mt-12"
-					onClick={() => {
-						KillSession({ dispatch, router, navigate: true });
-					}}
-				>
-					Logout
-				</button>
-			</div>
-		</div>
-	);
-};
-
-export default PendingPage;
-
-export const getStaticProps = () => {
+export const getServerSideProps = () => {
 	return {
-		props: {
-			requireAuth: true,
-			requireAccountStatus: 'student',
-			title: 'Hillview Team - Under Construction',
-		},
+		redirect: {
+            destination: '/student/dashboard/videos',
+            permanent: true,
+        }
 	};
 };
