@@ -15,6 +15,7 @@ import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea"
 import { VideoStatus, VideoStatuses } from "../../../models/videoStatus.model";
 import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
 import CreateVideoModal from "../../../components/pages/team/video/CreateVideoModal";
+import TeamModalCheckbox from "../../../components/pages/team/TeamModalCheckbox";
 
 const VideosPage = () => {
 	const router = useRouter();
@@ -249,6 +250,18 @@ const VideosPage = () => {
 								inputChange({ thumbnail: value });
 							} else {
 								deleteChange("thumbnail");
+							}
+						}}
+					/>
+					<TeamModalCheckbox
+						title="Allow Downloads"
+						runner="Do you want to allow video downloads for this video?"
+						value={selectedVideo.allow_downloads}
+						setValue={(value: boolean) => {
+							if (value != selectedVideo.allow_downloads) {
+								inputChange({ allow_downloads: value });
+							} else {
+								deleteChange("allow_downloads");
 							}
 						}}
 					/>
