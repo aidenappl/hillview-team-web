@@ -16,6 +16,7 @@ const LinksPage = () => {
 	const [links, setLinks] = useState<Link[] | null>(null);
 	const [showConfirmDeleteLink, setShowConfirmDeleteLink] =
 		useState<boolean>(false);
+	const [offset, setOffset] = useState<number>(0);
 
 	// Link Inspector
 	const [selectedLink, setSelectedLink] = useState<Link | null>(null);
@@ -33,8 +34,8 @@ const LinksPage = () => {
 			method: "GET",
 			route: "/core/v1.1/admin/links",
 			params: {
-				limit: 50,
-				offset: 0,
+				limit: 20,
+				offset: offset,
 			},
 			auth: true,
 		});
@@ -42,6 +43,25 @@ const LinksPage = () => {
 			let data = response.data.data;
 			console.log(data);
 			setLinks(data);
+		}
+	};
+
+	const loadMore = async () => {
+		let newOffset = offset + 20;
+		setOffset(newOffset);
+		const response = await NewRequest({
+			method: "GET",
+			route: "/core/v1.1/admin/links",
+			params: {
+				limit: 20,
+				offset: newOffset,
+			},
+			auth: true,
+		});
+		if (response.success) {
+			let data = response.data.data;
+			console.log(data);
+			setLinks([...links!, ...data]);
 		}
 	};
 
@@ -204,8 +224,10 @@ const LinksPage = () => {
 			</TeamHeader>
 			{/* Data Body */}
 			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
-				<p className="w-1/3 font-semibold">Route</p>
-				<p className="w-1/3 font-semibold">Destination</p>
+				<p className="w-[20%] font-semibold">Route</p>
+				<p className="w-[40%] font-semibold">Destination</p>
+				<p className="w-[10%] font-semibold">Creator</p>
+				<p className="w-[20%] font-semibold">Clicks</p>
 				<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
 			</div>
 			<div className="w-full h-[calc(100%-170px)] overflow-y-auto overflow-x-auto">
@@ -219,15 +241,23 @@ const LinksPage = () => {
 										key={index}
 										className="flex items-center w-full h-[70px] flex-shrink-0 hover:bg-slate-50"
 									>
-										<p className="w-1/3">/{link.route}</p>
+										<p className="w-[20%] pr-10">
+											/{link.route}
+										</p>
 										<a
-											className="w-1/3 break-all overflow-ellipsis line-clamp-2 overflow-hidden text-blue-600 font-medium"
+											className="w-[40%] break-all overflow-ellipsis line-clamp-2 overflow-hidden text-blue-600 font-medium pr-10"
 											href={link.destination}
 											target="_blank"
 										>
 											{link.destination}
 										</a>
-										<div className="w-1/3 flex justify-end pr-10 gap-3">
+										<p className="w-[10%] pr-10">
+											{link.creator.name}
+										</p>
+										<p className="w-[10%] pr-10">
+											{link.clicks}
+										</p>
+										<div className="w-[20%] flex justify-end pr-10 gap-3">
 											<button
 												className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
 												onClick={() => {
@@ -262,6 +292,16 @@ const LinksPage = () => {
 								<Spinner />
 							</div>
 						)}
+						{links && links.length > 0 ? (
+							<div className="w-full h-[150px] flex items-center justify-center">
+								<button
+									onClick={loadMore}
+									className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
+								>
+									Load More
+								</button>
+							</div>
+						) : null}
 					</>
 				</div>
 			</div>

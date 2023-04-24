@@ -18,9 +18,10 @@ import CreateVideoModal from "../../../components/pages/team/video/CreateVideoMo
 
 const VideosPage = () => {
 	const router = useRouter();
-	const [Videos, setVideos] = useState<Video[] | null>(null);
+	const [videos, setVideos] = useState<Video[] | null>(null);
 	const [showConfirmDeleteVideo, setShowConfirmDeleteVideo] =
 		useState<boolean>(false);
+	const [offset, setOffset] = useState<number>(0);
 
 	// Video Inspector
 	const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
@@ -40,7 +41,7 @@ const VideosPage = () => {
 			method: "GET",
 			route: "/core/v1.1/admin/videos",
 			params: {
-				limit: 50,
+				limit: 20,
 				offset: 0,
 			},
 			auth: true,
@@ -49,6 +50,25 @@ const VideosPage = () => {
 			let data = response.data.data;
 			console.log(data);
 			setVideos(data);
+		}
+	};
+
+	const loadMore = async () => {
+		let newOffset = offset + 20;
+		setOffset(newOffset);
+		const response = await NewRequest({
+			method: "GET",
+			route: "/core/v1.1/admin/videos",
+			params: {
+				limit: 20,
+				offset: newOffset,
+			},
+			auth: true,
+		});
+		if (response.success) {
+			let data = response.data.data;
+			console.log(data);
+			setVideos([...videos!, ...data]);
 		}
 	};
 
@@ -135,7 +155,7 @@ const VideosPage = () => {
 	};
 
 	return (
-		<TeamContainer pageTitle="Videos" router={router}>
+		<TeamContainer pageTitle="videos" router={router}>
 			<PageModal
 				titleText="Archive Video"
 				bodyText="Are you sure you want to archive this video? This action is irreversible."
@@ -247,7 +267,7 @@ const VideosPage = () => {
 				</TeamModal>
 			) : null}
 			{/* Team Heading */}
-			<TeamHeader title="System Videos">
+			<TeamHeader title="System videos">
 				<button
 					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
 					onClick={() => {
@@ -271,8 +291,8 @@ const VideosPage = () => {
 				{/* Table Body */}
 				<div className="w-full h-[calc(100%-70px)]">
 					<>
-						{Videos && Videos.length > 0 ? (
-							Videos.map((video, index) => {
+						{videos && videos.length > 0 ? (
+							videos.map((video, index) => {
 								return (
 									<div
 										key={index}
@@ -357,6 +377,16 @@ const VideosPage = () => {
 								<Spinner />
 							</div>
 						)}
+						{videos && videos.length > 0 ? (
+							<div className="w-full h-[150px] flex items-center justify-center">
+								<button
+									onClick={loadMore}
+									className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
+								>
+									Load More
+								</button>
+							</div>
+						) : null}
 					</>
 				</div>
 			</div>

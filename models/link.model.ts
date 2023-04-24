@@ -3,6 +3,7 @@ export interface Link {
     route: string
     destination: string
     active: boolean
+    clicks: number
     creator: LinkCreator
     inserted_at: string
   }
