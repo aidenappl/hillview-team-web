@@ -375,7 +375,7 @@ const VideosPage = () => {
 												{video.status.name}
 											</a>
 										</p>
-										<div className="w-[200px] flex gap-2 pr-10">
+										<div className="w-[200px] flex gap-2 pr-10 justify-end">
 											<button
 												className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
 												onClick={() => {
@@ -384,18 +384,24 @@ const VideosPage = () => {
 											>
 												Inspect
 											</button>
-											<Link
-												href={
-													"https://hillview.tv/watch?v=" +
-													video.uuid
-												}
-												target="_blank"
-												id={"watch-video-" + video.uuid}
-											>
-												<button className="px-4 text-sm py-1.5 bg-slate-600 hover:bg-slate-800 transition text-white rounded-md">
-													Watch
-												</button>
-											</Link>
+											{video.status.short_name !=
+											"draft" ? (
+												<Link
+													href={
+														"https://hillview.tv/watch?v=" +
+														video.uuid
+													}
+													target="_blank"
+													id={
+														"watch-video-" +
+														video.uuid
+													}
+												>
+													<button className="px-4 text-sm py-1.5 bg-slate-600 hover:bg-slate-800 transition text-white rounded-md">
+														Watch
+													</button>
+												</Link>
+											) : null}
 										</div>
 									</div>
 								);
