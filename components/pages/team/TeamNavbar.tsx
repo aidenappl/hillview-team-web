@@ -32,7 +32,7 @@ const TeamNavbar = (props: Props) => {
 		const { iconSize = "lg" } = props;
 		return (
 			<Link href={props.href}>
-				<div className="flex items-center w-full h-[55px] relative hover:bg-[#f7f9ff] pl-[15px] left-[-15px] rounded-2xl cursor-pointer group">
+				<div className="flex items-center w-full h-[50px] lg:h-[55px] relative hover:bg-[#f7f9ff] pl-[15px] left-[-15px] rounded-2xl cursor-pointer group">
 					<div
 						className={
 							"flex items-center justify-center " +
@@ -52,7 +52,7 @@ const TeamNavbar = (props: Props) => {
 					</div>
 					<p
 						className={
-							"font-medium pl-4 text-base " +
+							"font-medium pl-2 lg:pl-4 text-sm lg:text-base " +
 							(props.selected
 								? "text-[#3067f6]"
 								: "text-[#6b76ab]")
@@ -62,7 +62,7 @@ const TeamNavbar = (props: Props) => {
 					</p>
 					<div
 						className={
-							"h-full bg-blue-600 rounded-s-md transition-all right-[-55px] absolute top-0 " +
+							"h-full bg-blue-600 rounded-s-md transition-all right-[-45px] absolute top-0 " +
 							(props.selected ? "w-[9px]" : "w-0")
 						}
 					/>
@@ -74,13 +74,13 @@ const TeamNavbar = (props: Props) => {
 	let pathname = props.router.pathname;
 
 	return (
-		<div className="w-[250px] lg:w-[290px] xl:w-[325px] 2xl:w-[350px] h-ful p-[40px] relative flex flex-col gap-12">
+		<div className="w-[200px] text-sm lg:text-base lg:w-[290px] xl:w-[325px] 2xl:w-[350px] h-ful p-[30px] lg:p-[40px] relative flex flex-col gap-12">
 			{/* Logo */}
 			<div className="w-[60px] h-[60px] bg-blue-600 rounded-xl bg-[length:40px] bg-center bg-no-repeat bg-[url('/logos/hillviewTVSun.png')]" />
 			{/* Navigation */}
 			<div className="flex flex-col gap-8">
 				<div>
-					<h4 className="text-[#9fa9d3] tracking-tight text-base pb-3">
+					<h4 className="text-[#9fa9d3] tracking-tight text-sm lg:text-base pb-3">
 						SYSTEM
 					</h4>
 					{user.authentication.short_name == "admin" ? <div className="flex flex-col gap-0.5">
@@ -126,7 +126,7 @@ const TeamNavbar = (props: Props) => {
 					</div> : null}
 				</div>
 				{user.authentication.short_name == "admin" ? <div>
-					<h4 className="text-[#9fa9d3] tracking-tight text-base pb-3">
+					<h4 className="text-[#9fa9d3] tracking-tight text-sm lg:text-base pb-3">
 						CUSTOMIZATION
 					</h4>
 					<div className="flex flex-col gap-0.5">

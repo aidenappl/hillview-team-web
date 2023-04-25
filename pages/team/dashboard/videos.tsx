@@ -306,13 +306,12 @@ const VideosPage = () => {
 				</button>
 			</TeamHeader>
 			{/* Data Body */}
-			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
-				<div className="w-[300px]" />
-				<p className="w-[calc(25%-125px)] font-semibold">Title</p>
-				<p className="w-[calc(25%-125px)] font-semibold">UUID</p>
-				<p className="w-[calc(25%-125px)] font-semibold">Views</p>
-				<p className="w-[calc(25%-125px)] font-semibold">Status</p>
-				<div className="w-[200px]" />
+			<div className="text-sm lg:text-base flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
+				<div className="hidden md:block w-[200px] xl:w-[250px]" />
+				<p className="w-[calc(50%)] md:w-[calc(33%-100px)] xl:w-[calc(25%-125px)] font-semibold">Title</p>
+				<p className="hidden xl:block xl:w-[calc(25%-125px)] font-semibold">UUID</p>
+				<p className="w-[calc(50%)] md:w-[calc(33%-100px)] xl:w-[calc(25%-125px)] font-semibold">Views</p>
+				<p className="hidden md:block w-[calc(33%-100px)] xl:w-[calc(25%-125px)] font-semibold">Status</p>
 				<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
 			</div>
 			<div className="w-full h-[calc(100%-170px)] overflow-y-auto overflow-x-auto">
@@ -324,9 +323,9 @@ const VideosPage = () => {
 								return (
 									<div
 										key={index}
-										className="flex items-center w-full h-[100px] flex-shrink-0 hover:bg-slate-50"
+										className="text-sm lg:text-base relative flex items-center w-full h-[100px] flex-shrink-0 hover:bg-slate-50"
 									>
-										<div className="w-[300px] flex items-center justify-center">
+										<div className="px-2 hidden md:block w-[200px] xl:w-[250px] flex items-center justify-center shrink-0">
 											<div
 												className="relative w-[130px] h-[75px] rounded-md overflow-hidden shadow-md border cursor-pointer"
 												onClick={() => {
@@ -349,19 +348,19 @@ const VideosPage = () => {
 												/>
 											</div>
 										</div>
-										<p className="w-[calc(25%-125px)] pr-2">
+										<p className="w-[calc(50%)] md:w-[calc(33%-100px)] xl:w-[calc(25%-125px)] pr-2">
 											{video.title}
 										</p>
-										<p className="w-[calc(25%-125px)] pr-2">
+										<p className="hidden xl:block xl:w-[calc(25%-125px)] pr-2">
 											{video.uuid}
 										</p>
-										<p className="w-[calc(25%-125px)] pr-2">
+										<p className="w-[calc(50%)] md:w-[calc(33%-100px)] xl:w-[calc(25%-125px)] pr-2">
 											{video.views} views
 										</p>
-										<p className="w-[calc(25%-125px)]">
+										<p className="hidden md:block  w-[calc(33%-100px)] xl:w-[calc(25%-125px)]">
 											<a
 												className={
-													"px-3 py-1.5 text-sm rounded-md " +
+													"px-3 py-1.5 text-xs lg:text-sm rounded-md  " +
 													(video.status.short_name ==
 													"public"
 														? "text-white bg-green-500"
@@ -375,9 +374,9 @@ const VideosPage = () => {
 												{video.status.name}
 											</a>
 										</p>
-										<div className="w-[200px] flex gap-2 pr-10 justify-end">
+										<div className="flex gap-2 justify-end pr-2 absolute right-0">
 											<button
-												className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
+												className="px-4 text-xs lg:text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
 												onClick={() => {
 													setSelectedVideo(video);
 												}}
@@ -392,6 +391,7 @@ const VideosPage = () => {
 														video.uuid
 													}
 													target="_blank"
+													className="hidden lg:block "
 													id={
 														"watch-video-" +
 														video.uuid
