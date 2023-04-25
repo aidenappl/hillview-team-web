@@ -356,7 +356,7 @@ const VideosPage = () => {
 											{video.uuid}
 										</p>
 										<p className="w-[calc(25%-125px)] pr-2">
-											{video.views}
+											{video.views} views
 										</p>
 										<p className="w-[calc(25%-125px)]">
 											<a

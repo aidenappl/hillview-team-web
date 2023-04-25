@@ -10,18 +10,12 @@ import Link from "next/link";
 import TeamModal from "../../../components/pages/team/TeamModal";
 import TeamModalInput from "../../../components/pages/team/TeamModalInput";
 import toast from "react-hot-toast";
-import PageModal from "../../../components/general/PageModal";
 import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea";
-import { VideoStatus, VideoStatuses } from "../../../models/videoStatus.model";
-import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
 import CreateVideoModal from "../../../components/pages/team/video/CreateVideoModal";
-import TeamModalCheckbox from "../../../components/pages/team/TeamModalCheckbox";
 
 const VideosPage = () => {
 	const router = useRouter();
 	const [videos, setVideos] = useState<Video[] | null>(null);
-	const [showConfirmDeleteVideo, setShowConfirmDeleteVideo] =
-		useState<boolean>(false);
 	const [offset, setOffset] = useState<number>(0);
 
 	// Video Inspector
@@ -36,6 +30,7 @@ const VideosPage = () => {
 	const escFunction = useCallback((e: any) => {
 		if (e.key === "Escape") {
 			cancelVideoInspection();
+			setShowUploadVideo(false);
 		}
 	}, []);
 
@@ -145,47 +140,8 @@ const VideosPage = () => {
 		}
 	};
 
-	const archiveVideo = async () => {
-		const response = await NewRequest({
-			method: "PUT",
-			route: "/core/v1.1/admin/video/" + selectedVideo!.id,
-			body: {
-				changes: {
-					status: VideoStatus.Archived,
-				},
-			},
-			auth: true,
-		});
-		if (response.success) {
-			setSelectedVideo(null);
-			setChanges(null);
-			setSaving(false);
-			initialize();
-		} else {
-			console.error(response);
-			setSaving(false);
-			toast.error("Failed to save changes", {
-				position: "top-center",
-			});
-		}
-	};
-
 	return (
 		<TeamContainer pageTitle="Videos" router={router}>
-			<PageModal
-				titleText="Archive Video"
-				bodyText="Are you sure you want to archive this video? This action is irreversible."
-				primaryText="Archive"
-				secondaryText="Cancel"
-				cancelHit={() => {
-					// do nothing
-				}}
-				actionHit={() => {
-					archiveVideo();
-				}}
-				setShow={setShowConfirmDeleteVideo}
-				show={showConfirmDeleteVideo}
-			/>
 			{showUploadVideo ? (
 				<CreateVideoModal
 					saveDone={() => {
@@ -204,8 +160,7 @@ const VideosPage = () => {
 					saveActive={changes && Object.keys(changes).length > 0}
 					cancelHit={() => cancelVideoInspection()}
 					saveHit={() => saveVideoInspection()}
-					deleteHit={() => setShowConfirmDeleteVideo(true)}
-					destructiveText="Archive"
+					showDestructive={false}
 				>
 					<TeamModalInput
 						title="Title"
@@ -232,66 +187,6 @@ const VideosPage = () => {
 							}
 						}}
 					/>
-					<TeamModalSelect
-						title="Status"
-						values={VideoStatuses}
-						value={selectedVideo.status}
-						setValue={(value) => {
-							if (value.id != selectedVideo.status.id) {
-								inputChange({ status: value.id });
-							} else {
-								deleteChange("status");
-							}
-						}}
-					/>
-					<TeamModalInput
-						title="Source URL"
-						placeholder="Video Source URL"
-						value={selectedVideo.url}
-						setValue={(value: string) => {
-							if (value != selectedVideo.url) {
-								inputChange({ url: value });
-							} else {
-								deleteChange("url");
-							}
-						}}
-					/>
-					<TeamModalInput
-						title="Thumbnail URL"
-						placeholder="Video Thumbnail URL"
-						value={selectedVideo.thumbnail}
-						setValue={(value: string) => {
-							if (value != selectedVideo.thumbnail) {
-								inputChange({ thumbnail: value });
-							} else {
-								deleteChange("thumbnail");
-							}
-						}}
-					/>
-					<TeamModalInput
-						title="Download URL"
-						placeholder="Video Download URL"
-						value={selectedVideo.download_url}
-						setValue={(value: string) => {
-							if (value != selectedVideo.download_url) {
-								inputChange({ download_url: value });
-							} else {
-								deleteChange("download_url");
-							}
-						}}
-					/>
-					<TeamModalCheckbox
-						title="Allow Downloads"
-						runner="Do you want to allow video downloads for this video?"
-						value={selectedVideo.allow_downloads}
-						setValue={(value: boolean) => {
-							if (value != selectedVideo.allow_downloads) {
-								inputChange({ allow_downloads: value });
-							} else {
-								deleteChange("allow_downloads");
-							}
-						}}
-					/>
 				</TeamModal>
 			) : null}
 			{/* Team Heading */}
@@ -308,10 +203,9 @@ const VideosPage = () => {
 			{/* Data Body */}
 			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
 				<div className="w-[300px]" />
-				<p className="w-[calc(25%-125px)] font-semibold">Title</p>
-				<p className="w-[calc(25%-125px)] font-semibold">UUID</p>
-				<p className="w-[calc(25%-125px)] font-semibold">Views</p>
-				<p className="w-[calc(25%-125px)] font-semibold">Status</p>
+				<p className="w-[calc(33%-167px)] font-semibold">Title</p>
+				<p className="w-[calc(33%-167px)] font-semibold">Views</p>
+				<p className="w-[calc(33%-167px)] font-semibold">Status</p>
 				<div className="w-[200px]" />
 				<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
 			</div>
@@ -349,16 +243,13 @@ const VideosPage = () => {
 												/>
 											</div>
 										</div>
-										<p className="w-[calc(25%-125px)] pr-2">
+										<p className="w-[calc(33%-167px)] pr-2">
 											{video.title}
 										</p>
-										<p className="w-[calc(25%-125px)] pr-2">
-											{video.uuid}
+										<p className="w-[calc(33%-167px)] pr-2">
+											{video.views} views
 										</p>
-										<p className="w-[calc(25%-125px)] pr-2">
-											{video.views}
-										</p>
-										<p className="w-[calc(25%-125px)]">
+										<p className="w-[calc(33%-167px)]">
 											<a
 												className={
 													"px-3 py-1.5 text-sm rounded-md " +
