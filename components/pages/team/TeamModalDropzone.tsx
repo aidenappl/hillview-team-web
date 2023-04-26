@@ -52,14 +52,14 @@ const TeamModalDropzone = (props: Props) => {
 									id="file-upload"
 									name="file-upload"
 									type="file"
-									accept="video/mp4,video/x-m4v"
+									accept=".mp4"
 									className="sr-only"
 									onChange={onChange}
 								/>
 							</label>
 						</div>
 						<p className="text-xs leading-5 text-gray-600">
-							MP4s or M4Vs up to 5GB
+							MP4s up to 5GB
 						</p>
 					</div>
 				) : null}

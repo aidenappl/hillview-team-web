@@ -166,6 +166,15 @@ const CreateVideoModal = (props: Props) => {
 				onChange={async (e) => {
 					if (e.target.files && e.target.files.length > 0) {
 						let file = e.target.files[0];
+						// check if file type is mp4
+						console.log(file.name);
+						if (
+							file.type !== "video/mp4" ||
+							!file.name.endsWith(".mp4")
+						) {
+							toast.error("File must be an mp4");
+							return;
+						}
 						setDropzoneState("loading");
 						// set the file name to be video title if empty
 						if (!video.title || video.title?.length == 0) {
