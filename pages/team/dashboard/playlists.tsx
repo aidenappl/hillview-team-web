@@ -316,7 +316,7 @@ const PlaylistsPage = () => {
 								dropdownClick={(item) => {
 									setSearchResults(null);
 									if (
-										selectedPlaylist.videos.find(
+										selectedPlaylist?.videos?.find(
 											(v: Video) => v.id == item.id
 										)
 									) {
