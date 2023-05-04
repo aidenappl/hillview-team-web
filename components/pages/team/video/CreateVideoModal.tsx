@@ -7,6 +7,8 @@ import TeamModalTextarea from "../TeamModalTextarea";
 import ValidVideo from "../../../../validators/video.validator";
 import TeamModalDropzone, { DropzoneStates } from "../TeamModalDropzone";
 import UploadVideo from "../../../../services/uploadVideo";
+import TeamModalUploader from "../TeamModalUploader";
+import UploadImage from "../../../../services/uploadHandler";
 
 interface Props {
 	cancelHit?: () => void;
@@ -24,6 +26,7 @@ const CreateVideoModal = (props: Props) => {
 	const [uploadStatus, setUploadStatus] = useState<"progress" | "label">(
 		"progress"
 	);
+	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
 
 	const {
 		cancelHit = () => {},
@@ -218,20 +221,68 @@ const CreateVideoModal = (props: Props) => {
 				}}
 			/>
 			<TeamModalInput
-				title="Thumbnail URL"
-				placeholder="Enter the Thumbnail URL of the video..."
-				value={video.thumbnail}
-				required
-				setValue={(value: string): void => {
-					if (value.length > 0) {
-						inputChange({
-							thumbnail: value,
-						});
-					} else {
-						deleteChange("thumbnail");
-					}
-				}}
-			/>
+						title="Thumbnail URL"
+						placeholder="Video Thumbnail URL"
+						value={video.thumbnail}
+						setValue={(value: string) => {
+							if (value != video.thumbnail) {
+								inputChange({ thumbnail: value });
+							} else {
+								deleteChange("thumbnail");
+							}
+						}}
+					/>
+					<TeamModalUploader
+						imageSource={video.thumbnail}
+						altText={video.title}
+						showImageLoader={showImageLoader}
+						onChange={async (e: any): Promise<void> => {
+							if (e.target.files && e.target.files.length > 0) {
+								if (e.target.files.length != 1) {
+									toast.error("Please only upload one image");
+									return;
+								}
+								const file = e.target.files[0];
+								console.log(file);
+								// check max size 1mb
+								if (file.size > 1000000) {
+									toast.error(
+										"Please upload an image smaller than 1MB"
+									);
+									return;
+								}
+
+								// check file type
+								if (!file.type.includes("image")) {
+									toast.error("Please upload an image");
+									return;
+								}
+
+								// toggle loader
+								setShowImageLoader(true);
+
+								// upload image
+								let result = await UploadImage({
+									image: file,
+									route: "thumbnails/",
+									id: 100,
+								});
+								if (result.success) {
+									setShowImageLoader(false);
+									console.log(result.data.data.url)
+									inputChange({
+										thumbnail: result.data.data.url,
+									});
+								} else {
+									console.error(result);
+									toast.error("Failed to upload image", {
+										position: "top-center",
+									});
+									setShowImageLoader(false);
+								}
+							}
+						}}
+					/>
 			<TeamModalInput
 				title="Download URL"
 				placeholder="Enter the Download URL of the video..."
