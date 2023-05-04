@@ -1,3 +1,4 @@
+import { Video } from './video.model';
 import { GeneralNSM } from "./generalNSM.model";
 import { PlaylistStatus, PlaylistStatuses } from "./playlistStatus.model";
 export interface Playlist {
@@ -8,5 +9,5 @@ export interface Playlist {
 	status: GeneralNSM;
 	route: string;
 	inserted_at: string;
-	videos: any;
+	videos?: Video[];
 }
