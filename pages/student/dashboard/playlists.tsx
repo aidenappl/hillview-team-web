@@ -256,7 +256,10 @@ const PlaylistsPage = () => {
 							<TeamModalInput
 								title="Banner Image URL"
 								placeholder="Playlist Banner Image URL"
-								value={changes?.banner_image || selectedPlaylist.banner_image}
+								value={
+									changes?.banner_image ||
+									selectedPlaylist.banner_image
+								}
 								setValue={(value: string) => {
 									if (
 										value != selectedPlaylist.banner_image
@@ -313,7 +316,8 @@ const PlaylistsPage = () => {
 								dropdownClick={(item) => {
 									setSearchResults(null);
 									if (
-										selectedPlaylist.videos.find(
+										selectedPlaylist?.videos &&
+										selectedPlaylist?.videos!.find(
 											(v: Video) => v.id == item.id
 										)
 									) {
@@ -330,8 +334,9 @@ const PlaylistsPage = () => {
 										setSelectedPlaylist({
 											...selectedPlaylist,
 											videos: [
-												item,
-												...selectedPlaylist.videos,
+												item as any,
+												...(selectedPlaylist.videos ||
+													[]),
 											],
 										});
 									}
@@ -369,66 +374,71 @@ const PlaylistsPage = () => {
 									}
 								}}
 							/>
-							<TeamModalList
-								title={"Playlist Videos"}
-								list={GenerateGeneralNSM(
-									selectedPlaylist.videos
-								)}
-								destructiveClick={(item) => {
-									// add to remove_videos
-									if (
-										changes?.add_videos?.indexOf(item.id) >
-										-1
-									) {
-										// remove from add_videos
-										let arrChanges = changes?.add_videos;
-										if (arrChanges.length == 1) {
-											deleteChange("add_videos");
-										} else {
-											if (!arrChanges) {
-												arrChanges = [];
-											}
-											arrChanges.splice(
-												arrChanges.indexOf(item.id),
-												1
-											);
-											inputChange({
-												add_videos: arrChanges,
-											});
-										}
-									} else {
+							{selectedPlaylist.videos ? (
+								<TeamModalList
+									title={"Playlist Videos"}
+									list={GenerateGeneralNSM(
+										selectedPlaylist.videos
+									)}
+									destructiveClick={(item) => {
 										// add to remove_videos
 										if (
-											changes?.remove_videos?.length == 1
+											changes?.add_videos?.indexOf(
+												item.id
+											) > -1
 										) {
-											deleteChange("remove_videos");
-										} else {
-											let arr = [];
-											if (changes?.remove_videos) {
-												arr = changes.remove_videos;
+											// remove from add_videos
+											let arrChanges =
+												changes?.add_videos;
+											if (arrChanges.length == 1) {
+												deleteChange("add_videos");
+											} else {
+												if (!arrChanges) {
+													arrChanges = [];
+												}
+												arrChanges.splice(
+													arrChanges.indexOf(item.id),
+													1
+												);
+												inputChange({
+													add_videos: arrChanges,
+												});
 											}
-											arr.push(item.id);
-											inputChange({
-												remove_videos: arr,
-											});
+										} else {
+											// add to remove_videos
+											if (
+												changes?.remove_videos
+													?.length == 1
+											) {
+												deleteChange("remove_videos");
+											} else {
+												let arr = [];
+												if (changes?.remove_videos) {
+													arr = changes.remove_videos;
+												}
+												arr.push(item.id);
+												inputChange({
+													remove_videos: arr,
+												});
+											}
 										}
-									}
-									setSelectedPlaylist({
-										...selectedPlaylist,
-										videos: selectedPlaylist.videos.filter(
-											(video: Video) =>
-												video.id != item.id
-										),
-									});
-								}}
-								itemClick={(item) => {
-									window.open(
-										"https://hillview.tv/watch?v=" +
-											item.id,
-										"_blank"
-									);
-								}}
-							/>
+										setSelectedPlaylist({
+											...selectedPlaylist,
+											videos: selectedPlaylist.videos!.filter(
+												(video: Video) =>
+													video.id != item.id
+											),
+										});
+									}}
+									itemClick={(item) => {
+										window.open(
+											"https://hillview.tv/watch?v=" +
+												item.id,
+											"_blank"
+										);
+									}}
+								/>
+							) : null}
 						</div>
 					) : null}
 				</TeamModal>
@@ -496,7 +506,7 @@ const PlaylistsPage = () => {
 											/{playlist.route}
 										</p>
 										<p className="w-[calc(33%-170px)]">
-											{playlist.videos.length} Videos
+											{playlist.videos?.length || 0} Videos
 										</p>
 										<div className="w-[200px] flex gap-2 pr-10">
 											<button
