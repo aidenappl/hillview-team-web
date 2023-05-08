@@ -12,6 +12,8 @@ import TeamModalInput from "../../../components/pages/team/TeamModalInput";
 import toast from "react-hot-toast";
 import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea";
 import CreateVideoModal from "../../../components/pages/team/video/CreateVideoModal";
+import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
+import UploadImage from "../../../services/uploadHandler";
 
 const VideosPage = () => {
 	const router = useRouter();
@@ -22,6 +24,7 @@ const VideosPage = () => {
 	const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
 	const [saving, setSaving] = useState<boolean>(false);
 	const [changes, setChanges] = useState<any>(null);
+	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
 
 	// Video Uploader
 	const [showUploadVideo, setShowUploadVideo] = useState<boolean>(false);
@@ -184,6 +187,69 @@ const VideosPage = () => {
 								inputChange({ description: value });
 							} else {
 								deleteChange("description");
+							}
+						}}
+					/>
+					<TeamModalInput
+						title="Thumbnail URL"
+						placeholder="Video Thumbnail URL"
+						value={changes?.thumbnail || selectedVideo.thumbnail}
+						setValue={(value: string) => {
+							if (value != selectedVideo.thumbnail) {
+								inputChange({ thumbnail: value });
+							} else {
+								deleteChange("thumbnail");
+							}
+						}}
+					/>
+					<TeamModalUploader
+						imageSource={changes?.thumbnail || selectedVideo.thumbnail}
+						altText={selectedVideo.title}
+						showImageLoader={showImageLoader}
+						onChange={async (e: any): Promise<void> => {
+							if (e.target.files && e.target.files.length > 0) {
+								if (e.target.files.length != 1) {
+									toast.error("Please only upload one image");
+									return;
+								}
+								const file = e.target.files[0];
+								console.log(file);
+								// check max size 1mb
+								if (file.size > 1000000) {
+									toast.error(
+										"Please upload an image smaller than 1MB"
+									);
+									return;
+								}
+
+								// check file type
+								if (!file.type.includes("image")) {
+									toast.error("Please upload an image");
+									return;
+								}
+
+								// toggle loader
+								setShowImageLoader(true);
+
+								// upload image
+								let result = await UploadImage({
+									image: file,
+									route: "thumbnails/",
+									id: selectedVideo.id,
+								});
+								if (result.success) {
+									setShowImageLoader(false);
+									console.log(result.data.data.url)
+									inputChange({
+										thumbnail: result.data.data.url,
+									});
+								} else {
+									console.error(result);
+									toast.error("Failed to upload image", {
+										position: "top-center",
+									});
+									setShowImageLoader(false);
+								}
 							}
 						}}
 					/>
