@@ -173,9 +173,10 @@ const CreateVideoModal = (props: Props) => {
 						console.log(file.name);
 						if (
 							file.type !== "video/mp4" ||
-							!file.name.endsWith(".mp4")
+							!file.name.endsWith(".mp4") &&
+							!file.name.endsWith(".m4v") 
 						) {
-							toast.error("File must be an mp4");
+							toast.error("File must be an mp4 or m4v");
 							return;
 						}
 						setDropzoneState("loading");
