@@ -14,6 +14,11 @@ interface Props {
 
 	setDelayedValue?: (value: string) => void;
 	delay?: number;
+
+	showActionButton?: boolean;
+	actionButtonText?: string;
+	disabled?: boolean;
+	actionButtonClick?: () => void;
 }
 
 const TeamModalInput = (props: Props) => {
@@ -22,6 +27,10 @@ const TeamModalInput = (props: Props) => {
 		setDelayedValue = () => {},
 		delay = 500,
 		dropdownClick = () => {},
+		showActionButton = false,
+		actionButtonText = "Untitled",
+		disabled = false,
+		actionButtonClick = () => {},
 	} = props;
 
 	const [internalValue, setInternalValue] = useState(props.value || "");
@@ -44,16 +53,27 @@ const TeamModalInput = (props: Props) => {
 				{props.title}
 				{props.required ? <p className="text-red-700">*</p> : null}
 			</label>
-			<input
-				type="text"
-				placeholder={props.placeholder}
-				value={internalValue}
-				onChange={(e) => {
-					setInternalValue(e.target.value);
-					setValue(e.target.value);
-				}}
-				className="shadow-sm w-full h-[40px] border rounded-md px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-			/>
+			<div className="flex gap-3">
+				<input
+					type="text"
+					disabled={disabled}
+					placeholder={props.placeholder}
+					value={internalValue}
+					onChange={(e) => {
+						setInternalValue(e.target.value);
+						setValue(e.target.value);
+					}}
+					className="shadow-sm w-full h-[40px] border rounded-md px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+				/>
+				{showActionButton ? (
+					<button
+						className="bg-blue-600 text-white rounded-md whitespace-nowrap px-3 shadow-md text-sm outline-none focus:ring-blue-500 focus:ring-2 hover:bg-blue-700"
+						onClick={actionButtonClick}
+					>
+						{actionButtonText}
+					</button>
+				) : null}
+			</div>
 			{props.dropdown && props.dropdown.length > 0 ? (
 				<div className="absolute top-[75px] z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
 					{props.dropdown.map((item, index) => (

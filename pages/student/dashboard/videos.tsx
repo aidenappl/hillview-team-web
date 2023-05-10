@@ -14,6 +14,7 @@ import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea"
 import CreateVideoModal from "../../../components/pages/team/video/CreateVideoModal";
 import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
 import UploadImage from "../../../services/uploadHandler";
+import SelectThumbnailModal from "../../../components/pages/team/video/SelectThumbnailModal";
 
 const VideosPage = () => {
 	const router = useRouter();
@@ -145,6 +146,7 @@ const VideosPage = () => {
 
 	return (
 		<TeamContainer pageTitle="Videos" router={router}>
+			<SelectThumbnailModal />
 			{showUploadVideo ? (
 				<CreateVideoModal
 					saveDone={() => {
@@ -193,6 +195,8 @@ const VideosPage = () => {
 					<TeamModalInput
 						title="Thumbnail URL"
 						placeholder="Video Thumbnail URL"
+						showActionButton={true}
+						actionButtonText="Grab"
 						value={changes?.thumbnail || selectedVideo.thumbnail}
 						setValue={(value: string) => {
 							if (value != selectedVideo.thumbnail) {
@@ -203,7 +207,9 @@ const VideosPage = () => {
 						}}
 					/>
 					<TeamModalUploader
-						imageSource={changes?.thumbnail || selectedVideo.thumbnail}
+						imageSource={
+							changes?.thumbnail || selectedVideo.thumbnail
+						}
 						altText={selectedVideo.title}
 						showImageLoader={showImageLoader}
 						onChange={async (e: any): Promise<void> => {
@@ -239,7 +245,7 @@ const VideosPage = () => {
 								});
 								if (result.success) {
 									setShowImageLoader(false);
-									console.log(result.data.data.url)
+									console.log(result.data.data.url);
 									inputChange({
 										thumbnail: result.data.data.url,
 									});

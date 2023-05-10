@@ -25,7 +25,7 @@ const TeamModal = (props: Props) => {
 		<>
 			<div
 				className={
-					"w-[650px] h-fit px-8 pt-8 bg-white border rounded-md absolute full-center flex flex-col z-50 "
+					"w-[650px] h-fit px-8 pt-8 bg-white border rounded-md absolute full-center flex flex-col z-20 "
 				}
 			>
 				<div
@@ -73,7 +73,7 @@ const TeamModal = (props: Props) => {
 				</div>
 			</div>
 			<div
-				className="h-screen w-screen fixed top-0 left-0 bg-black opacity-5 z-40"
+				className="h-screen w-screen fixed top-0 left-0 bg-black opacity-5 z-10"
 				onClick={() => props.cancelHit()}
 			/>
 		</>

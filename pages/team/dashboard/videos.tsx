@@ -18,6 +18,7 @@ import CreateVideoModal from "../../../components/pages/team/video/CreateVideoMo
 import TeamModalCheckbox from "../../../components/pages/team/TeamModalCheckbox";
 import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
 import UploadImage from "../../../services/uploadHandler";
+import SelectThumbnailModal from "../../../components/pages/team/video/SelectThumbnailModal";
 
 const VideosPage = () => {
 	const router = useRouter();
@@ -34,6 +35,10 @@ const VideosPage = () => {
 
 	// Video Uploader
 	const [showUploadVideo, setShowUploadVideo] = useState<boolean>(false);
+
+	// Thumbnail Selector
+	const [showThumbnailSelector, setShowThumbnailSelector] =
+		useState<boolean>(false);
 
 	// Escape Handlers
 	const escFunction = useCallback((e: any) => {
@@ -95,6 +100,7 @@ const VideosPage = () => {
 		setSelectedVideo(null);
 		setChanges(null);
 		setSaving(false);
+		setShowThumbnailSelector(false);
 	};
 
 	const inputChange = async (modifier: Object) => {
@@ -175,6 +181,16 @@ const VideosPage = () => {
 
 	return (
 		<TeamContainer pageTitle="Videos" router={router}>
+			<SelectThumbnailModal
+				url={selectedVideo ? selectedVideo!.download_url : ""}
+				show={showThumbnailSelector}
+				exit={() => {
+					setShowThumbnailSelector(false);
+				}}
+				success={(url: string) => {
+					inputChange({ thumbnail: url });
+				}}
+			/>
 			<PageModal
 				titleText="Archive Video"
 				bodyText="Are you sure you want to archive this video? This action is irreversible."
@@ -262,6 +278,11 @@ const VideosPage = () => {
 					<TeamModalInput
 						title="Thumbnail URL"
 						placeholder="Video Thumbnail URL"
+						showActionButton={true}
+						actionButtonText="Video Grab"
+						actionButtonClick={() => {
+							setShowThumbnailSelector(true);
+						}}
 						value={changes?.thumbnail || selectedVideo.thumbnail}
 						setValue={(value: string) => {
 							if (value != selectedVideo.thumbnail) {
@@ -272,7 +293,9 @@ const VideosPage = () => {
 						}}
 					/>
 					<TeamModalUploader
-						imageSource={changes?.thumbnail || selectedVideo.thumbnail}
+						imageSource={
+							changes?.thumbnail || selectedVideo.thumbnail
+						}
 						altText={selectedVideo.title}
 						showImageLoader={showImageLoader}
 						onChange={async (e: any): Promise<void> => {
@@ -308,7 +331,7 @@ const VideosPage = () => {
 								});
 								if (result.success) {
 									setShowImageLoader(false);
-									console.log(result.data.data.url)
+									console.log(result.data.data.url);
 									inputChange({
 										thumbnail: result.data.data.url,
 									});
