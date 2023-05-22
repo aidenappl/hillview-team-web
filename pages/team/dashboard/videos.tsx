@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import TeamContainer from "../../../components/pages/team/TeamContainer";
 import TeamHeader from "../../../components/pages/team/TeamHeader";
 import Spinner from "../../../components/general/Spinner";
-import { ChangeEventHandler, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Video } from "../../../models/video.model";
 import Image from "next/image";
 import { NewRequest } from "../../../services/http/requestHandler";
@@ -19,6 +19,7 @@ import TeamModalCheckbox from "../../../components/pages/team/TeamModalCheckbox"
 import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
 import UploadImage from "../../../services/uploadHandler";
 import SelectThumbnailModal from "../../../components/pages/team/video/SelectThumbnailModal";
+import imageCompression from "browser-image-compression";
 
 const VideosPage = () => {
 	const router = useRouter();
@@ -305,42 +306,84 @@ const VideosPage = () => {
 									return;
 								}
 								const file = e.target.files[0];
-								console.log(file);
 								// check max size 1mb
 								if (file.size > 1000000) {
-									toast.error(
-										"Please upload an image smaller than 1MB"
+									// alert and ask if they want to compress
+									let response = window.confirm(
+										"Image is larger than 1MB. Would you like to compress it?"
 									);
+									if (response) {
+										// toggle loader
+										setShowImageLoader(true);
+
+										// compress image
+										const options = {
+											maxSizeMB: 1,
+											useWebWorker: true,
+										};
+										const compressedFile =
+											await imageCompression(
+												file,
+												options
+											);
+
+										// upload image
+										let result = await UploadImage({
+											image: compressedFile,
+											route: "thumbnails/",
+											id: selectedVideo.id,
+										});
+										if (result.success) {
+											setShowImageLoader(false);
+											console.log(result.data.data.url);
+											inputChange({
+												thumbnail: result.data.data.url,
+											});
+										} else {
+											console.error(result);
+											toast.error(
+												"Failed to upload image",
+												{
+													position: "top-center",
+												}
+											);
+											setShowImageLoader(false);
+										}
+									} else {
+										toast.error(
+											"Please upload an image smaller than 1MB"
+										);
+									}
 									return;
-								}
-
-								// check file type
-								if (!file.type.includes("image")) {
-									toast.error("Please upload an image");
-									return;
-								}
-
-								// toggle loader
-								setShowImageLoader(true);
-
-								// upload image
-								let result = await UploadImage({
-									image: file,
-									route: "thumbnails/",
-									id: selectedVideo.id,
-								});
-								if (result.success) {
-									setShowImageLoader(false);
-									console.log(result.data.data.url);
-									inputChange({
-										thumbnail: result.data.data.url,
-									});
 								} else {
-									console.error(result);
-									toast.error("Failed to upload image", {
-										position: "top-center",
+									// check file type
+									if (!file.type.includes("image")) {
+										toast.error("Please upload an image");
+										return;
+									}
+
+									// toggle loader
+									setShowImageLoader(true);
+
+									// upload image
+									let result = await UploadImage({
+										image: file,
+										route: "thumbnails/",
+										id: selectedVideo.id,
 									});
-									setShowImageLoader(false);
+									if (result.success) {
+										setShowImageLoader(false);
+										console.log(result.data.data.url);
+										inputChange({
+											thumbnail: result.data.data.url,
+										});
+									} else {
+										console.error(result);
+										toast.error("Failed to upload image", {
+											position: "top-center",
+										});
+										setShowImageLoader(false);
+									}
 								}
 							}
 						}}
