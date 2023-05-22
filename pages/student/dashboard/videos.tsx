@@ -38,6 +38,10 @@ const VideosPage = () => {
 		}
 	}, []);
 
+	// Thumbnail Selector
+	const [showThumbnailSelector, setShowThumbnailSelector] =
+		useState<boolean>(false);
+
 	useEffect(() => {
 		document.addEventListener("keydown", escFunction, false);
 
@@ -146,7 +150,16 @@ const VideosPage = () => {
 
 	return (
 		<TeamContainer pageTitle="Videos" router={router}>
-			<SelectThumbnailModal />
+			<SelectThumbnailModal
+				url={selectedVideo ? selectedVideo!.download_url : ""}
+				show={showThumbnailSelector}
+				exit={() => {
+					setShowThumbnailSelector(false);
+				}}
+				success={(url: string) => {
+					inputChange({ thumbnail: url });
+				}}
+			/>
 			{showUploadVideo ? (
 				<CreateVideoModal
 					saveDone={() => {
