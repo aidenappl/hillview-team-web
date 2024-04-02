@@ -35,7 +35,14 @@ const VideosPage = () => {
 	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
 
 	// Video Uploader
-	const [showUploadVideo, setShowUploadVideo] = useState<boolean>(true);
+	const [showUploadVideo, setShowUploadVideo] = useState<boolean>(false);
+
+	// Video Inspector DownloadButton
+	const [downloadButtonParams, setDownloadButtonParams] = useState<any>({
+		loading: false,
+		text: "Generate Download",
+		disabled: false,
+	});
 
 	// Thumbnail Selector
 	const [showThumbnailSelector, setShowThumbnailSelector] =
@@ -62,6 +69,7 @@ const VideosPage = () => {
 
 	const initialize = async () => {
 		setVideos(null);
+		setOffset(0);
 		const response = await NewRequest({
 			method: "GET",
 			route: "/core/v1.1/admin/videos",
@@ -75,6 +83,55 @@ const VideosPage = () => {
 			let data = response.data.data;
 			console.log(data);
 			setVideos(data);
+		}
+	};
+
+	const generateCloudflareDownload = async () => {
+		if (
+			selectedVideo &&
+			selectedVideo.url &&
+			selectedVideo.url.includes(
+				"https://customer-nakrsdfbtn3mdz5z.cloudflarestream.com"
+			)
+		) {
+			setDownloadButtonParams({
+				loading: true,
+				text: "Generating...",
+				disabled: false,
+			});
+			let id = selectedVideo.url.match(
+				`cloudflarestream\.com\/([a-zA-Z0-9]+)\/manifest`
+			)?.[1];
+			if (id && id.length > 0) {
+				const response = await NewRequest({
+					method: "POST",
+					route: `/video/v1.1/upload/cf/${id}/generateDownload`,
+					auth: true,
+				});
+				if (response.success) {
+					console.log(response.data.result.default.url);
+					inputChange({
+						download_url: response.data.result.default.url,
+					});
+					setDownloadButtonParams({
+						loading: false,
+						disabled: true,
+						text: "Done",
+					});
+				} else {
+					console.error(response);
+					toast.error(response.message);
+					setDownloadButtonParams({
+						loading: false,
+						disabled: false,
+						text: "Failed",
+					});
+				}
+			} else {
+				toast.error("Please enter a valid source URL first");
+			}
+		} else {
+			toast.error("Please enter a source URL first");
 		}
 	};
 
@@ -391,13 +448,29 @@ const VideosPage = () => {
 					<TeamModalInput
 						title="Download URL"
 						placeholder="Video Download URL"
-						value={selectedVideo.download_url}
+						value={
+							changes && changes.download_url
+								? changes.download_url
+								: selectedVideo.download_url
+						}
 						setValue={(value: string) => {
 							if (value != selectedVideo.download_url) {
 								inputChange({ download_url: value });
 							} else {
 								deleteChange("download_url");
 							}
+						}}
+						showActionButton={
+							selectedVideo.url &&
+							selectedVideo.url.includes("cloudflarestream") &&
+							!selectedVideo.download_url
+								? true
+								: false
+						}
+						actionButtonText={downloadButtonParams.text}
+						actionButtonLoading={downloadButtonParams.loading}
+						actionButtonClick={() => {
+							generateCloudflareDownload();
 						}}
 					/>
 					<TeamModalCheckbox

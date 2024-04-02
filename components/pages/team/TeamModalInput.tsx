@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { GeneralNSM } from "../../../models/generalNSM.model";
+import Spinner from "../../general/Spinner";
 
 interface Props {
 	placeholder?: string;
@@ -17,6 +18,8 @@ interface Props {
 
 	showActionButton?: boolean;
 	actionButtonText?: string;
+	actionButtonLoading?: boolean;
+	actionButtonDisabled?: boolean;
 	disabled?: boolean;
 	actionButtonClick?: () => void;
 }
@@ -28,6 +31,8 @@ const TeamModalInput = (props: Props) => {
 		delay = 500,
 		dropdownClick = () => {},
 		showActionButton = false,
+		actionButtonLoading = false,
+		actionButtonDisabled = false,
 		actionButtonText = "Untitled",
 		disabled = false,
 		actionButtonClick = () => {},
@@ -68,9 +73,12 @@ const TeamModalInput = (props: Props) => {
 				{showActionButton ? (
 					<button
 						className="bg-blue-600 text-white rounded-md whitespace-nowrap px-3 shadow-md text-sm outline-none focus:ring-blue-500 focus:ring-2 hover:bg-blue-700"
-						onClick={actionButtonClick}
+						onClick={
+							!actionButtonDisabled ? actionButtonClick : () => {}
+						}
 					>
-						{actionButtonText}
+						{actionButtonLoading && <Spinner style="light" />}
+						{!actionButtonLoading && <p>{actionButtonText}</p>}
 					</button>
 				) : null}
 			</div>

@@ -26,6 +26,11 @@ const CreateVideoModal = (props: Props) => {
 	const [uploadProgress, setUploadProgress] = useState<number>(0);
 	const [encodeProgress, setEncodingProgress] = useState<number>(0);
 	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
+	const [downloadButtonParams, setDownloadButtonParams] = useState<any>({
+		loading: false,
+		text: "Generate Download",
+		disabled: false,
+	});
 	// Thumbnail Selector
 	const [showThumbnailSelector, setShowThumbnailSelector] =
 		useState<boolean>(false);
@@ -55,6 +60,54 @@ const CreateVideoModal = (props: Props) => {
 			} else if (typeof newChanges[k] === "object" && splitKey[0] == k) {
 				deleteChange(splitKey[1], newChanges[k]);
 			}
+		}
+	};
+
+	const generateCloudflareDownload = async () => {
+		if (
+			video.url &&
+			video.url.includes(
+				"https://customer-nakrsdfbtn3mdz5z.cloudflarestream.com"
+			)
+		) {
+			setDownloadButtonParams({
+				loading: true,
+				text: "Generating...",
+				disabled: false,
+			});
+			let id = video.url.match(
+				`cloudflarestream\.com\/([a-zA-Z0-9]+)\/manifest`
+			)[1];
+			if (id && id.length > 0) {
+				const response = await NewRequest({
+					method: "POST",
+					route: `/video/v1.1/upload/cf/${id}/generateDownload`,
+					auth: true,
+				});
+				if (response.success) {
+					console.log(response.data);
+					inputChange({
+						download_url: response.data.result.default.url,
+					});
+					setDownloadButtonParams({
+						loading: false,
+						disabled: true,
+						text: "Done",
+					});
+				} else {
+					console.error(response);
+					toast.error(response.message);
+					setDownloadButtonParams({
+						loading: false,
+						disabled: false,
+						text: "Failed",
+					});
+				}
+			} else {
+				toast.error("Please enter a valid source URL first");
+			}
+		} else {
+			toast.error("Please enter a source URL first");
 		}
 	};
 
@@ -294,6 +347,16 @@ const CreateVideoModal = (props: Props) => {
 						} else {
 							deleteChange("download_url");
 						}
+					}}
+					showActionButton={
+						video.url &&
+						video.url.includes("cloudflarestream.com") &&
+						!video.download_url
+					}
+					actionButtonText={downloadButtonParams.text}
+					actionButtonLoading={downloadButtonParams.loading}
+					actionButtonClick={() => {
+						generateCloudflareDownload();
 					}}
 				/>
 			</TeamModal>
