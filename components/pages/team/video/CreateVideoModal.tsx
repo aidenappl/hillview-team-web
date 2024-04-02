@@ -270,11 +270,11 @@ const CreateVideoModal = (props: Props) => {
 					title="Thumbnail URL"
 					placeholder="Video Thumbnail URL"
 					value={video.thumbnail}
-					showActionButton={video.download_url ? true : false}
-					actionButtonText="Grab Thumbnail"
-					actionButtonClick={() => {
-						setShowThumbnailSelector(true);
-					}}
+					// showActionButton={video.download_url ? true : false}
+					// actionButtonText="Grab Thumbnail"
+					// actionButtonClick={() => {
+					// 	setShowThumbnailSelector(true);
+					// }}
 					setValue={(value: string) => {
 						if (value != video.thumbnail) {
 							inputChange({ thumbnail: value });
