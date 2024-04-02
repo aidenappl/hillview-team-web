@@ -92,7 +92,9 @@ const VideosPage = () => {
 			selectedVideo.url &&
 			selectedVideo.url.includes(
 				"https://customer-nakrsdfbtn3mdz5z.cloudflarestream.com"
-			)
+			) &&
+			!selectedVideo.download_url &&
+			selectedVideo.url.endsWith("video.m3u8")
 		) {
 			setDownloadButtonParams({
 				loading: true,
@@ -158,6 +160,11 @@ const VideosPage = () => {
 		setSelectedVideo(null);
 		setChanges(null);
 		setSaving(false);
+		setDownloadButtonParams({
+			loading: false,
+			text: "Generate Download",
+			disabled: false,
+		});
 		setShowThumbnailSelector(false);
 	};
 
@@ -336,11 +343,11 @@ const VideosPage = () => {
 					<TeamModalInput
 						title="Thumbnail URL"
 						placeholder="Video Thumbnail URL"
-						showActionButton={true}
-						actionButtonText="Video Grab"
-						actionButtonClick={() => {
-							setShowThumbnailSelector(true);
-						}}
+						// showActionButton={true}
+						// actionButtonText="Video Grab"
+						// actionButtonClick={() => {
+						// 	setShowThumbnailSelector(true);
+						// }}
 						value={changes?.thumbnail || selectedVideo.thumbnail}
 						setValue={(value: string) => {
 							if (value != selectedVideo.thumbnail) {
