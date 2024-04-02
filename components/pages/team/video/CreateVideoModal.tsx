@@ -10,6 +10,7 @@ import UploadVideo from "../../../../services/uploadVideo";
 import TeamModalUploader from "../TeamModalUploader";
 import UploadImage from "../../../../services/uploadHandler";
 import SelectThumbnailModal from "./SelectThumbnailModal";
+import UploadComponent from "./UploadComponent";
 
 interface Props {
 	cancelHit?: () => void;
@@ -21,12 +22,9 @@ const CreateVideoModal = (props: Props) => {
 	const [video, setVideo] = useState<any>({});
 	const [saving, setSaving] = useState<boolean>(false);
 	const [saveActive, setSaveActive] = useState<boolean>(false);
-	const [dropzoneState, setDropzoneState] =
-		useState<DropzoneStates>("default");
+	const [dropzoneState, setDropzoneState] = useState<DropzoneStates>("none");
 	const [uploadProgress, setUploadProgress] = useState<number>(0);
-	const [uploadStatus, setUploadStatus] = useState<"progress" | "label">(
-		"progress"
-	);
+	const [encodeProgress, setEncodingProgress] = useState<number>(0);
 	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
 	// Thumbnail Selector
 	const [showThumbnailSelector, setShowThumbnailSelector] =
@@ -178,72 +176,42 @@ const CreateVideoModal = (props: Props) => {
 						}
 					}}
 				/>
-				<TeamModalDropzone
-					state={dropzoneState}
-					progress={uploadProgress}
-					uploadStatus={uploadStatus}
-					progressLabel={
-						uploadStatus == "progress"
-							? "Uploading..."
-							: "100% Processing..."
-					}
-					onChange={async (e) => {
-						if (e.target.files && e.target.files.length > 0) {
-							let file = e.target.files[0];
-							// check if file type is mp4
-							console.log(file.name);
-							if (
-								file.type !== "video/mp4" ||
-								(!file.name.endsWith(".mp4") &&
-									!file.name.endsWith(".m4v"))
-							) {
-								toast.error("File must be an mp4 or m4v");
-								return;
-							}
-							setDropzoneState("loading");
-							// set the file name to be video title if empty
-							if (!video.title || video.title?.length == 0) {
-								inputChange({
-									title: file.name.replace(/\.[^/.]+$/, ""),
-								});
-							}
-
-							// upload the file
-							const response = await UploadVideo({
-								upload: file,
-								uploadProgress: (progress: number) => {
-									setUploadProgress(progress);
-									if (progress === 100) {
-										setUploadStatus("label");
-									}
-								},
+				<UploadComponent
+					hidden
+					id="file-upload"
+					onUppyState={(state: any) => {
+						setDropzoneState(state);
+					}}
+					onProgress={(progress: any) => {
+						setUploadProgress(progress);
+					}}
+					onEncodingProgress={(progress: any) => {
+						setEncodingProgress(progress);
+					}}
+					onStatusBody={(status: any) => {
+						if (status) {
+							inputChange({
+								// thumbnail: (video.thumbnail == "https://content.hillview.tv/thumbnails/default.jpg" ? status.result.thumbnail : video.thumbnail),
+								url: status.result.playback.hls,
+								title: !video.title
+									? status.result.meta.filename.substring(
+											0,
+											status.result.meta.filename.lastIndexOf(
+												"."
+											)
+									  ) || status.result.meta.filename
+									: video.title,
 							});
-							if (response.success) {
-								if (!video.title || video.title?.length == 0) {
-									inputChange({
-										url: response.data.data.url,
-										download_url: response.data.data.s3_url,
-										thumbnail: response.data.data.thumbnail,
-										title: file.name.replace(
-											/\.[^/.]+$/,
-											""
-										),
-									});
-								} else {
-									inputChange({
-										url: response.data.data.url,
-										thumbnail: response.data.data.thumbnail,
-										download_url: response.data.data.s3_url,
-									});
-								}
-							} else {
-								toast.error(response.message);
-							}
-							setDropzoneState("default");
-							setUploadProgress(0);
-							setUploadStatus("progress");
 						}
 					}}
+				/>
+				<TeamModalDropzone
+					onClick={() => {
+						document.getElementById("file-upload")?.click();
+					}}
+					encodingProgress={encodeProgress}
+					state={dropzoneState}
+					progress={uploadProgress}
 				/>
 				<TeamModalInput
 					title="Thumbnail URL"

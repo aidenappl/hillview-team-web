@@ -35,7 +35,7 @@ const VideosPage = () => {
 	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
 
 	// Video Uploader
-	const [showUploadVideo, setShowUploadVideo] = useState<boolean>(false);
+	const [showUploadVideo, setShowUploadVideo] = useState<boolean>(true);
 
 	// Thumbnail Selector
 	const [showThumbnailSelector, setShowThumbnailSelector] =
