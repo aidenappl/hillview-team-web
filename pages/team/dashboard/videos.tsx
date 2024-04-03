@@ -20,6 +20,7 @@ import TeamModalUploader from "../../../components/pages/team/TeamModalUploader"
 import UploadImage from "../../../services/uploadHandler";
 import SelectThumbnailModal from "../../../components/pages/team/video/SelectThumbnailModal";
 import imageCompression from "browser-image-compression";
+import { FrameGrabber } from "../../../components/pages/team/video/FrameGrabber";
 
 const VideosPage = () => {
 	const router = useRouter();
@@ -246,16 +247,6 @@ const VideosPage = () => {
 
 	return (
 		<TeamContainer pageTitle="Videos" router={router}>
-			<SelectThumbnailModal
-				url={selectedVideo ? selectedVideo!.download_url : ""}
-				show={showThumbnailSelector}
-				exit={() => {
-					setShowThumbnailSelector(false);
-				}}
-				success={(url: string) => {
-					inputChange({ thumbnail: url });
-				}}
-			/>
 			<PageModal
 				titleText="Archive Video"
 				bodyText="Are you sure you want to archive this video? This action is irreversible."
@@ -340,14 +331,42 @@ const VideosPage = () => {
 							}
 						}}
 					/>
+					<FrameGrabber
+						show={showThumbnailSelector}
+						url={selectedVideo.download_url}
+						onCloseHit={() => {
+							setShowThumbnailSelector(false);
+						}}
+						onSelectFrame={(timestamp: number) => {
+							setShowThumbnailSelector(false);
+							let baseURL = selectedVideo.download_url.replaceAll(
+								"/downloads/default.mp4",
+								""
+							);
+							let newURL =
+								baseURL +
+								"/thumbnails/thumbnail.jpg?time=" +
+								timestamp +
+								"s&width=1280&height=720";
+							console.log(newURL);
+							inputChange({ thumbnail: newURL });
+						}}
+					/>
 					<TeamModalInput
 						title="Thumbnail URL"
 						placeholder="Video Thumbnail URL"
-						// showActionButton={true}
-						// actionButtonText="Video Grab"
-						// actionButtonClick={() => {
-						// 	setShowThumbnailSelector(true);
-						// }}
+						showActionButton={
+							selectedVideo.download_url &&
+							selectedVideo.download_url.includes(
+								"https://customer-nakrsdfbtn3mdz5z.cloudflarestream.com/"
+							)
+								? true
+								: false
+						}
+						actionButtonText="Video Grab"
+						actionButtonClick={() => {
+							setShowThumbnailSelector(true);
+						}}
 						value={changes?.thumbnail || selectedVideo.thumbnail}
 						setValue={(value: string) => {
 							if (value != selectedVideo.thumbnail) {
