@@ -18,11 +18,11 @@ export interface Strategies {
 }
 
 export const UserType = {
-  Unauthorized: 1,
-  Student: 2,
-  Admin: 3,
-  Deleted: 9,
-}
+	Unauthorized: 1,
+	Student: 2,
+	Admin: 3,
+	Deleted: 9,
+};
 
 export const UserTypes: GeneralNSM[] = [
 	{
@@ -44,6 +44,6 @@ export const UserTypes: GeneralNSM[] = [
 		id: 9,
 		name: "Deleted",
 		short_name: "deleted",
-    hidden: true,
+		hidden: true,
 	},
 ];

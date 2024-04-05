@@ -39,7 +39,6 @@ const LoginPage = () => {
 		>
 	): Promise<void> => {
 		if (tokenResponse.code) {
-
 			const response = await NewRequest({
 				route: "/auth/v1.1/google",
 				method: "POST",

@@ -506,7 +506,8 @@ const PlaylistsPage = () => {
 											/{playlist.route}
 										</p>
 										<p className="w-[calc(33%-170px)]">
-											{playlist.videos?.length || 0} Videos
+											{playlist.videos?.length || 0}{" "}
+											Videos
 										</p>
 										<div className="w-[200px] flex gap-2 pr-10">
 											<button

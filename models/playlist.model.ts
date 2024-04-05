@@ -1,6 +1,5 @@
-import { Video } from './video.model';
+import { Video } from "./video.model";
 import { GeneralNSM } from "./generalNSM.model";
-import { PlaylistStatus, PlaylistStatuses } from "./playlistStatus.model";
 export interface Playlist {
 	id: number;
 	name: string;

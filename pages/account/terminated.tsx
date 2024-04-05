@@ -1,6 +1,6 @@
-import { useRouter } from 'next/router';
-import { useDispatch } from 'react-redux';
-import { KillSession } from '../../services/sessionHandler';
+import { useRouter } from "next/router";
+import { useDispatch } from "react-redux";
+import { KillSession } from "../../services/sessionHandler";
 
 const PendingPage = () => {
 	const dispatch = useDispatch();
@@ -35,8 +35,8 @@ export const getStaticProps = () => {
 	return {
 		props: {
 			requireAuth: true,
-			requireAccountStatus: 'deleted',
-			title: 'Hillview Team - Pending',
+			requireAccountStatus: "deleted",
+			title: "Hillview Team - Pending",
 		},
 	};
 };

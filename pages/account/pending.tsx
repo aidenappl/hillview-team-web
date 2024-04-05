@@ -1,6 +1,6 @@
-import { useRouter } from 'next/router';
-import { useDispatch } from 'react-redux';
-import { KillSession } from '../../services/sessionHandler';
+import { useRouter } from "next/router";
+import { useDispatch } from "react-redux";
+import { KillSession } from "../../services/sessionHandler";
 
 const PendingPage = () => {
 	const dispatch = useDispatch();
@@ -13,9 +13,9 @@ const PendingPage = () => {
 					Your account is Pending Approval
 				</h1>
 				<p className="ml-[auto] mr-[auto] text-center mt-6 text-gray-500">
-					You are unable to access Hillview Team resources until
-					your account is approved. Please contact a user with
-					adequate permissions.
+					You are unable to access Hillview Team resources until your
+					account is approved. Please contact a user with adequate
+					permissions.
 				</p>
 				<button
 					className="w-[120px] h-[42px] bg-[#0070F3] text-white font-medium rounded-md ml-auto mr-auto mt-12"
@@ -36,8 +36,8 @@ export const getStaticProps = () => {
 	return {
 		props: {
 			requireAuth: true,
-			requireAccountStatus: 'unauthorized',
-			title: 'Hillview Team - Pending',
+			requireAccountStatus: "unauthorized",
+			title: "Hillview Team - Pending",
 		},
 	};
 };

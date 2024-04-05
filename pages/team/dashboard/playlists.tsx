@@ -316,7 +316,8 @@ const PlaylistsPage = () => {
 								dropdownClick={(item) => {
 									setSearchResults(null);
 									if (
-										selectedPlaylist?.videos && selectedPlaylist?.videos!.find(
+										selectedPlaylist?.videos &&
+										selectedPlaylist?.videos!.find(
 											(v: Video) => v.id == item.id
 										)
 									) {
@@ -334,7 +335,8 @@ const PlaylistsPage = () => {
 											...selectedPlaylist,
 											videos: [
 												item as any,
-												...selectedPlaylist.videos || [],
+												...(selectedPlaylist.videos ||
+													[]),
 											],
 										});
 									}
@@ -504,7 +506,8 @@ const PlaylistsPage = () => {
 											/{playlist.route}
 										</p>
 										<p className="w-[calc(33%-170px)]">
-											{playlist.videos?.length || 0} Videos
+											{playlist.videos?.length || 0}{" "}
+											Videos
 										</p>
 										<div className="w-[200px] flex gap-2 pr-10">
 											<button

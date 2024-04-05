@@ -2,14 +2,10 @@ import { useRouter } from "next/router";
 import TeamContainer from "../../../components/pages/team/TeamContainer";
 import TeamHeader from "../../../components/pages/team/TeamHeader";
 import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
-import {
-	GeneralNSM,
-	GenerateGeneralNSM,
-} from "../../../models/generalNSM.model";
+import { GenerateGeneralNSM } from "../../../models/generalNSM.model";
 import { useState } from "react";
 import UsersPagePlatformUsers from "../../../components/pages/team/users/UsersPagePlatformUsers";
 import UsersPageTeamUsers from "../../../components/pages/team/users/UsersPageTeamUsers";
-import CreatePlatformUserModal from "../../../components/pages/team/users/CreatePlatformUserModal";
 
 type PageStates = "Platform" | "Team";
 
