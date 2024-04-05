@@ -611,7 +611,7 @@ const VideosPage = () => {
 												Inspect
 											</button>
 											{video.status.short_name !=
-											"draft" ? (
+												"draft" && (
 												<Link
 													href={
 														"https://hillview.tv/watch?v=" +
@@ -628,7 +628,46 @@ const VideosPage = () => {
 														Watch
 													</button>
 												</Link>
-											) : null}
+											)}
+											{video.status.short_name ==
+												"draft" && (
+												<button
+													onClick={async () => {
+														const response =
+															await NewRequest({
+																method: "PUT",
+																route:
+																	"/core/v1.1/admin/video/" +
+																	video.id,
+																body: {
+																	id: video.id,
+																	changes: {
+																		status: VideoStatus.Public,
+																	},
+																},
+																auth: true,
+															});
+														if (response.success) {
+															initialize();
+														} else {
+															console.error(
+																response
+															);
+															setSaving(false);
+															toast.error(
+																"Failed to save changes",
+																{
+																	position:
+																		"top-center",
+																}
+															);
+														}
+													}}
+													className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
+												>
+													Publish
+												</button>
+											)}
 										</div>
 									</div>
 								);
