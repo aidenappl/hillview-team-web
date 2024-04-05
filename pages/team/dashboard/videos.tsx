@@ -629,8 +629,8 @@ const VideosPage = () => {
 													</button>
 												</Link>
 											)}
-											{video.status.short_name ==
-												"draft" && (
+											{video.status.short_name !=
+												"public" && (
 												<button
 													onClick={async () => {
 														const response =
