@@ -18,7 +18,6 @@ import CreateVideoModal from "../../../components/pages/team/video/CreateVideoMo
 import TeamModalCheckbox from "../../../components/pages/team/TeamModalCheckbox";
 import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
 import UploadImage from "../../../services/uploadHandler";
-import SelectThumbnailModal from "../../../components/pages/team/video/SelectThumbnailModal";
 import imageCompression from "browser-image-compression";
 import { FrameGrabber } from "../../../components/pages/team/video/FrameGrabber";
 
@@ -516,7 +515,7 @@ const VideosPage = () => {
 			{/* Team Heading */}
 			<TeamHeader title="System Videos">
 				<button
-					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
+					className="px-5 text-sm py-2 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md font-medium"
 					onClick={() => {
 						setShowUploadVideo(true);
 					}}
