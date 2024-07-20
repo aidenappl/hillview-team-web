@@ -23,7 +23,7 @@ const LoginPage = () => {
 
 	const login = () => {
 		console.log("Login");
-		setLoadingLocal(true);
+		handleLocalLogin();
 	};
 
 	const googleLogin = () => {
@@ -32,13 +32,53 @@ const LoginPage = () => {
 		triggerLoginWindow();
 	};
 
+	const handleLocalLogin = async (): Promise<void> => {
+		if (email && password && !loadingLocal && !loadingGoogle) {
+			setLoadingLocal(true);
+			const response = await NewRequest({
+				route: "/auth/v1.1/local",
+				method: "POST",
+				body: {
+					email,
+					password,
+				},
+			});
+			console.log(response.data)
+
+			if (response.success) {
+				let data = response.data;
+				const initializerResp = await InitializeSession({
+					accessToken: data.accessToken,
+					refreshToken: data.refreshToken,
+					user: data.user,
+					dispatch,
+				});
+				if (initializerResp.success) {
+					if (router.query.redirect) {
+						router.push(router.query.redirect as string);
+						setLoadingLocal(false);
+					} else {
+						router.push(GetAccountLander(data.user));
+						setLoadingLocal(false);
+					}
+				}
+			} else {
+				console.error("Error");
+				setLoadingLocal(false);
+			}
+		} else {
+			console.error("Error");
+			setLoadingLocal(false);
+		}
+	}
+
 	const handleGoogleResponse = async (
 		tokenResponse: Omit<
 			CodeResponse,
 			"error" | "error_description" | "error_uri"
 		>
 	): Promise<void> => {
-		if (tokenResponse.code) {
+		if (tokenResponse.code && !loadingLocal) {
 			const response = await NewRequest({
 				route: "/auth/v1.1/google",
 				method: "POST",
