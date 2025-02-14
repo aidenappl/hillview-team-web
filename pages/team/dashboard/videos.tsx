@@ -20,10 +20,14 @@ import TeamModalUploader from "../../../components/pages/team/TeamModalUploader"
 import UploadImage from "../../../services/uploadHandler";
 import imageCompression from "browser-image-compression";
 import { FrameGrabber } from "../../../components/pages/team/video/FrameGrabber";
+import SpotlightedVideosModal from "../../../components/pages/team/video/SpotlightedVideosModal";
 
 const VideosPage = () => {
 	const router = useRouter();
 	const [videos, setVideos] = useState<Video[] | null>(null);
+	const [spotlightedVideos, setSpotlightedVideos] = useState<Video[] | null>(
+		null
+	);
 	const [showConfirmDeleteVideo, setShowConfirmDeleteVideo] =
 		useState<boolean>(false);
 	const [offset, setOffset] = useState<number>(0);
@@ -36,6 +40,9 @@ const VideosPage = () => {
 
 	// Video Uploader
 	const [showUploadVideo, setShowUploadVideo] = useState<boolean>(false);
+
+	// Spotlight
+	const [spotlightControls, setSpotlightControls] = useState<boolean>(false);
 
 	// Video Inspector DownloadButton
 	const [downloadButtonParams, setDownloadButtonParams] = useState<any>({
@@ -64,8 +71,33 @@ const VideosPage = () => {
 	}, [escFunction]);
 
 	useEffect(() => {
+		if (spotlightControls) {
+			hydrateSpotlight();
+		} else {
+			setSpotlightedVideos(null);
+		}
+	}, [spotlightControls]);
+
+	useEffect(() => {
 		initialize();
 	}, []);
+
+	const hydrateSpotlight = async () => {
+		const response = await NewRequest({
+			method: "GET",
+			route: "/core/v1.1/admin/spotlight",
+			params: {
+				limit: 20,
+				offset: 0,
+			},
+			auth: true,
+		});
+		if (response.success) {
+			let data = response.data.data;
+			console.log(data);
+			setSpotlightedVideos(data);
+		}
+	};
 
 	const initialize = async () => {
 		setVideos(null);
@@ -268,6 +300,17 @@ const VideosPage = () => {
 					}}
 					cancelHit={() => {
 						setShowUploadVideo(false);
+					}}
+				/>
+			) : null}
+			{spotlightControls ? (
+				<SpotlightedVideosModal
+					spotlightedVideos={spotlightedVideos}
+					saveDone={() => {
+						setSpotlightControls(false);
+					}}
+					cancelHit={() => {
+						setSpotlightControls(false);
 					}}
 				/>
 			) : null}
@@ -514,6 +557,14 @@ const VideosPage = () => {
 			) : null}
 			{/* Team Heading */}
 			<TeamHeader title="System Videos">
+				<button
+					className="px-5 text-sm py-2 bg-slate-500 hover:bg-slate-700 transition text-white rounded-md font-medium"
+					onClick={() => {
+						setSpotlightControls(true);
+					}}
+				>
+					Spotlight
+				</button>
 				<button
 					className="px-5 text-sm py-2 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md font-medium"
 					onClick={() => {
