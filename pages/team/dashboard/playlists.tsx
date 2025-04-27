@@ -201,7 +201,7 @@ const PlaylistsPage = () => {
 						setActiveTab={setActivePlaylistInspectorTab}
 					/>
 					{activePlaylistInspectorTab == PlaylistInspectorTabs[0] ? (
-						<div className="flex gap-6 flex-col">
+						<div className="flex flex-col gap-6">
 							<TeamModalInput
 								title="Title"
 								placeholder="Playlist Title"
@@ -308,7 +308,7 @@ const PlaylistsPage = () => {
 						</div>
 					) : null}
 					{activePlaylistInspectorTab == PlaylistInspectorTabs[1] ? (
-						<div className="flex gap-6 flex-col">
+						<div className="flex flex-col gap-6">
 							<TeamModalInput
 								title="Lookup Video"
 								placeholder="Start typing a video..."
@@ -362,6 +362,16 @@ const PlaylistsPage = () => {
 									});
 									if (response.success) {
 										let data = response.data.data;
+										// Filter data to remove videos already in the playlist
+										data = data.filter((video: Video) => {
+											return !(
+												selectedPlaylist.videos &&
+												selectedPlaylist.videos.find(
+													(v: Video) =>
+														v.id == video.id
+												)
+											);
+										});
 										setSearchResults(data);
 									} else {
 										setSearchResults(null);
@@ -446,7 +456,7 @@ const PlaylistsPage = () => {
 			{/* Team Heading */}
 			<TeamHeader title="System Playlists">
 				<button
-					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
+					className="px-5 py-2 text-sm text-white transition bg-blue-800 rounded-sm hover:bg-blue-900"
 					onClick={() => {
 						setShowCreatePlaylist(true);
 					}}
