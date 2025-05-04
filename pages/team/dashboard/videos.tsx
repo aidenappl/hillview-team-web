@@ -581,7 +581,7 @@ const VideosPage = () => {
 					Title
 				</p>
 				<p className="hidden xl:block xl:w-[calc(25%-125px)] font-semibold">
-					UUID
+					Downloads
 				</p>
 				<p className="w-[calc(50%)] md:w-[calc(33%-100px)] xl:w-[calc(25%-125px)] font-semibold">
 					Views
@@ -629,7 +629,7 @@ const VideosPage = () => {
 											{video.title}
 										</p>
 										<p className="hidden xl:block xl:w-[calc(25%-125px)] pr-2">
-											{video.uuid}
+											{video.downloads} downloads
 										</p>
 										<p className="w-[calc(50%)] md:w-[calc(33%-100px)] xl:w-[calc(25%-125px)] pr-2">
 											{video.views} views

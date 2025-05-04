@@ -10,6 +10,7 @@ export interface Video {
 	download_url: string;
 	allow_downloads: boolean;
 	views: number;
+	downloads: number;
 	status: GeneralNSM;
 	inserted_at: string;
 }
