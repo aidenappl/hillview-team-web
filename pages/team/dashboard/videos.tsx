@@ -629,7 +629,11 @@ const VideosPage = () => {
 											{video.title}
 										</p>
 										<p className="hidden xl:block xl:w-[calc(25%-125px)] pr-2">
-											{video.downloads} downloads
+											{video.downloads}{" "}
+											{video.downloads > 1 ||
+											video.downloads == 0
+												? "downloads"
+												: "download"}
 										</p>
 										<p className="w-[calc(50%)] md:w-[calc(33%-100px)] xl:w-[calc(25%-125px)] pr-2">
 											{video.views} views
