@@ -7,20 +7,13 @@ import { Video } from "../../../models/video.model";
 import Image from "next/image";
 import { NewRequest } from "../../../services/http/requestHandler";
 import Link from "next/link";
-import TeamModal from "../../../components/pages/team/TeamModal";
-import TeamModalInput from "../../../components/pages/team/TeamModalInput";
 import toast from "react-hot-toast";
 import PageModal from "../../../components/general/PageModal";
-import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea";
-import { VideoStatus, VideoStatuses } from "../../../models/videoStatus.model";
-import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
+import { VideoStatus } from "../../../models/videoStatus.model";
 import CreateVideoModal from "../../../components/pages/team/video/CreateVideoModal";
-import TeamModalCheckbox from "../../../components/pages/team/TeamModalCheckbox";
-import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
-import UploadImage from "../../../services/uploadHandler";
-import imageCompression from "browser-image-compression";
-import { FrameGrabber } from "../../../components/pages/team/video/FrameGrabber";
 import SpotlightedVideosModal from "../../../components/pages/team/video/SpotlightedVideosModal";
+import VideoInspectionModal from "../../../components/pages/team/videos/VideoInspectionModal";
+import Button from "../../../components/general/Button";
 
 const VideosPage = () => {
 	const router = useRouter();
@@ -36,7 +29,6 @@ const VideosPage = () => {
 	const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
 	const [saving, setSaving] = useState<boolean>(false);
 	const [changes, setChanges] = useState<any>(null);
-	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
 
 	// Video Uploader
 	const [showUploadVideo, setShowUploadVideo] = useState<boolean>(false);
@@ -315,264 +307,39 @@ const VideosPage = () => {
 				/>
 			) : null}
 			{selectedVideo ? (
-				<TeamModal
-					className="gap-6"
-					loader={saving}
-					saveActive={changes && Object.keys(changes).length > 0}
-					cancelHit={() => cancelVideoInspection()}
-					saveHit={() => saveVideoInspection()}
-					deleteHit={() => setShowConfirmDeleteVideo(true)}
-					destructiveText="Archive"
-				>
-					<TeamModalInput
-						title="Title"
-						placeholder="Video Title"
-						value={selectedVideo.title}
-						setValue={(value: string) => {
-							if (value != selectedVideo.title) {
-								inputChange({ title: value });
-							} else {
-								deleteChange("title");
-							}
-						}}
-					/>
-					<TeamModalTextarea
-						title="Description"
-						placeholder="Video Description"
-						value={selectedVideo.description}
-						className="h-[150px]"
-						setValue={(value: string) => {
-							if (value != selectedVideo.description) {
-								inputChange({ description: value });
-							} else {
-								deleteChange("description");
-							}
-						}}
-					/>
-					<TeamModalSelect
-						title="Status"
-						values={VideoStatuses}
-						value={selectedVideo.status}
-						setValue={(value) => {
-							if (value.id != selectedVideo.status.id) {
-								inputChange({ status: value.id });
-							} else {
-								deleteChange("status");
-							}
-						}}
-					/>
-					<TeamModalInput
-						title="Source URL"
-						placeholder="Video Source URL"
-						value={selectedVideo.url}
-						setValue={(value: string) => {
-							if (value != selectedVideo.url) {
-								inputChange({ url: value });
-							} else {
-								deleteChange("url");
-							}
-						}}
-					/>
-					<FrameGrabber
-						show={showThumbnailSelector}
-						url={selectedVideo.download_url}
-						onCloseHit={() => {
-							setShowThumbnailSelector(false);
-						}}
-						onSelectFrame={(timestamp: number) => {
-							setShowThumbnailSelector(false);
-							let baseURL = selectedVideo.download_url.replaceAll(
-								"/downloads/default.mp4",
-								""
-							);
-							let newURL =
-								baseURL +
-								"/thumbnails/thumbnail.jpg?time=" +
-								timestamp +
-								"s&width=1280&height=720";
-							console.log(newURL);
-							inputChange({ thumbnail: newURL });
-						}}
-					/>
-					<TeamModalInput
-						title="Thumbnail URL"
-						placeholder="Video Thumbnail URL"
-						showActionButton={
-							selectedVideo.download_url &&
-							selectedVideo.download_url.includes(
-								"https://customer-nakrsdfbtn3mdz5z.cloudflarestream.com/"
-							)
-								? true
-								: false
-						}
-						actionButtonText="Video Grab"
-						actionButtonClick={() => {
-							setShowThumbnailSelector(true);
-						}}
-						value={changes?.thumbnail || selectedVideo.thumbnail}
-						setValue={(value: string) => {
-							if (value != selectedVideo.thumbnail) {
-								inputChange({ thumbnail: value });
-							} else {
-								deleteChange("thumbnail");
-							}
-						}}
-					/>
-					<TeamModalUploader
-						imageSource={
-							changes?.thumbnail || selectedVideo.thumbnail
-						}
-						altText={selectedVideo.title}
-						showImageLoader={showImageLoader}
-						onChange={async (e: any): Promise<void> => {
-							if (e.target.files && e.target.files.length > 0) {
-								if (e.target.files.length != 1) {
-									toast.error("Please only upload one image");
-									return;
-								}
-								const file = e.target.files[0];
-								// check max size 1mb
-								if (file.size > 1000000) {
-									// alert and ask if they want to compress
-									let response = window.confirm(
-										"Image is larger than 1MB. Would you like to compress it?"
-									);
-									if (response) {
-										// toggle loader
-										setShowImageLoader(true);
-
-										// compress image
-										const options = {
-											maxSizeMB: 1,
-											useWebWorker: true,
-										};
-										const compressedFile =
-											await imageCompression(
-												file,
-												options
-											);
-
-										// upload image
-										let result = await UploadImage({
-											image: compressedFile,
-											route: "thumbnails/",
-											id: selectedVideo.id,
-										});
-										if (result.success) {
-											setShowImageLoader(false);
-											console.log(result.data.data.url);
-											inputChange({
-												thumbnail: result.data.data.url,
-											});
-										} else {
-											console.error(result);
-											toast.error(
-												"Failed to upload image",
-												{
-													position: "top-center",
-												}
-											);
-											setShowImageLoader(false);
-										}
-									} else {
-										toast.error(
-											"Please upload an image smaller than 1MB"
-										);
-									}
-									return;
-								} else {
-									// check file type
-									if (!file.type.includes("image")) {
-										toast.error("Please upload an image");
-										return;
-									}
-
-									// toggle loader
-									setShowImageLoader(true);
-
-									// upload image
-									let result = await UploadImage({
-										image: file,
-										route: "thumbnails/",
-										id: selectedVideo.id,
-									});
-									if (result.success) {
-										setShowImageLoader(false);
-										console.log(result.data.data.url);
-										inputChange({
-											thumbnail: result.data.data.url,
-										});
-									} else {
-										console.error(result);
-										toast.error("Failed to upload image", {
-											position: "top-center",
-										});
-										setShowImageLoader(false);
-									}
-								}
-							}
-						}}
-					/>
-					<TeamModalInput
-						title="Download URL"
-						placeholder="Video Download URL"
-						value={
-							changes && changes.download_url
-								? changes.download_url
-								: selectedVideo.download_url
-						}
-						setValue={(value: string) => {
-							if (value != selectedVideo.download_url) {
-								inputChange({ download_url: value });
-							} else {
-								deleteChange("download_url");
-							}
-						}}
-						showActionButton={
-							selectedVideo.url &&
-							selectedVideo.url.includes("cloudflarestream") &&
-							!selectedVideo.download_url
-								? true
-								: false
-						}
-						actionButtonText={downloadButtonParams.text}
-						actionButtonLoading={downloadButtonParams.loading}
-						actionButtonClick={() => {
-							generateCloudflareDownload();
-						}}
-					/>
-					<TeamModalCheckbox
-						title="Allow Downloads"
-						runner="Do you want to allow video downloads for this video?"
-						value={selectedVideo.allow_downloads}
-						setValue={(value: boolean) => {
-							if (value != selectedVideo.allow_downloads) {
-								inputChange({ allow_downloads: value });
-							} else {
-								deleteChange("allow_downloads");
-							}
-						}}
-					/>
-				</TeamModal>
+				<VideoInspectionModal
+					changes={changes}
+					saving={saving}
+					selectedVideo={selectedVideo}
+					inputChange={inputChange}
+					deleteChange={deleteChange}
+					cancelVideoInspection={cancelVideoInspection}
+					saveVideoInspection={saveVideoInspection}
+					setShowConfirmDeleteVideo={setShowConfirmDeleteVideo}
+					generateCloudflareDownload={generateCloudflareDownload}
+					showThumbnailSelector={showThumbnailSelector}
+					setShowThumbnailSelector={setShowThumbnailSelector}
+					downloadButtonParams={downloadButtonParams}
+				/>
 			) : null}
 			{/* Team Heading */}
 			<TeamHeader title="System Videos">
-				<button
-					className="px-5 text-sm py-2 bg-slate-500 hover:bg-slate-700 transition text-white rounded-md font-medium"
-					onClick={() => {
-						setSpotlightControls(true);
-					}}
+				<Button
+					size="medium"
+					variant="secondary"
+					onClick={() => setSpotlightControls(true)}
 				>
 					Spotlight
-				</button>
-				<button
-					className="px-5 text-sm py-2 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md font-medium"
+				</Button>
+				<Button
+					size="medium"
+					variant="primary"
 					onClick={() => {
 						setShowUploadVideo(true);
 					}}
 				>
 					Upload Video
-				</button>
+				</Button>
 			</TeamHeader>
 			{/* Data Body */}
 			<div className="text-sm lg:text-base flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
@@ -656,8 +423,7 @@ const VideosPage = () => {
 											</a>
 										</p>
 										<div className="flex gap-2 justify-end pr-2 absolute right-0">
-											<button
-												className="px-4 text-xs lg:text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
+											<Button
 												onClick={() => {
 													setDownloadButtonParams({
 														loading: false,
@@ -668,7 +434,7 @@ const VideosPage = () => {
 												}}
 											>
 												Inspect
-											</button>
+											</Button>
 											{video.status.short_name !=
 												"draft" && (
 												<Link
@@ -683,14 +449,14 @@ const VideosPage = () => {
 														video.uuid
 													}
 												>
-													<button className="px-4 text-xs lg:text-sm py-1.5 bg-slate-600 hover:bg-slate-800 transition text-white rounded-md">
+													<Button variant="secondary">
 														Watch
-													</button>
+													</Button>
 												</Link>
 											)}
 											{video.status.short_name !=
 												"public" && (
-												<button
+												<Button
 													onClick={async () => {
 														const response =
 															await NewRequest({
@@ -722,10 +488,9 @@ const VideosPage = () => {
 															);
 														}
 													}}
-													className="px-4 text-xs lg:text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
 												>
 													Publish
-												</button>
+												</Button>
 											)}
 										</div>
 									</div>
@@ -738,12 +503,7 @@ const VideosPage = () => {
 						)}
 						{videos && videos.length > 0 ? (
 							<div className="w-full h-[150px] flex items-center justify-center">
-								<button
-									onClick={loadMore}
-									className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
-								>
-									Load More
-								</button>
+								<Button onClick={loadMore}>Load More</Button>
 							</div>
 						) : null}
 					</>
