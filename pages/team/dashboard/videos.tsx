@@ -683,7 +683,7 @@ const VideosPage = () => {
 														video.uuid
 													}
 												>
-													<button className="px-4 text-sm py-1.5 bg-slate-600 hover:bg-slate-800 transition text-white rounded-md">
+													<button className="px-4 text-xs lg:text-sm py-1.5 bg-slate-600 hover:bg-slate-800 transition text-white rounded-md">
 														Watch
 													</button>
 												</Link>
@@ -722,7 +722,7 @@ const VideosPage = () => {
 															);
 														}
 													}}
-													className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
+													className="px-4text-xs lg:text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
 												>
 													Publish
 												</button>

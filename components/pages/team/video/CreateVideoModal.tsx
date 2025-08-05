@@ -6,7 +6,6 @@ import TeamModalInput from "../TeamModalInput";
 import TeamModalTextarea from "../TeamModalTextarea";
 import ValidVideo from "../../../../validators/video.validator";
 import TeamModalDropzone, { DropzoneStates } from "../TeamModalDropzone";
-import UploadVideo from "../../../../services/uploadVideo";
 import TeamModalUploader from "../TeamModalUploader";
 import UploadImage from "../../../../services/uploadHandler";
 import SelectThumbnailModal from "./SelectThumbnailModal";
