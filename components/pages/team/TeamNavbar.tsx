@@ -13,7 +13,7 @@ import Link from "next/link";
 import { NextRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../../redux/user/slice";
-import { User } from "../../../models/user.model";
+import { User } from "../../../types";
 
 interface Props {
 	router: NextRouter;

@@ -1,6 +1,6 @@
 
-import { User } from "../../models/user.model";
-import { loginSuccess, logoutSuccess, updateUser } from "./slice";
+import { User } from "../../types";
+import { loginSuccess, logoutSuccess } from "./slice";
 
 const UpdateStoreUser = async (update: User, dispatch: any) => {
     try { 

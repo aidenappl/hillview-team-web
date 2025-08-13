@@ -7,8 +7,8 @@ import {
 	RefreshTokenExpiration,
 } from "./tokenHandler";
 import { GetTeamUser } from "./userHandler";
-import { User } from "../models/user.model";
 import { FetchAPI } from "./http/requestHandler";
+import { User } from "../types";
 
 var sessionActive = false;
 var sessionAccessToken: string | null = null;

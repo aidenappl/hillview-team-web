@@ -1,4 +1,4 @@
-import { User } from "../models/user.model";
+import { User } from "../types";
 import { FetchAPI } from "./http/requestHandler";
 
 type GetTeamUserRequest = {

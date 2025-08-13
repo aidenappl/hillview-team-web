@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { User } from "../../../../models/user.model";
 import TeamModal from "../TeamModal";
 import TeamModalInput from "../TeamModalInput";
 import TeamModalSelect from "../TeamModalSelect";

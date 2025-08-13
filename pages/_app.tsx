@@ -14,7 +14,6 @@ import { Toaster } from "react-hot-toast";
 import { useRouter } from "next/router";
 import { GetAccountLander } from "../services/accountLander";
 import { selectUser } from "../redux/user/slice";
-import { User } from "../models/user.model";
 import PageHead from "../components/PageHead";
 config.autoAddCss = false;
 

@@ -1,4 +1,5 @@
-import { User } from "../models/user.model"
+import { User } from "../types"
+
 
 
 const GetAccountLander = (user: User): string => {
