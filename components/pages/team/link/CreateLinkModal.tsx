@@ -3,9 +3,10 @@ import TeamModal from "../TeamModal";
 import TeamModalInput from "../TeamModalInput";
 import TeamModalSelect from "../TeamModalSelect";
 import TeamModalTextarea from "../TeamModalTextarea";
-import { NewRequest } from "../../../../services/http/requestHandler";
+
 import toast from "react-hot-toast";
 import ValidLink from "../../../../validators/link.validator";
+import { FetchAPI } from "../../../../services/http/requestHandler";
 
 interface Props {
 	cancelHit?: () => void;
@@ -54,12 +55,14 @@ const CreateLinkModal = (props: Props) => {
 			return;
 		}
 		setSaving(true);
-		const response = await NewRequest({
-			method: "POST",
-			route: "/core/v1.1/admin/link",
-			body: validator.value,
-			auth: true,
-		});
+		const response = await FetchAPI(
+			{
+				method: "POST",
+				url: "/core/v1.1/admin/link",
+				data: validator.value,
+			},
+			{ auth: true }
+		);
 		if (response.success) {
 			console.log(response.data);
 			toast.success("Link Created");
@@ -67,7 +70,7 @@ const CreateLinkModal = (props: Props) => {
 			saveDone();
 		} else {
 			console.error(response);
-			toast.error(response.message);
+			toast.error(response.error_message);
 		}
 	};
 

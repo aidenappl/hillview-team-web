@@ -5,9 +5,10 @@ import TeamModal from "../TeamModal";
 import TeamModalInput from "../TeamModalInput";
 import TeamModalSelect from "../TeamModalSelect";
 import TeamModalTextarea from "../TeamModalTextarea";
-import { NewRequest } from "../../../../services/http/requestHandler";
+
 import toast from "react-hot-toast";
 import ValidAsset from "../../../../validators/asset.validator";
+import { FetchAPI } from "../../../../services/http/requestHandler";
 
 interface Props {
 	cancelHit?: () => void;
@@ -56,12 +57,14 @@ const CreateAssetModal = (props: Props) => {
 			return;
 		}
 		setSaving(true);
-		const response = await NewRequest({
-			method: "POST",
-			route: "/core/v1.1/admin/asset",
-			body: validator.value,
-			auth: true,
-		});
+		const response = await FetchAPI(
+			{
+				method: "POST",
+				url: "/core/v1.1/admin/asset",
+				data: validator.value,
+			},
+			{ auth: true }
+		);
 		if (response.success) {
 			console.log(response.data);
 			toast.success("Asset Created");
@@ -69,7 +72,7 @@ const CreateAssetModal = (props: Props) => {
 			saveDone();
 		} else {
 			console.error(response);
-			toast.error(response.message);
+			toast.error(response.error_message);
 		}
 	};
 

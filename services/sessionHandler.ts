@@ -8,8 +8,7 @@ import {
 } from "./tokenHandler";
 import { GetTeamUser } from "./userHandler";
 import { User } from "../models/user.model";
-import { Logout } from "./logoutHandler";
-import { NewRequest } from "./http/requestHandler";
+import { FetchAPI } from "./http/requestHandler";
 
 var sessionActive = false;
 var sessionAccessToken: string | null = null;
@@ -190,10 +189,10 @@ const KillSession = async (
 const RefreshSession = async (): Promise<GeneralResponse> => {
 	const refresh = await RetrieveToken("refresh");
 	if (refresh) {
-		const tokenRequest = await NewRequest({
+		const tokenRequest = await FetchAPI({
 			method: "POST",
-			route: "/auth/v1.1/token",
-			body: {
+			url: "/auth/v1.1/token",
+			data: {
 				refreshToken: refresh,
 			},
 		});

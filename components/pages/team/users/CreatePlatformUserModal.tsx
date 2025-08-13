@@ -4,9 +4,10 @@ import TeamModal from "../TeamModal";
 import TeamModalInput from "../TeamModalInput";
 import TeamModalSelect from "../TeamModalSelect";
 import TeamModalTextarea from "../TeamModalTextarea";
-import { NewRequest } from "../../../../services/http/requestHandler";
+
 import toast from "react-hot-toast";
 import ValidMobileUser from "../../../../validators/mobileUser.validator";
+import { FetchAPI } from "../../../../services/http/requestHandler";
 
 interface Props {
 	cancelHit?: () => void;
@@ -54,12 +55,14 @@ const CreatePlatformUserModal = (props: Props) => {
 			return;
 		}
 		setSaving(true);
-		const response = await NewRequest({
-			method: "POST",
-			route: "/core/v1.1/admin/mobileUser",
-			body: validator.value,
-			auth: true,
-		});
+		const response = await FetchAPI(
+			{
+				method: "POST",
+				url: "/core/v1.1/admin/mobileUser",
+				data: validator.value,
+			},
+			{ auth: true }
+		);
 		if (response.success) {
 			console.log(response.data);
 			toast.success("User Created");
@@ -68,7 +71,7 @@ const CreatePlatformUserModal = (props: Props) => {
 		} else {
 			console.error(response);
 			setSaving(false);
-			toast.error(response.message);
+			toast.error(response.error_message);
 		}
 	};
 

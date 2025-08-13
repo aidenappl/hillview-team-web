@@ -8,9 +8,9 @@ import Spinner from "../components/general/Spinner";
 import { CodeResponse, useGoogleLogin } from "@react-oauth/google";
 import { InitializeSession } from "../services/sessionHandler";
 import { useDispatch } from "react-redux";
-import { NewRequest } from "../services/http/requestHandler";
 import { useRouter } from "next/router";
 import { GetAccountLander } from "../services/accountLander";
+import { FetchAPI } from "../services/http/requestHandler";
 
 const LoginPage = () => {
 	const [email, setEmail] = useState<string>("");
@@ -35,15 +35,15 @@ const LoginPage = () => {
 	const handleLocalLogin = async (): Promise<void> => {
 		if (email && password && !loadingLocal && !loadingGoogle) {
 			setLoadingLocal(true);
-			const response = await NewRequest({
-				route: "/auth/v1.1/local",
+			const response = await FetchAPI({
+				url: "/auth/v1.1/local",
 				method: "POST",
-				body: {
+				data: {
 					email,
 					password,
 				},
 			});
-			console.log(response.data)
+			console.log(response);
 
 			if (response.success) {
 				let data = response.data;
@@ -70,7 +70,7 @@ const LoginPage = () => {
 			console.error("Error");
 			setLoadingLocal(false);
 		}
-	}
+	};
 
 	const handleGoogleResponse = async (
 		tokenResponse: Omit<
@@ -79,10 +79,10 @@ const LoginPage = () => {
 		>
 	): Promise<void> => {
 		if (tokenResponse.code && !loadingLocal) {
-			const response = await NewRequest({
-				route: "/auth/v1.1/google",
+			const response = await FetchAPI({
+				url: "/auth/v1.1/google",
 				method: "POST",
-				body: {
+				data: {
 					google_code: tokenResponse.code,
 					redirect_uri: process.env.NEXT_PUBLIC_BASE_URL,
 				},

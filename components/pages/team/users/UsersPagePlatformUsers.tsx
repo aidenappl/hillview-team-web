@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { NewRequest } from "../../../../services/http/requestHandler";
+
 import { useEffect, useState } from "react";
 import Spinner from "../../../general/Spinner";
 import Image from "next/image";
@@ -9,6 +9,7 @@ import TeamModalInput from "../TeamModalInput";
 import PageModal from "../../../general/PageModal";
 import ValidMobileUser from "../../../../validators/mobileUser.validator";
 import CreatePlatformUserModal from "./CreatePlatformUserModal";
+import { FetchAPI } from "../../../../services/http/requestHandler";
 
 type MobileUser = {
 	id: number;
@@ -70,15 +71,17 @@ const UsersPagePlatformUsers = (props: Props) => {
 		setChanges(null);
 		setUsers(null);
 		setPageLoading(true);
-		const response = await NewRequest({
-			route: "/core/v1.1/admin/mobileUsers",
-			method: "GET",
-			params: {
-				limit: 25,
-				offset: 0,
+		const response = await FetchAPI(
+			{
+				url: "/core/v1.1/admin/mobileUsers",
+				method: "GET",
+				params: {
+					limit: 25,
+					offset: 0,
+				},
 			},
-			auth: true,
-		});
+			{ auth: true }
+		);
 
 		if (response.success) {
 			console.log(response.data.data);
@@ -110,14 +113,16 @@ const UsersPagePlatformUsers = (props: Props) => {
 				return;
 			}
 			setSaveLoading(true);
-			const response = await NewRequest({
-				route: `/core/v1.1/admin/mobileUser/${selectedUser!.id}`,
-				method: "PUT",
-				body: {
-					changes,
+			const response = await FetchAPI(
+				{
+					url: `/core/v1.1/admin/mobileUser/${selectedUser!.id}`,
+					method: "PUT",
+					data: {
+						changes,
+					},
 				},
-				auth: true,
-			});
+				{ auth: true }
+			);
 			if (response.success) {
 				toast.success("User updated");
 				setChanges(null);
@@ -132,16 +137,18 @@ const UsersPagePlatformUsers = (props: Props) => {
 	};
 
 	const archiveUser = async () => {
-		const response = await NewRequest({
-			route: `/core/v1.1/admin/mobileUser/${selectedUser!.id}`,
-			method: "PUT",
-			body: {
-				changes: {
-					status: MobileUserType.Deactivated,
+		const response = await FetchAPI(
+			{
+				url: `/core/v1.1/admin/mobileUser/${selectedUser!.id}`,
+				method: "PUT",
+				data: {
+					changes: {
+						status: MobileUserType.Deactivated,
+					},
 				},
 			},
-			auth: true,
-		});
+			{ auth: true }
+		);
 		if (response.success) {
 			toast.success("User deleted");
 			setSelectedUser(null);

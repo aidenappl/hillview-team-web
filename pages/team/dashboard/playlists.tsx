@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Playlist } from "../../../models/playlist.model";
 import Image from "next/image";
-import { NewRequest } from "../../../services/http/requestHandler";
 import TeamModal from "../../../components/pages/team/TeamModal";
 import TeamModalInput from "../../../components/pages/team/TeamModalInput";
 import TeamModalTextarea from "../../../components/pages/team/TeamModalTextarea";
@@ -27,6 +26,7 @@ import CreatePlaylistModal from "../../../components/pages/team/playlist/CreateP
 import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
 import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
 import UploadImage from "../../../services/uploadHandler";
+import { FetchAPI } from "../../../services/http/requestHandler";
 
 const PlaylistInspectorTabs = GenerateGeneralNSM(["General", "Videos"]);
 
@@ -52,15 +52,17 @@ const PlaylistsPage = () => {
 	const initialize = async () => {
 		setPlaylists(null);
 		setActivePlaylistInspectorTab(PlaylistInspectorTabs[0]);
-		const response = await NewRequest({
-			method: "GET",
-			route: "/core/v1.1/admin/playlists",
-			params: {
-				limit: 50,
-				offset: 0,
+		const response = await FetchAPI(
+			{
+				method: "GET",
+				url: "/core/v1.1/admin/playlists",
+				params: {
+					limit: 50,
+					offset: 0,
+				},
 			},
-			auth: true,
-		});
+			{ auth: true }
+		);
 		if (response.success) {
 			let data = response.data.data;
 			console.log(data);
@@ -99,14 +101,16 @@ const PlaylistsPage = () => {
 	const savePlaylistInspection = async () => {
 		if (changes && Object.keys(changes).length > 0) {
 			setSaving(true);
-			const response = await NewRequest({
-				method: "PUT",
-				route: "/core/v1.1/admin/playlist/" + selectedPlaylist!.id,
-				body: {
-					changes: changes,
+			const response = await FetchAPI(
+				{
+					method: "PUT",
+					url: "/core/v1.1/admin/playlist/" + selectedPlaylist!.id,
+					data: {
+						changes: changes,
+					},
 				},
-				auth: true,
-			});
+				{ auth: true }
+			);
 			if (response.success) {
 				setSelectedPlaylist(null);
 				setChanges(null);
@@ -125,17 +129,19 @@ const PlaylistsPage = () => {
 	};
 
 	const archiveVideo = async () => {
-		const response = await NewRequest({
-			method: "PUT",
-			route: "/core/v1.1/admin/playlist/" + selectedPlaylist!.id,
-			body: {
-				id: selectedPlaylist!.id,
-				changes: {
-					status: PlaylistStatus.Archived,
+		const response = await FetchAPI(
+			{
+				method: "PUT",
+				url: "/core/v1.1/admin/playlist/" + selectedPlaylist!.id,
+				data: {
+					id: selectedPlaylist!.id,
+					changes: {
+						status: PlaylistStatus.Archived,
+					},
 				},
 			},
-			auth: true,
-		});
+			{ auth: true }
+		);
 		if (response.success) {
 			setSelectedPlaylist(null);
 			setChanges(null);
@@ -350,16 +356,18 @@ const PlaylistsPage = () => {
 									value: string
 								): Promise<void> => {
 									if (value.length < 3) return;
-									const response = await NewRequest({
-										method: "GET",
-										route: "/core/v1.1/admin/videos",
-										params: {
-											search: value,
-											limit: 5,
-											offset: 0,
+									const response = await FetchAPI(
+										{
+											method: "GET",
+											url: "/core/v1.1/admin/videos",
+											params: {
+												search: value,
+												limit: 5,
+												offset: 0,
+											},
 										},
-										auth: true,
-									});
+										{ auth: true }
+									);
 									if (response.success) {
 										let data = response.data.data;
 										// Filter data to remove videos already in the playlist
