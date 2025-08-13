@@ -71,7 +71,7 @@ const UsersPagePlatformUsers = (props: Props) => {
 		setChanges(null);
 		setUsers(null);
 		setPageLoading(true);
-		const response = await FetchAPI(
+		const response = await FetchAPI<MobileUser[]>(
 			{
 				url: "/core/v1.1/admin/mobileUsers",
 				method: "GET",

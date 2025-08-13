@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import Spinner from "../../../general/Spinner";
 import Image from "next/image";
-import { User, UserType, UserTypes } from "../../../../models/user.model";
+import { UserType, UserTypes } from "../../../../models/user.model";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import TeamModal from "../TeamModal";
@@ -12,6 +12,7 @@ import TeamModalSelect from "../TeamModalSelect";
 import PageModal from "../../../general/PageModal";
 import ValidUser from "../../../../validators/user.validator";
 import { FetchAPI } from "../../../../services/http/requestHandler";
+import { User } from "../../../../types";
 dayjs.extend(relativeTime);
 
 const UsersPageTeamUsers = () => {
@@ -31,7 +32,7 @@ const UsersPageTeamUsers = () => {
 	const initialize = async () => {
 		setUsers(null);
 		setPageLoading(true);
-		const response = await FetchAPI(
+		const response = await FetchAPI<User[]>(
 			{
 				url: "/core/v1.1/admin/users",
 				method: "GET",

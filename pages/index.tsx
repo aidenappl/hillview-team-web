@@ -37,7 +37,7 @@ const LoginPage = () => {
 	const handleLocalLogin = async (): Promise<void> => {
 		if (email && password && !loadingLocal && !loadingGoogle) {
 			setLoadingLocal(true);
-			const response = await FetchAPI({
+			const response = await FetchAPI<any>({
 				url: "/auth/v1.1/local",
 				method: "POST",
 				data: {

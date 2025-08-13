@@ -189,7 +189,7 @@ const KillSession = async (
 const RefreshSession = async (): Promise<GeneralResponse> => {
 	const refresh = await RetrieveToken("refresh");
 	if (refresh) {
-		const tokenRequest = await FetchAPI({
+		const tokenRequest = await FetchAPI<any>({
 			method: "POST",
 			url: "/auth/v1.1/token",
 			data: {

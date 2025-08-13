@@ -49,7 +49,7 @@ const AssetsPage = () => {
 
 	const initialize = async () => {
 		setAssets(null);
-		const response = await FetchAPI(
+		const response = await FetchAPI<Asset[]>(
 			{
 				method: "GET",
 				url: "/core/v1.1/admin/assets",

@@ -52,7 +52,7 @@ const PlaylistsPage = () => {
 	const initialize = async () => {
 		setPlaylists(null);
 		setActivePlaylistInspectorTab(PlaylistInspectorTabs[0]);
-		const response = await FetchAPI(
+		const response = await FetchAPI<Playlist[]>(
 			{
 				method: "GET",
 				url: "/core/v1.1/admin/playlists",
@@ -356,7 +356,7 @@ const PlaylistsPage = () => {
 									value: string
 								): Promise<void> => {
 									if (value.length < 3) return;
-									const response = await FetchAPI(
+									const response = await FetchAPI<Video[]>(
 										{
 											method: "GET",
 											url: "/core/v1.1/admin/videos",

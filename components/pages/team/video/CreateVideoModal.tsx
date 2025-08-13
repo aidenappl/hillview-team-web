@@ -79,7 +79,7 @@ const CreateVideoModal = (props: Props) => {
 				`cloudflarestream\.com\/([a-zA-Z0-9]+)\/manifest`
 			)[1];
 			if (id && id.length > 0) {
-				const response = await FetchAPI(
+				const response = await FetchAPI<any>(
 					{
 						method: "POST",
 						url: `/video/v1.1/upload/cf/${id}/generateDownload`,
