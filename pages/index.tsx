@@ -11,6 +11,8 @@ import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 import { GetAccountLander } from "../services/accountLander";
 import { FetchAPI } from "../services/http/requestHandler";
+import toast from "react-hot-toast";
+import { GoogleAuthResponse } from "../types";
 
 const LoginPage = () => {
 	const [email, setEmail] = useState<string>("");
@@ -79,7 +81,7 @@ const LoginPage = () => {
 		>
 	): Promise<void> => {
 		if (tokenResponse.code && !loadingLocal) {
-			const response = await FetchAPI({
+			const response = await FetchAPI<GoogleAuthResponse>({
 				url: "/auth/v1.1/google",
 				method: "POST",
 				data: {
@@ -89,7 +91,7 @@ const LoginPage = () => {
 			});
 
 			if (response.success) {
-				let data = response.data.data;
+				let data = response.data;
 				const initializerResp = await InitializeSession({
 					accessToken: data.access_token,
 					refreshToken: data.refresh_token,
@@ -107,6 +109,7 @@ const LoginPage = () => {
 				}
 			} else {
 				console.error("Error");
+				toast.error(response.error_message);
 			}
 		}
 	};
