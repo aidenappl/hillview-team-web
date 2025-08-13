@@ -7,7 +7,7 @@ type GetTeamUserRequest = {
 
 const GetTeamUser = async (req: GetTeamUserRequest): Promise<User | null> => {
 	try {
-		const response = await FetchAPI(
+		const response = await FetchAPI<User>(
 			{
 				url: "/auth/v1.1/self",
 				method: "GET",
@@ -15,7 +15,7 @@ const GetTeamUser = async (req: GetTeamUserRequest): Promise<User | null> => {
 			{ auth: true, authToken: req.withToken }
 		);
 		if (response.success) {
-			return response.data as User;
+			return response.data;
 		} else {
 			return null;
 		}

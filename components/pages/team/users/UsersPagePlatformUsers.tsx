@@ -84,8 +84,8 @@ const UsersPagePlatformUsers = (props: Props) => {
 		);
 
 		if (response.success) {
-			console.log(response.data.data);
-			setUsers(response.data.data);
+			console.log(response.data);
+			setUsers(response.data);
 		} else {
 			console.error(response);
 			toast.error("Failed to load users");

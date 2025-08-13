@@ -42,7 +42,7 @@ const LinksPage = () => {
 			{ auth: true }
 		);
 		if (response.success) {
-			let data = response.data.data;
+			let data = response.data;
 			console.log(data);
 			setLinks(data);
 		}
@@ -63,7 +63,7 @@ const LinksPage = () => {
 			{ auth: true }
 		);
 		if (response.success) {
-			let data = response.data.data;
+			let data = response.data;
 			console.log(data);
 			setLinks([...links!, ...data]);
 		}
