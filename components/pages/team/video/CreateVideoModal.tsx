@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import TeamModal from "../TeamModal";
-import { NewRequest } from "../../../../services/http/requestHandler";
+
 import toast from "react-hot-toast";
 import TeamModalInput from "../TeamModalInput";
 import TeamModalTextarea from "../TeamModalTextarea";
@@ -10,6 +10,7 @@ import TeamModalUploader from "../TeamModalUploader";
 import UploadImage from "../../../../services/uploadHandler";
 import SelectThumbnailModal from "./SelectThumbnailModal";
 import UploadComponent from "./UploadComponent";
+import { FetchAPI } from "../../../../services/http/requestHandler";
 
 interface Props {
 	cancelHit?: () => void;
@@ -78,11 +79,13 @@ const CreateVideoModal = (props: Props) => {
 				`cloudflarestream\.com\/([a-zA-Z0-9]+)\/manifest`
 			)[1];
 			if (id && id.length > 0) {
-				const response = await NewRequest({
-					method: "POST",
-					route: `/video/v1.1/upload/cf/${id}/generateDownload`,
-					auth: true,
-				});
+				const response = await FetchAPI(
+					{
+						method: "POST",
+						url: `/video/v1.1/upload/cf/${id}/generateDownload`,
+					},
+					{ auth: true }
+				);
 				if (response.success) {
 					console.log(response.data);
 					inputChange({
@@ -95,7 +98,7 @@ const CreateVideoModal = (props: Props) => {
 					});
 				} else {
 					console.error(response);
-					toast.error(response.message);
+					toast.error(response.error_message);
 					setDownloadButtonParams({
 						loading: false,
 						disabled: false,
@@ -118,12 +121,14 @@ const CreateVideoModal = (props: Props) => {
 			return;
 		}
 		setSaving(true);
-		const response = await NewRequest({
-			method: "POST",
-			route: "/core/v1.1/admin/video",
-			body: validator.value,
-			auth: true,
-		});
+		const response = await FetchAPI(
+			{
+				method: "POST",
+				url: "/core/v1.1/admin/video",
+				data: validator.value,
+			},
+			{ auth: true }
+		);
 		if (response.success) {
 			console.log(response.data);
 			toast.success("Video Created");
@@ -132,7 +137,7 @@ const CreateVideoModal = (props: Props) => {
 		} else {
 			console.error(response);
 			setSaving(false);
-			toast.error(response.message);
+			toast.error(response.error_message);
 		}
 	};
 

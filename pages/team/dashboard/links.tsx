@@ -3,13 +3,13 @@ import TeamContainer from "../../../components/pages/team/TeamContainer";
 import TeamHeader from "../../../components/pages/team/TeamHeader";
 import Spinner from "../../../components/general/Spinner";
 import { useEffect, useState } from "react";
-import { NewRequest } from "../../../services/http/requestHandler";
 import { Link } from "../../../models/link.model";
 import PageModal from "../../../components/general/PageModal";
 import TeamModal from "../../../components/pages/team/TeamModal";
 import TeamModalInput from "../../../components/pages/team/TeamModalInput";
 import toast from "react-hot-toast";
 import CreateLinkModal from "../../../components/pages/team/link/CreateLinkModal";
+import { FetchAPI } from "../../../services/http/requestHandler";
 
 const LinksPage = () => {
 	const router = useRouter();
@@ -30,15 +30,17 @@ const LinksPage = () => {
 
 	const initialize = async () => {
 		setLinks(null);
-		const response = await NewRequest({
-			method: "GET",
-			route: "/core/v1.1/admin/links",
-			params: {
-				limit: 20,
-				offset: offset,
+		const response = await FetchAPI(
+			{
+				method: "GET",
+				url: "/core/v1.1/admin/links",
+				params: {
+					limit: 20,
+					offset: offset,
+				},
 			},
-			auth: true,
-		});
+			{ auth: true }
+		);
 		if (response.success) {
 			let data = response.data.data;
 			console.log(data);
@@ -49,15 +51,17 @@ const LinksPage = () => {
 	const loadMore = async () => {
 		let newOffset = offset + 20;
 		setOffset(newOffset);
-		const response = await NewRequest({
-			method: "GET",
-			route: "/core/v1.1/admin/links",
-			params: {
-				limit: 20,
-				offset: newOffset,
+		const response = await FetchAPI(
+			{
+				method: "GET",
+				url: "/core/v1.1/admin/links",
+				params: {
+					limit: 20,
+					offset: newOffset,
+				},
 			},
-			auth: true,
-		});
+			{ auth: true }
+		);
 		if (response.success) {
 			let data = response.data.data;
 			console.log(data);
@@ -96,15 +100,17 @@ const LinksPage = () => {
 	const saveLinkInspection = async () => {
 		if (changes && Object.keys(changes).length > 0) {
 			setSaving(true);
-			const response = await NewRequest({
-				method: "PUT",
-				route: "/core/v1.1/admin/link/" + selectedLink!.id,
-				body: {
-					id: selectedLink!.id,
-					changes: changes,
+			const response = await FetchAPI(
+				{
+					method: "PUT",
+					url: "/core/v1.1/admin/link/" + selectedLink!.id,
+					data: {
+						id: selectedLink!.id,
+						changes: changes,
+					},
 				},
-				auth: true,
-			});
+				{ auth: true }
+			);
 			if (response.success) {
 				setSelectedLink(null);
 				setChanges(null);
@@ -123,16 +129,18 @@ const LinksPage = () => {
 	};
 
 	const archiveLink = async () => {
-		const response = await NewRequest({
-			method: "PUT",
-			route: "/core/v1.1/admin/link/" + selectedLink!.id,
-			body: {
-				changes: {
-					active: false,
+		const response = await FetchAPI(
+			{
+				method: "PUT",
+				url: "/core/v1.1/admin/link/" + selectedLink!.id,
+				data: {
+					changes: {
+						active: false,
+					},
 				},
 			},
-			auth: true,
-		});
+			{ auth: true }
+		);
 		if (response.success) {
 			setSelectedLink(null);
 			setChanges(null);

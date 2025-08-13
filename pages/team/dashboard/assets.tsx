@@ -3,7 +3,6 @@ import TeamContainer from "../../../components/pages/team/TeamContainer";
 import TeamHeader from "../../../components/pages/team/TeamHeader";
 import { useEffect, useState } from "react";
 import { Asset } from "../../../models/asset.model";
-import { NewRequest } from "../../../services/http/requestHandler";
 import Image from "next/image";
 import TeamModal from "../../../components/pages/team/TeamModal";
 import TeamModalInput from "../../../components/pages/team/TeamModalInput";
@@ -17,6 +16,7 @@ import Spinner from "../../../components/general/Spinner";
 import UploadImage from "../../../services/uploadHandler";
 import PageModal from "../../../components/general/PageModal";
 import CreateAssetModal from "../../../components/pages/team/asset/CreateAssetModal";
+import { FetchAPI } from "../../../services/http/requestHandler";
 
 const AssetsPage = () => {
 	const router = useRouter();
@@ -49,16 +49,18 @@ const AssetsPage = () => {
 
 	const initialize = async () => {
 		setAssets(null);
-		const response = await NewRequest({
-			method: "GET",
-			route: "/core/v1.1/admin/assets",
-			params: {
-				limit: 50,
-				sort: "DESC",
-				offset: 0,
+		const response = await FetchAPI(
+			{
+				method: "GET",
+				url: "/core/v1.1/admin/assets",
+				params: {
+					limit: 50,
+					sort: "DESC",
+					offset: 0,
+				},
 			},
-			auth: true,
-		});
+			{ auth: true }
+		);
 		if (response.success) {
 			let data = response.data.data;
 			console.log(data);
@@ -67,17 +69,19 @@ const AssetsPage = () => {
 	};
 
 	const deleteAsset = async () => {
-		const response = await NewRequest({
-			method: "PUT",
-			route: "/core/v1.1/admin/asset/" + selectedAsset!.id,
-			body: {
-				id: selectedAsset!.id,
-				changes: {
-					status: AssetStatus.Deleted,
+		const response = await FetchAPI(
+			{
+				method: "PUT",
+				url: "/core/v1.1/admin/asset/" + selectedAsset!.id,
+				data: {
+					id: selectedAsset!.id,
+					changes: {
+						status: AssetStatus.Deleted,
+					},
 				},
 			},
-			auth: true,
-		});
+			{ auth: true }
+		);
 		if (response.success) {
 			setSelectedAsset(null);
 			setChanges(null);
@@ -95,15 +99,17 @@ const AssetsPage = () => {
 	const saveAssetInspection = async () => {
 		if (changes && Object.keys(changes).length > 0) {
 			setSaving(true);
-			const response = await NewRequest({
-				method: "PUT",
-				route: "/core/v1.1/admin/asset/" + selectedAsset!.id,
-				body: {
-					id: selectedAsset!.id,
-					changes: changes,
+			const response = await FetchAPI(
+				{
+					method: "PUT",
+					url: "/core/v1.1/admin/asset/" + selectedAsset!.id,
+					data: {
+						id: selectedAsset!.id,
+						changes: changes,
+					},
 				},
-				auth: true,
-			});
+				{ auth: true }
+			);
 			if (response.success) {
 				setSelectedAsset(null);
 				setChanges(null);

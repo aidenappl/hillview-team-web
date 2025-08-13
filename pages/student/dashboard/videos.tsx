@@ -5,7 +5,6 @@ import Spinner from "../../../components/general/Spinner";
 import { useCallback, useEffect, useState } from "react";
 import { Video } from "../../../models/video.model";
 import Image from "next/image";
-import { NewRequest } from "../../../services/http/requestHandler";
 import Link from "next/link";
 import TeamModal from "../../../components/pages/team/TeamModal";
 import TeamModalInput from "../../../components/pages/team/TeamModalInput";
@@ -15,6 +14,7 @@ import CreateVideoModal from "../../../components/pages/team/video/CreateVideoMo
 import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
 import UploadImage from "../../../services/uploadHandler";
 import SelectThumbnailModal from "../../../components/pages/team/video/SelectThumbnailModal";
+import { FetchAPI } from "../../../services/http/requestHandler";
 
 const VideosPage = () => {
 	const router = useRouter();
@@ -56,15 +56,17 @@ const VideosPage = () => {
 
 	const initialize = async () => {
 		setVideos(null);
-		const response = await NewRequest({
-			method: "GET",
-			route: "/core/v1.1/admin/videos",
-			params: {
-				limit: 20,
-				offset: 0,
+		const response = await FetchAPI(
+			{
+				method: "GET",
+				url: "/core/v1.1/admin/videos",
+				params: {
+					limit: 20,
+					offset: 0,
+				},
 			},
-			auth: true,
-		});
+			{ auth: true }
+		);
 		if (response.success) {
 			let data = response.data.data;
 			console.log(data);
@@ -75,15 +77,17 @@ const VideosPage = () => {
 	const loadMore = async () => {
 		let newOffset = offset + 20;
 		setOffset(newOffset);
-		const response = await NewRequest({
-			method: "GET",
-			route: "/core/v1.1/admin/videos",
-			params: {
-				limit: 20,
-				offset: newOffset,
+		const response = await FetchAPI(
+			{
+				method: "GET",
+				url: "/core/v1.1/admin/videos",
+				params: {
+					limit: 20,
+					offset: newOffset,
+				},
 			},
-			auth: true,
-		});
+			{ auth: true }
+		);
 		if (response.success) {
 			let data = response.data.data;
 			console.log(data);
@@ -122,15 +126,17 @@ const VideosPage = () => {
 	const saveVideoInspection = async () => {
 		if (changes && Object.keys(changes).length > 0) {
 			setSaving(true);
-			const response = await NewRequest({
-				method: "PUT",
-				route: "/core/v1.1/admin/video/" + selectedVideo!.id,
-				body: {
-					id: selectedVideo!.id,
-					changes: changes,
+			const response = await FetchAPI(
+				{
+					method: "PUT",
+					url: "/core/v1.1/admin/video/" + selectedVideo!.id,
+					data: {
+						id: selectedVideo!.id,
+						changes: changes,
+					},
 				},
-				auth: true,
-			});
+				{ auth: true }
+			);
 			if (response.success) {
 				setSelectedVideo(null);
 				setChanges(null);

@@ -1,90 +1,93 @@
-import axios from "axios";
-import { GeneralResponse } from "../../models/generalResponse.model";
-import { GetSessionAccessToken, RefreshSession } from "../sessionHandler";
+import axios, { AxiosError, AxiosRequestConfig } from "axios";
+import { GetSessionAccessToken } from "../sessionHandler";
 
-type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-
-type RequestReq = {
-	route: string;
-	method: HTTPMethod;
-	overrideURL?: string;
-	params?: object;
-	auth?: boolean;
-	body?: object;
-	headers?: object[];
-	authToken?: string | null;
+// Generic success response
+type ApiSuccess<T> = {
+	success: true;
+	message: string;
+	data: T;
 };
 
-const NewRequest = async (req: RequestReq): Promise<GeneralResponse> => {
+// Generic error response
+type ApiError = {
+	success?: false;
+	error: string;
+	error_message: string;
+	error_code: number;
+};
+
+// Union type for API responses
+export type ApiResponse<T> = ApiSuccess<T> | ApiError;
+
+// Axios instance for API requests
+const axios_api = axios.create({
+	baseURL: process.env.NEXT_PUBLIC_API_URL,
+	headers: {
+		"Content-Type": "application/json",
+	},
+	validateStatus: () => true,
+	timeout: 10000,
+});
+
+// Basic fetch instance for non-API requests
+const fetch = axios.create({
+	headers: {
+		"Content-Type": "application/json",
+	},
+	validateStatus: () => true,
+	timeout: 10000,
+});
+
+// Fetch API instance for making API requests
+const FetchAPI = async <T>(
+	config: AxiosRequestConfig,
+	req: { auth?: boolean; authToken?: string } = {}
+): Promise<ApiResponse<T>> => {
 	try {
-		const headers: any = {
-			"Content-Type": "application/json",
-			Accept: "application/json",
-		};
-
-		if (req.headers && req.headers.length > 0) {
-			req.headers.forEach((header: any) => {
-				headers[Object.keys(header)[0]] = Object.values(header)[0];
-			});
-		}
-
 		if (req.auth) {
-			headers["Authorization"] = "Bearer " + GetSessionAccessToken();
+			config.headers = config.headers || {};
+			config.headers["Authorization"] =
+				"Bearer " + GetSessionAccessToken();
 		}
 
 		if (req.authToken) {
-			headers["Authorization"] = "Bearer " + req.authToken;
+			config.headers = config.headers || {};
+			config.headers["Authorization"] = "Bearer " + req.authToken;
 		}
+		const response = await axios_api.request(config);
 
-		const response = await axios.request({
-			url: req.route,
-			method: req.method,
-			baseURL: req.overrideURL || `${process.env.NEXT_PUBLIC_API_URL}`,
-			headers,
-			data: req.body || {},
-			params: req.params || {},
-			validateStatus: () => true,
-		});
-
-		if (response.status >= 200 && response.status < 300) {
+		if (response.status === 204) {
 			return {
-				status: response.status,
-				data: response.data,
 				success: true,
-				message: "success",
+				message: "No Content",
+				data: {} as T,
 			};
-		} else {
-			if (response.status === 401) {
-				let refreshResp = await RefreshSession();
-				console.log("refreshResp", refreshResp);
-				if (refreshResp.success) {
-					return await NewRequest(req);
-				} else {
-					return {
-						status: response.status,
-						data: response.data,
-						success: false,
-						message:
-							"failed to make request: " + response.data.message,
-					};
-				}
-			} else {
-				return {
-					status: response.status,
-					data: response,
-					success: false,
-					message: "failed to make request: " + response.data.message,
-				};
-			}
 		}
-	} catch (error: any) {
+
+		if (response.data && response.data.success) {
+			return {
+				success: true,
+				message: response.data.message,
+				data: response.data.data as T,
+			};
+		}
+
 		return {
-			status: 500,
-			data: error,
 			success: false,
-			message: "failed to make request: " + error.message,
+			error: response.data?.error ?? "Unknown error",
+			error_message:
+				response.data?.error_message ?? "Unexpected error occurred",
+			error_code: response.data?.error_code ?? 0,
+		};
+	} catch (err: unknown) {
+		const axiosError = err as AxiosError;
+		return {
+			success: false,
+			error: "request_failed",
+			error_message: axiosError.message ?? "Request failed unexpectedly",
+			error_code: -1,
 		};
 	}
 };
 
-export { NewRequest };
+export { FetchAPI, fetch };

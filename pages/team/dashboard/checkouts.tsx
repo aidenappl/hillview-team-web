@@ -5,9 +5,9 @@ import Spinner from "../../../components/general/Spinner";
 import { useEffect, useState } from "react";
 import { Checkout } from "../../../models/checkout.model";
 import Image from "next/image";
-import { NewRequest } from "../../../services/http/requestHandler";
 import dayjs from "dayjs";
 import toast from "react-hot-toast";
+import { FetchAPI } from "../../../services/http/requestHandler";
 require("dayjs/locale/en");
 
 const CheckoutsPage = () => {
@@ -20,15 +20,17 @@ const CheckoutsPage = () => {
 
 	const initialize = async () => {
 		setCheckouts(null);
-		const response = await NewRequest({
-			method: "GET",
-			route: "/core/v1.1/admin/checkouts",
-			params: {
-				limit: 50,
-				offset: 0,
+		const response = await FetchAPI(
+			{
+				method: "GET",
+				url: "/core/v1.1/admin/checkouts",
+				params: {
+					limit: 50,
+					offset: 0,
+				},
 			},
-			auth: true,
-		});
+			{ auth: true }
+		);
 		if (response.success) {
 			let data = response.data.data;
 			console.log(data);
@@ -110,19 +112,22 @@ const CheckoutsPage = () => {
 													className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
 													onClick={async () => {
 														const response =
-															await NewRequest({
-																method: "PUT",
-																route:
-																	"/core/v1.1/admin/checkout/" +
-																	checkout.id,
-																body: {
-																	changes: {
-																		check_in:
-																			true,
+															await FetchAPI(
+																{
+																	method: "PUT",
+																	url:
+																		"/core/v1.1/admin/checkout/" +
+																		checkout.id,
+																	data: {
+																		changes:
+																			{
+																				check_in:
+																					true,
+																			},
 																	},
 																},
-																auth: true,
-															});
+																{ auth: true }
+															);
 														if (response.success) {
 															toast.success(
 																"Checked In Successfully"
@@ -131,7 +136,7 @@ const CheckoutsPage = () => {
 														} else {
 															toast.error(
 																"Failed to check in: " +
-																	response.message
+																	response.error_message
 															);
 															console.error(
 																response

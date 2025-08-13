@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Uppy from "@uppy/core";
 import Tus from "@uppy/tus";
-import { NewRequest } from "../../../../services/http/requestHandler";
+
 import { CloudflareStatus } from "../../../../models/cloudflareStatus.model";
+import { FetchAPI } from "../../../../services/http/requestHandler";
 
 interface PageProps {
 	hidden?: boolean;
@@ -69,22 +70,24 @@ const UploadComponent = (props: PageProps) => {
 
 	const getEncodingProgress = async () => {
 		let poller = setInterval(async () => {
-			const response = await NewRequest({
-				method: "GET",
-				route: `/video/v1.1/upload/cf/${videoID}`,
-				auth: true,
-			});
+			const response = await FetchAPI<CloudflareStatus>(
+				{
+					method: "GET",
+					url: `/video/v1.1/upload/cf/${videoID}`,
+				},
+				{ auth: true }
+			);
 			if (!response) {
 				clearInterval(poller);
 				return;
 			}
-			if (response.status !== 200) {
+			if (!response.success) {
 				clearInterval(poller);
 				setUppyState("failed");
 				return;
 			}
 			setUppyState("status-rolling");
-			let data: CloudflareStatus = response.data;
+			let data = response.data;
 			setStatusBody(data);
 			if (data.success) {
 				let status = data.result.status;

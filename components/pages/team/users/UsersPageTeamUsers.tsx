@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { NewRequest } from "../../../../services/http/requestHandler";
+
 import { useEffect, useState } from "react";
 import Spinner from "../../../general/Spinner";
 import Image from "next/image";
@@ -11,6 +11,7 @@ import TeamModalInput from "../TeamModalInput";
 import TeamModalSelect from "../TeamModalSelect";
 import PageModal from "../../../general/PageModal";
 import ValidUser from "../../../../validators/user.validator";
+import { FetchAPI } from "../../../../services/http/requestHandler";
 dayjs.extend(relativeTime);
 
 const UsersPageTeamUsers = () => {
@@ -30,15 +31,17 @@ const UsersPageTeamUsers = () => {
 	const initialize = async () => {
 		setUsers(null);
 		setPageLoading(true);
-		const response = await NewRequest({
-			route: "/core/v1.1/admin/users",
-			method: "GET",
-			params: {
-				limit: 25,
-				offset: 0,
+		const response = await FetchAPI(
+			{
+				url: "/core/v1.1/admin/users",
+				method: "GET",
+				params: {
+					limit: 25,
+					offset: 0,
+				},
 			},
-			auth: true,
-		});
+			{ auth: true }
+		);
 
 		if (response.success) {
 			console.log(response.data.data);
@@ -70,14 +73,16 @@ const UsersPageTeamUsers = () => {
 				return;
 			}
 			setSaveLoading(true);
-			const response = await NewRequest({
-				route: `/core/v1.1/admin/user/${selectedUser!.id}`,
-				method: "PUT",
-				body: {
-					changes,
+			const response = await FetchAPI(
+				{
+					url: `/core/v1.1/admin/user/${selectedUser!.id}`,
+					method: "PUT",
+					data: {
+						changes,
+					},
 				},
-				auth: true,
-			});
+				{ auth: true }
+			);
 			if (response.success) {
 				toast.success("User updated");
 				setChanges(null);
@@ -92,16 +97,18 @@ const UsersPageTeamUsers = () => {
 	};
 
 	const archiveUser = async () => {
-		const response = await NewRequest({
-			route: `/core/v1.1/admin/user/${selectedUser!.id}`,
-			method: "PUT",
-			body: {
-				changes: {
-					authentication: UserType.Deleted,
+		const response = await FetchAPI(
+			{
+				url: `/core/v1.1/admin/user/${selectedUser!.id}`,
+				method: "PUT",
+				data: {
+					changes: {
+						authentication: UserType.Deleted,
+					},
 				},
 			},
-			auth: true,
-		});
+			{ auth: true }
+		);
 		if (response.success) {
 			toast.success("User deleted");
 			setSelectedUser(null);

@@ -1,6 +1,6 @@
 import { ChangeEventHandler, useEffect, useState } from "react";
 import TeamModal from "../TeamModal";
-import { NewRequest } from "../../../../services/http/requestHandler";
+
 import toast from "react-hot-toast";
 import TeamModalInput from "../TeamModalInput";
 import TeamModalUploader from "../TeamModalUploader";
@@ -12,6 +12,7 @@ import {
 	GeneralNSM,
 	GenerateGeneralNSM,
 } from "../../../../models/generalNSM.model";
+import { FetchAPI } from "../../../../services/http/requestHandler";
 
 interface Props {
 	cancelHit?: () => void;
@@ -63,12 +64,14 @@ const CreatePlaylistModal = (props: Props) => {
 			return;
 		}
 		setSaving(true);
-		const response = await NewRequest({
-			method: "POST",
-			route: "/core/v1.1/admin/playlist",
-			body: validator.value,
-			auth: true,
-		});
+		const response = await FetchAPI(
+			{
+				method: "POST",
+				url: "/core/v1.1/admin/playlist",
+				data: validator.value,
+			},
+			{ auth: true }
+		);
 		if (response.success) {
 			console.log(response.data);
 			toast.success("Playlist Created");
@@ -76,7 +79,7 @@ const CreatePlaylistModal = (props: Props) => {
 			saveDone();
 		} else {
 			console.error(response);
-			toast.error(response.message);
+			toast.error(response.error_message);
 		}
 	};
 
@@ -236,16 +239,18 @@ const CreatePlaylistModal = (props: Props) => {
 				}
 				setDelayedValue={async (value: string): Promise<void> => {
 					if (value.length < 3) return;
-					const response = await NewRequest({
-						method: "GET",
-						route: "/core/v1.1/admin/videos",
-						params: {
-							search: value,
-							limit: 5,
-							offset: 0,
+					const response = await FetchAPI(
+						{
+							method: "GET",
+							url: "/core/v1.1/admin/videos",
+							params: {
+								search: value,
+								limit: 5,
+								offset: 0,
+							},
 						},
-						auth: true,
-					});
+						{ auth: true }
+					);
 					if (response.success) {
 						let data = response.data.data;
 						setSearchResults(data);
