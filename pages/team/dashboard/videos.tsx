@@ -75,7 +75,7 @@ const VideosPage = () => {
 	}, []);
 
 	const hydrateSpotlight = async () => {
-		const response = await FetchAPI(
+		const response = await FetchAPI<any>(
 			{
 				method: "GET",
 				url: "/core/v1.1/admin/spotlight",
@@ -96,7 +96,7 @@ const VideosPage = () => {
 	const initialize = async () => {
 		setVideos(null);
 		setOffset(0);
-		const response = await FetchAPI(
+		const response = await FetchAPI<Video[]>(
 			{
 				method: "GET",
 				url: "/core/v1.1/admin/videos",
@@ -133,7 +133,7 @@ const VideosPage = () => {
 				`cloudflarestream\.com\/([a-zA-Z0-9]+)\/manifest`
 			)?.[1];
 			if (id && id.length > 0) {
-				const response = await FetchAPI(
+				const response = await FetchAPI<any>(
 					{
 						method: "POST",
 						url: `/video/v1.1/upload/cf/${id}/generateDownload`,
@@ -152,7 +152,7 @@ const VideosPage = () => {
 					});
 				} else {
 					console.error(response);
-					toast.error(response.message);
+					toast.error(response.error_message);
 					setDownloadButtonParams({
 						loading: false,
 						disabled: false,

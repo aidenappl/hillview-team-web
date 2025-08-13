@@ -20,7 +20,7 @@ const CheckoutsPage = () => {
 
 	const initialize = async () => {
 		setCheckouts(null);
-		const response = await FetchAPI(
+		const response = await FetchAPI<Checkout[]>(
 			{
 				method: "GET",
 				url: "/core/v1.1/admin/checkouts",

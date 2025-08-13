@@ -30,7 +30,7 @@ const LinksPage = () => {
 
 	const initialize = async () => {
 		setLinks(null);
-		const response = await FetchAPI(
+		const response = await FetchAPI<Link[]>(
 			{
 				method: "GET",
 				url: "/core/v1.1/admin/links",
@@ -51,7 +51,7 @@ const LinksPage = () => {
 	const loadMore = async () => {
 		let newOffset = offset + 20;
 		setOffset(newOffset);
-		const response = await FetchAPI(
+		const response = await FetchAPI<Link[]>(
 			{
 				method: "GET",
 				url: "/core/v1.1/admin/links",

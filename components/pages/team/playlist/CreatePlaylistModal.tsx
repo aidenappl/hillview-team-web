@@ -13,6 +13,7 @@ import {
 	GenerateGeneralNSM,
 } from "../../../../models/generalNSM.model";
 import { FetchAPI } from "../../../../services/http/requestHandler";
+import { Video } from "../../../../models/video.model";
 
 interface Props {
 	cancelHit?: () => void;
@@ -25,7 +26,7 @@ const CreatePlaylistModal = (props: Props) => {
 	const [saving, setSaving] = useState<boolean>(false);
 	const [saveActive, setSaveActive] = useState<boolean>(false);
 	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
-	const [searchResults, setSearchResults] = useState<GeneralNSM[] | null>([]);
+	const [searchResults, setSearchResults] = useState<Video[] | null>([]);
 
 	const {
 		cancelHit = () => {},
@@ -239,7 +240,7 @@ const CreatePlaylistModal = (props: Props) => {
 				}
 				setDelayedValue={async (value: string): Promise<void> => {
 					if (value.length < 3) return;
-					const response = await FetchAPI(
+					const response = await FetchAPI<Video[]>(
 						{
 							method: "GET",
 							url: "/core/v1.1/admin/videos",
