@@ -32,7 +32,7 @@ const CheckoutsPage = () => {
 			{ auth: true }
 		);
 		if (response.success) {
-			let data = response.data.data;
+			let data = response.data;
 			console.log(data);
 			setCheckouts(data);
 		}

@@ -15,6 +15,7 @@ import { useRouter } from "next/router";
 import { GetAccountLander } from "../services/accountLander";
 import { selectUser } from "../redux/user/slice";
 import PageHead from "../components/PageHead";
+import { User } from "../types";
 config.autoAddCss = false;
 
 interface RouteGuardParams {

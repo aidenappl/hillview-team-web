@@ -252,7 +252,7 @@ const CreatePlaylistModal = (props: Props) => {
 						{ auth: true }
 					);
 					if (response.success) {
-						let data = response.data.data;
+						let data = response.data;
 						setSearchResults(data);
 					} else {
 						setSearchResults(null);

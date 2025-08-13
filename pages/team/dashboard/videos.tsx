@@ -87,7 +87,7 @@ const VideosPage = () => {
 			{ auth: true }
 		);
 		if (response.success) {
-			let data = response.data.data;
+			let data = response.data;
 			console.log(data);
 			setSpotlightedVideos(data);
 		}
@@ -108,7 +108,7 @@ const VideosPage = () => {
 			{ auth: true }
 		);
 		if (response.success) {
-			let data = response.data.data;
+			let data = response.data;
 			console.log(data);
 			setVideos(data);
 		}
@@ -170,7 +170,7 @@ const VideosPage = () => {
 	const loadMore = async () => {
 		let newOffset = offset + 20;
 		setOffset(newOffset);
-		const response = await FetchAPI(
+		const response = await FetchAPI<Video[]>(
 			{
 				method: "GET",
 				url: "/core/v1.1/admin/videos",
@@ -182,7 +182,7 @@ const VideosPage = () => {
 			{ auth: true }
 		);
 		if (response.success) {
-			let data = response.data.data;
+			let data = response.data;
 			console.log(data);
 			setVideos([...videos!, ...data]);
 		}

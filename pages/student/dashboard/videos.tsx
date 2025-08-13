@@ -68,7 +68,7 @@ const VideosPage = () => {
 			{ auth: true }
 		);
 		if (response.success) {
-			let data = response.data.data;
+			let data = response.data;
 			console.log(data);
 			setVideos(data);
 		}
@@ -89,7 +89,7 @@ const VideosPage = () => {
 			{ auth: true }
 		);
 		if (response.success) {
-			let data = response.data.data;
+			let data = response.data;
 			console.log(data);
 			setVideos([...videos!, ...data]);
 		}
