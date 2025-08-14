@@ -329,7 +329,7 @@ const VideosPage = () => {
 								return (
 									<div
 										key={index}
-										className="text-sm relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 xl:grid-cols-6 items-center w-full h-[50px] sm:[100px] flex-shrink-0 hover:bg-slate-50"
+										className="text-sm relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 xl:grid-cols-6 items-center w-full h-[50px] sm:h-[100px] flex-shrink-0 hover:bg-slate-50 cursor-pointer"
 										onClick={() => {
 											setDownloadButtonParams({
 												loading: false,
