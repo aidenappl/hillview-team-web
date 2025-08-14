@@ -311,7 +311,7 @@ const VideosPage = () => {
 				</Button>
 			</TeamHeader>
 			{/* Data Header */}
-			<div className="text-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 xl:grid-cols-6 items-center w-full h-[70px] flex-shrink-0 relative pr-4">
+			<div className="text-sm grid grid-cols-[1fr_80px] sm:grid-cols-2 md:grid-cols-5 xl:grid-cols-6 items-center w-full h-[70px] flex-shrink-0 relative pr-4">
 				<div className="hidden md:block w-[200px] xl:w-[250px]" />
 				<p className="font-semibold">Title</p>
 				<p className="hidden xl:block font-semibold">Downloads</p>
@@ -321,7 +321,7 @@ const VideosPage = () => {
 			</div>
 
 			{/* Table Body */}
-			<div className="w-full h-[calc(100%-170px)] overflow-y-auto overflow-x-auto">
+			<div className="w-full h-[calc(100%-100px)] md:h-[calc(100%-170px)] overflow-y-auto overflow-x-auto">
 				<div className="w-full h-[calc(100%-70px)]">
 					<>
 						{videos && videos.length > 0 ? (
@@ -329,7 +329,7 @@ const VideosPage = () => {
 								return (
 									<div
 										key={index}
-										className="text-sm relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 xl:grid-cols-6 items-center w-full h-[50px] sm:h-[100px] flex-shrink-0 hover:bg-slate-50 cursor-pointer"
+										className="text-sm relative grid grid-cols-[1fr_80px] sm:grid-cols-2 md:grid-cols-5 xl:grid-cols-6 items-center w-full h-[50px] sm:h-[100px] flex-shrink-0 hover:bg-slate-50 cursor-pointer"
 										onClick={() => {
 											setDownloadButtonParams({
 												loading: false,
@@ -376,10 +376,10 @@ const VideosPage = () => {
 										<p className="pr-2 hidden md:block">{video.views} views</p>
 
 										{/* Status */}
-										<p className="hidden md:block">
+										<p className="">
 											<a
 												className={
-													"px-3 py-1.5 text-sm rounded-md " +
+													"sm:px-3 sm:py-1.5 sm:text-sm sm:rounded-md px-2 py-1 rounded text-xs " +
 													(video.status.short_name == "public"
 														? "text-white bg-green-500"
 														: video.status.short_name == "unlisted"
