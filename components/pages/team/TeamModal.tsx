@@ -25,12 +25,10 @@ const TeamModal = (props: Props) => {
 		<>
 			<div
 				className={
-					"w-[650px] h-fit px-8 pt-8 bg-white border rounded-md absolute full-center flex flex-col z-20 "
+					"w-full sm:w-[650px] h-full sm:h-fit px-2 sm:px-8 pt-8 bg-white border rounded-md absolute full-center flex flex-col z-20 "
 				}
 			>
-				<div
-					className={"flex flex-col w-full h-fit " + props.className}
-				>
+				<div className={"flex flex-col w-full h-fit " + props.className}>
 					{props.children}
 				</div>
 				<div className="mt-8 w-full h-[75px] flex justify-between items-center relative">
@@ -47,7 +45,7 @@ const TeamModal = (props: Props) => {
 							</button>
 						) : null}
 					</div>
-					<div className="flex gap-1">
+					<div className="flex gap-1 py-4 sm:py-0">
 						<button
 							className="py-2 px-3.5 text-[#101827] hover:text-black font-semibold rounded-md text-sm"
 							onClick={() => props.cancelHit()}
@@ -63,17 +61,13 @@ const TeamModal = (props: Props) => {
 							}
 							onClick={() => props.saveHit()}
 						>
-							{loader ? (
-								<Spinner style="light" size={20} />
-							) : (
-								<span>Save</span>
-							)}
+							{loader ? <Spinner style="light" size={20} /> : <span>Save</span>}
 						</button>
 					</div>
 				</div>
 			</div>
 			<div
-				className="h-screen w-screen fixed top-0 left-0 bg-black opacity-5 z-10"
+				className="hidden sm:block h-screen w-screen fixed top-0 left-0 bg-black opacity-5 z-10"
 				onClick={() => props.cancelHit()}
 			/>
 		</>

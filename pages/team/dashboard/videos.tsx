@@ -310,25 +310,18 @@ const VideosPage = () => {
 					Upload Video
 				</Button>
 			</TeamHeader>
-			{/* Data Body */}
-			<div className="text-sm lg:text-base flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
+			{/* Data Header */}
+			<div className="text-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 xl:grid-cols-6 items-center w-full h-[70px] flex-shrink-0 relative pr-4">
 				<div className="hidden md:block w-[200px] xl:w-[250px]" />
-				<p className="w-[calc(50%)] md:w-[calc(33%-100px)] xl:w-[calc(25%-125px)] font-semibold">
-					Title
-				</p>
-				<p className="hidden xl:block xl:w-[calc(25%-125px)] font-semibold">
-					Downloads
-				</p>
-				<p className="w-[calc(50%)] md:w-[calc(33%-100px)] xl:w-[calc(25%-125px)] font-semibold">
-					Views
-				</p>
-				<p className="hidden md:block w-[calc(33%-100px)] xl:w-[calc(25%-125px)] font-semibold">
-					Status
-				</p>
+				<p className="font-semibold">Title</p>
+				<p className="hidden xl:block font-semibold">Downloads</p>
+				<p className="font-semibold hidden md:block">Views</p>
+				<p className="hidden md:block font-semibold">Status</p>
 				<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
 			</div>
+
+			{/* Table Body */}
 			<div className="w-full h-[calc(100%-170px)] overflow-y-auto overflow-x-auto">
-				{/* Table Body */}
 				<div className="w-full h-[calc(100%-70px)]">
 					<>
 						{videos && videos.length > 0 ? (
@@ -336,9 +329,18 @@ const VideosPage = () => {
 								return (
 									<div
 										key={index}
-										className="text-sm lg:text-base relative flex items-center w-full h-[100px] flex-shrink-0 hover:bg-slate-50"
+										className="text-sm relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 xl:grid-cols-6 items-center w-full h-[50px] sm:[100px] flex-shrink-0 hover:bg-slate-50"
+										onClick={() => {
+											setDownloadButtonParams({
+												loading: false,
+												text: "Generate Download",
+												disabled: false,
+											});
+											setSelectedVideo(video);
+										}}
 									>
-										<div className="px-2 hidden md:block w-[200px] xl:w-[250px] flex items-center justify-center shrink-0">
+										{/* Thumbnail */}
+										<div className="px-2 hidden md:flex items-center justify-center">
 											<div
 												className="relative w-[130px] h-[75px] rounded-md overflow-hidden shadow-md border cursor-pointer"
 												onClick={() => {
@@ -358,22 +360,26 @@ const VideosPage = () => {
 												/>
 											</div>
 										</div>
-										<p className="w-[calc(50%)] md:w-[calc(33%-100px)] xl:w-[calc(25%-125px)] pr-2">
-											{video.title}
-										</p>
-										<p className="hidden xl:block xl:w-[calc(25%-125px)] pr-2">
+
+										{/* Title */}
+										<p className="pr-2">{video.title}</p>
+
+										{/* Downloads */}
+										<p className="hidden xl:block pr-2">
 											{video.downloads}{" "}
 											{video.downloads > 1 || video.downloads == 0
 												? "downloads"
 												: "download"}
 										</p>
-										<p className="w-[calc(50%)] md:w-[calc(33%-100px)] xl:w-[calc(25%-125px)] pr-2">
-											{video.views} views
-										</p>
-										<p className="hidden md:block  w-[calc(33%-100px)] xl:w-[calc(25%-125px)]">
+
+										{/* Views */}
+										<p className="pr-2 hidden md:block">{video.views} views</p>
+
+										{/* Status */}
+										<p className="hidden md:block">
 											<a
 												className={
-													"px-3 py-1.5 text-xs lg:text-sm rounded-md  " +
+													"px-3 py-1.5 text-sm rounded-md " +
 													(video.status.short_name == "public"
 														? "text-white bg-green-500"
 														: video.status.short_name == "unlisted"
@@ -384,7 +390,9 @@ const VideosPage = () => {
 												{video.status.name}
 											</a>
 										</p>
-										<div className="flex gap-2 justify-end pr-2 absolute right-0">
+
+										{/* Actions */}
+										<div className="gap-2 justify-end pr-2 absolute right-0 hidden sm:flex">
 											<Button
 												onClick={() => {
 													setDownloadButtonParams({
@@ -401,7 +409,7 @@ const VideosPage = () => {
 												<Link
 													href={"https://hillview.tv/watch?v=" + video.uuid}
 													target="_blank"
-													className="hidden lg:block "
+													className="hidden lg:block"
 													id={"watch-video-" + video.uuid}
 												>
 													<Button variant="secondary">Watch</Button>
@@ -436,11 +444,11 @@ const VideosPage = () => {
 								<Spinner />
 							</div>
 						)}
-						{videos && videos.length > 0 ? (
-							<div className="w-full h-[150px] flex items-center justify-center">
+						{videos && videos.length > 0 && (
+							<div className="w-full h-[80px] sm:h-[150px] flex items-center justify-center">
 								<Button onClick={loadMore}>Load More</Button>
 							</div>
-						) : null}
+						)}
 					</>
 				</div>
 			</div>

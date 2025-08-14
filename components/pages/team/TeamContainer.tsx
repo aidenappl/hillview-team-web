@@ -13,14 +13,12 @@ const TeamContainer = (props: Props) => {
 	return (
 		<PageContainer className="flex">
 			{/* Left Navigation */}
-			<TeamNavbar router={props.router}/>
+			<TeamNavbar router={props.router} />
 			{/* Top Navigation */}
-			<div className="w-[calc(100%-200px)] lg:w-[calc(100%-290px)] xl:w-[calc(100%-325px)] 2xl:w-[calc(100%-350px)] h-full flex flex-col px-[40px]">
+			<div className="w-[calc(100%-50px)] md:w-[calc(100%-200px)] lg:w-[calc(100%-290px)] xl:w-[calc(100%-325px)] 2xl:w-[calc(100%-350px)] h-full flex flex-col px-[40px]">
 				<TeamTopNav pageTitle={props.pageTitle} />
 				{/* Page Content */}
-				<div className="w-full h-[calc(100%-160px)]">
-					{props.children}
-				</div>
+				<div className="w-full h-[calc(100%-160px)]">{props.children}</div>
 			</div>
 		</PageContainer>
 	);

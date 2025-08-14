@@ -13,7 +13,7 @@ const Button = ({
 }: ButtonProps) => {
 	return (
 		<button
-			className={`px-4 text-sm py-1.5 transition text-white rounded-md ${
+			className={`px-3 py-1.5 transition text-white rounded-md ${
 				variant === "primary"
 					? "bg-blue-600 hover:bg-blue-800"
 					: "bg-slate-500 hover:bg-slate-700"
