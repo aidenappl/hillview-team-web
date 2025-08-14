@@ -68,7 +68,7 @@ const TeamNavbar = (props: Props) => {
 	let pathname = props.router.pathname;
 
 	return (
-		<div className="w-[50px] md:w-[200px] text-sm lg:text-base lg:w-[290px] xl:w-[325px] 2xl:w-[350px] h-full p-[5px] md:p-[30px] lg:p-[40px] relative flex flex-col gap-8 sm:gap-12 pt-10 sm:pt-0">
+		<div className="w-[50px] md:w-[200px] text-sm lg:text-base lg:w-[290px] xl:w-[325px] 2xl:w-[350px] h-full p-[5px] md:p-[30px] lg:p-[40px] relative flex flex-col gap-8 md:gap-12 pt-10">
 			{/* Logo */}
 			<div className="w-[40px] h-[40px] md:w-[60px] md:h-[60px] bg-blue-600 rounded-xl bg-[length:28px] md:bg-[length:40px] bg-center bg-no-repeat bg-[url('/logos/hillviewTVSun.png')]" />
 			{/* Navigation */}
@@ -147,7 +147,7 @@ const TeamNavbar = (props: Props) => {
 					</div>
 				) : null}
 			</div>
-			<div className="absolute bottom-[40px] left-0 sm:w-[calc(100%-80px)] w-full">
+			<div className="absolute bottom-[40px] left-0 md:w-[calc(100%-80px)] w-full">
 				<div className="flex flex-col gap-0.5">
 					<Option
 						icon={faArrowRightToBracket}
