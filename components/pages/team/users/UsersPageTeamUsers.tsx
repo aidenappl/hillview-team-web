@@ -11,8 +11,10 @@ import TeamModalInput from "../TeamModalInput";
 import TeamModalSelect from "../TeamModalSelect";
 import PageModal from "../../../general/PageModal";
 import ValidUser from "../../../../validators/user.validator";
-import { FetchAPI } from "../../../../services/http/requestHandler";
+
 import { User } from "../../../../types";
+import { UpdateUser } from "../../../../hooks/UpdateUser";
+import { QueryUsers } from "../../../../hooks/QueryUsers";
 dayjs.extend(relativeTime);
 
 const UsersPageTeamUsers = () => {
@@ -32,17 +34,10 @@ const UsersPageTeamUsers = () => {
 	const initialize = async () => {
 		setUsers(null);
 		setPageLoading(true);
-		const response = await FetchAPI<User[]>(
-			{
-				url: "/core/v1.1/admin/users",
-				method: "GET",
-				params: {
-					limit: 25,
-					offset: 0,
-				},
-			},
-			{ auth: true }
-		);
+		const response = await QueryUsers({
+			limit: 25,
+			offset: 0,
+		});
 
 		if (response.success) {
 			console.log(response.data);
@@ -74,16 +69,7 @@ const UsersPageTeamUsers = () => {
 				return;
 			}
 			setSaveLoading(true);
-			const response = await FetchAPI(
-				{
-					url: `/core/v1.1/admin/user/${selectedUser!.id}`,
-					method: "PUT",
-					data: {
-						changes,
-					},
-				},
-				{ auth: true }
-			);
+			const response = await UpdateUser(selectedUser!.id, validator.value);
 			if (response.success) {
 				toast.success("User updated");
 				setChanges(null);
@@ -98,18 +84,9 @@ const UsersPageTeamUsers = () => {
 	};
 
 	const archiveUser = async () => {
-		const response = await FetchAPI(
-			{
-				url: `/core/v1.1/admin/user/${selectedUser!.id}`,
-				method: "PUT",
-				data: {
-					changes: {
-						authentication: UserType.Deleted,
-					},
-				},
-			},
-			{ auth: true }
-		);
+		const response = await UpdateUser(selectedUser!.id, {
+			authentication: UserType.Deleted,
+		});
 		if (response.success) {
 			toast.success("User deleted");
 			setSelectedUser(null);
@@ -249,10 +226,7 @@ const UsersPageTeamUsers = () => {
 										<div className="relative w-[38px] h-[38px] rounded-full overflow-hidden shadow-md border-2">
 											<Image
 												src={user.profile_image_url}
-												alt={
-													user.name +
-													"'s profile image"
-												}
+												alt={user.name + "'s profile image"}
 												fill
 												style={{
 													objectFit: "cover",
@@ -271,13 +245,9 @@ const UsersPageTeamUsers = () => {
 										</a>
 									)}
 									<p className="w-1/5">{user.email}</p>
-									<p className="w-1/5">
-										{user.authentication.name}
-									</p>
+									<p className="w-1/5">{user.authentication.name}</p>
 									{user.last_active ? (
-										<p className="w-1/5">
-											{dayjs(user.last_active).fromNow()}
-										</p>
+										<p className="w-1/5">{dayjs(user.last_active).fromNow()}</p>
 									) : (
 										<p className="w-1/5">No Activity</p>
 									)}

@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import TeamModal from "../TeamModal";
 
 import toast from "react-hot-toast";
@@ -8,12 +8,10 @@ import UploadImage from "../../../../services/uploadHandler";
 import TeamModalTextarea from "../TeamModalTextarea";
 import ValidPlaylist from "../../../../validators/playlist.validator";
 import TeamModalList from "../TeamModalList";
-import {
-	GeneralNSM,
-	GenerateGeneralNSM,
-} from "../../../../models/generalNSM.model";
-import { FetchAPI } from "../../../../services/http/requestHandler";
+import { GenerateGeneralNSM } from "../../../../models/generalNSM.model";
 import { Video } from "../../../../models/video.model";
+import { CreatePlaylist } from "../../../../hooks/CreatePlaylist";
+import { QueryVideos } from "../../../../hooks/QueryVideos";
 
 interface Props {
 	cancelHit?: () => void;
@@ -65,14 +63,7 @@ const CreatePlaylistModal = (props: Props) => {
 			return;
 		}
 		setSaving(true);
-		const response = await FetchAPI(
-			{
-				method: "POST",
-				url: "/core/v1.1/admin/playlist",
-				data: validator.value,
-			},
-			{ auth: true }
-		);
+		const response = await CreatePlaylist(validator.value);
 		if (response.success) {
 			console.log(response.data);
 			toast.success("Playlist Created");
@@ -233,25 +224,14 @@ const CreatePlaylistModal = (props: Props) => {
 						});
 					}
 				}}
-				dropdown={
-					searchResults
-						? GenerateGeneralNSM(searchResults)
-						: undefined
-				}
+				dropdown={searchResults ? GenerateGeneralNSM(searchResults) : undefined}
 				setDelayedValue={async (value: string): Promise<void> => {
 					if (value.length < 3) return;
-					const response = await FetchAPI<Video[]>(
-						{
-							method: "GET",
-							url: "/core/v1.1/admin/videos",
-							params: {
-								search: value,
-								limit: 5,
-								offset: 0,
-							},
-						},
-						{ auth: true }
-					);
+					const response = await QueryVideos({
+						search: value,
+						limit: 5,
+						offset: 0,
+					});
 					if (response.success) {
 						let data = response.data;
 						setSearchResults(data);
@@ -270,9 +250,7 @@ const CreatePlaylistModal = (props: Props) => {
 				title={"Playlist Videos"}
 				list={GenerateGeneralNSM(playlist.videos)}
 				destructiveClick={(item) => {
-					let index = playlist.videos
-						.map((e: any) => e.id)
-						.indexOf(item.id);
+					let index = playlist.videos.map((e: any) => e.id).indexOf(item.id);
 					if (index > -1) {
 						console.log(playlist.videos.splice(index, 1));
 						setPlaylist({
@@ -282,10 +260,7 @@ const CreatePlaylistModal = (props: Props) => {
 					}
 				}}
 				itemClick={(item) => {
-					window.open(
-						"https://hillview.tv/watch?v=" + item.id,
-						"_blank"
-					);
+					window.open("https://hillview.tv/watch?v=" + item.id, "_blank");
 				}}
 			/>
 		</TeamModal>

@@ -7,7 +7,9 @@ import { Checkout } from "../../../models/checkout.model";
 import Image from "next/image";
 import dayjs from "dayjs";
 import toast from "react-hot-toast";
-import { FetchAPI } from "../../../services/http/requestHandler";
+
+import { UpdateCheckout } from "../../../hooks/UpdateCheckout";
+import { QueryCheckouts } from "../../../hooks/QueryCheckouts";
 require("dayjs/locale/en");
 
 const CheckoutsPage = () => {
@@ -20,17 +22,10 @@ const CheckoutsPage = () => {
 
 	const initialize = async () => {
 		setCheckouts(null);
-		const response = await FetchAPI<Checkout[]>(
-			{
-				method: "GET",
-				url: "/core/v1.1/admin/checkouts",
-				params: {
-					limit: 50,
-					offset: 0,
-				},
-			},
-			{ auth: true }
-		);
+		const response = await QueryCheckouts({
+			limit: 50,
+			offset: 0,
+		});
 		if (response.success) {
 			let data = response.data;
 			console.log(data);
@@ -77,70 +72,37 @@ const CheckoutsPage = () => {
 														objectFit: "cover",
 													}}
 													sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw,  33vw"
-													src={
-														checkout.user
-															.profile_image_url
-													}
-													alt={
-														"user " +
-														checkout.user.name
-													}
+													src={checkout.user.profile_image_url}
+													alt={"user " + checkout.user.name}
 												/>
 											</div>
 										</div>
+										<p className="w-1/4">{checkout.user.name}</p>
+										<p className="w-1/4">{checkout.asset.name}</p>
+										<p className="w-1/4">{checkout.time_out}</p>
 										<p className="w-1/4">
-											{checkout.user.name}
-										</p>
-										<p className="w-1/4">
-											{checkout.asset.name}
-										</p>
-										<p className="w-1/4">
-											{checkout.time_out}
-										</p>
-										<p className="w-1/4">
-											{checkout.checkout_status
-												.short_name == "checked_in" ? (
+											{checkout.checkout_status.short_name == "checked_in" ? (
 												checkout.time_in
 											) : (
 												<b>Checked Out</b>
 											)}
 										</p>
 										<div className="w-[200px]">
-											{checkout.checkout_status
-												.short_name == "checked_out" ? (
+											{checkout.checkout_status.short_name == "checked_out" ? (
 												<button
 													className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
 													onClick={async () => {
-														const response =
-															await FetchAPI(
-																{
-																	method: "PUT",
-																	url:
-																		"/core/v1.1/admin/checkout/" +
-																		checkout.id,
-																	data: {
-																		changes:
-																			{
-																				check_in:
-																					true,
-																			},
-																	},
-																},
-																{ auth: true }
-															);
+														const response = await UpdateCheckout(checkout.id, {
+															check_in: true,
+														});
 														if (response.success) {
-															toast.success(
-																"Checked In Successfully"
-															);
+															toast.success("Checked In Successfully");
 															initialize();
 														} else {
 															toast.error(
-																"Failed to check in: " +
-																	response.error_message
+																"Failed to check in: " + response.error_message
 															);
-															console.error(
-																response
-															);
+															console.error(response);
 														}
 													}}
 												>

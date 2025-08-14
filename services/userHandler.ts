@@ -1,5 +1,5 @@
+import { QuerySelf } from "../hooks/QuerySelf";
 import { User } from "../types";
-import { FetchAPI } from "./http/requestHandler";
 
 type GetTeamUserRequest = {
 	withToken?: string;
@@ -7,13 +7,7 @@ type GetTeamUserRequest = {
 
 const GetTeamUser = async (req: GetTeamUserRequest): Promise<User | null> => {
 	try {
-		const response = await FetchAPI<User>(
-			{
-				url: "/auth/v1.1/self",
-				method: "GET",
-			},
-			{ auth: true, authToken: req.withToken }
-		);
+		const response = await QuerySelf(req.withToken);
 		if (response.success) {
 			return response.data;
 		} else {

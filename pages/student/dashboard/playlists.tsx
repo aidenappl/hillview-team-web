@@ -26,7 +26,10 @@ import CreatePlaylistModal from "../../../components/pages/team/playlist/CreateP
 import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
 import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
 import UploadImage from "../../../services/uploadHandler";
-import { FetchAPI } from "../../../services/http/requestHandler";
+
+import { UpdatePlaylist } from "../../../hooks/UpdatePlaylist";
+import { QueryPlaylists } from "../../../hooks/QueryPlaylists";
+import { QueryVideos } from "../../../hooks/QueryVideos";
 
 const PlaylistInspectorTabs = GenerateGeneralNSM(["General", "Videos"]);
 
@@ -45,24 +48,16 @@ const PlaylistsPage = () => {
 	const [activePlaylistInspectorTab, setActivePlaylistInspectorTab] =
 		useState<GeneralNSM>(PlaylistInspectorTabs[0]);
 	const [searchResults, setSearchResults] = useState<Video[] | null>(null);
-	const [showCreatePlaylist, setShowCreatePlaylist] =
-		useState<boolean>(false);
+	const [showCreatePlaylist, setShowCreatePlaylist] = useState<boolean>(false);
 	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
 
 	const initialize = async () => {
 		setPlaylists(null);
 		setActivePlaylistInspectorTab(PlaylistInspectorTabs[0]);
-		const response = await FetchAPI<Playlist[]>(
-			{
-				method: "GET",
-				url: "/core/v1.1/admin/playlists",
-				params: {
-					limit: 50,
-					offset: 0,
-				},
-			},
-			{ auth: true }
-		);
+		const response = await QueryPlaylists({
+			limit: 50,
+			offset: 0,
+		});
 		if (response.success) {
 			let data = response.data;
 			console.log(data);
@@ -101,16 +96,7 @@ const PlaylistsPage = () => {
 	const savePlaylistInspection = async () => {
 		if (changes && Object.keys(changes).length > 0) {
 			setSaving(true);
-			const response = await FetchAPI(
-				{
-					method: "PUT",
-					url: "/core/v1.1/admin/playlist/" + selectedPlaylist!.id,
-					data: {
-						changes: changes,
-					},
-				},
-				{ auth: true }
-			);
+			const response = await UpdatePlaylist(selectedPlaylist!.id, changes);
 			if (response.success) {
 				setSelectedPlaylist(null);
 				setChanges(null);
@@ -129,19 +115,9 @@ const PlaylistsPage = () => {
 	};
 
 	const archiveVideo = async () => {
-		const response = await FetchAPI(
-			{
-				method: "PUT",
-				url: "/core/v1.1/admin/playlist/" + selectedPlaylist!.id,
-				data: {
-					id: selectedPlaylist!.id,
-					changes: {
-						status: PlaylistStatus.Archived,
-					},
-				},
-			},
-			{ auth: true }
-		);
+		const response = await UpdatePlaylist(selectedPlaylist!.id, {
+			status: PlaylistStatus.Archived,
+		});
 		if (response.success) {
 			setSelectedPlaylist(null);
 			setChanges(null);
@@ -250,9 +226,7 @@ const PlaylistsPage = () => {
 								values={PlaylistStatuses}
 								value={selectedPlaylist.status}
 								setValue={(value) => {
-									if (
-										value.id != selectedPlaylist.status.id
-									) {
+									if (value.id != selectedPlaylist.status.id) {
 										inputChange({ status: value.id });
 									} else {
 										deleteChange("status");
@@ -262,14 +236,9 @@ const PlaylistsPage = () => {
 							<TeamModalInput
 								title="Banner Image URL"
 								placeholder="Playlist Banner Image URL"
-								value={
-									changes?.banner_image ||
-									selectedPlaylist.banner_image
-								}
+								value={changes?.banner_image || selectedPlaylist.banner_image}
 								setValue={(value: string) => {
-									if (
-										value != selectedPlaylist.banner_image
-									) {
+									if (value != selectedPlaylist.banner_image) {
 										inputChange({ banner_image: value });
 									} else {
 										deleteChange("banner_image");
@@ -278,8 +247,7 @@ const PlaylistsPage = () => {
 							/>
 							<TeamModalUploader
 								imageSource={
-									changes?.banner_image ||
-									selectedPlaylist.banner_image
+									changes?.banner_image || selectedPlaylist.banner_image
 								}
 								altText={"Playlist Thumbnail"}
 								showImageLoader={showImageLoader}
@@ -295,17 +263,13 @@ const PlaylistsPage = () => {
 										if (result.success) {
 											setShowImageLoader(false);
 											inputChange({
-												banner_image:
-													result.data.data.url,
+												banner_image: result.data.data.url,
 											});
 										} else {
 											console.error(result);
-											toast.error(
-												"Failed to upload image",
-												{
-													position: "top-center",
-												}
-											);
+											toast.error("Failed to upload image", {
+												position: "top-center",
+											});
 											setShowImageLoader(false);
 										}
 									}
@@ -339,35 +303,20 @@ const PlaylistsPage = () => {
 										});
 										setSelectedPlaylist({
 											...selectedPlaylist,
-											videos: [
-												item as any,
-												...(selectedPlaylist.videos ||
-													[]),
-											],
+											videos: [item as any, ...(selectedPlaylist.videos || [])],
 										});
 									}
 								}}
 								dropdown={
-									searchResults
-										? GenerateGeneralNSM(searchResults)
-										: undefined
+									searchResults ? GenerateGeneralNSM(searchResults) : undefined
 								}
-								setDelayedValue={async (
-									value: string
-								): Promise<void> => {
+								setDelayedValue={async (value: string): Promise<void> => {
 									if (value.length < 3) return;
-									const response = await FetchAPI<Video[]>(
-										{
-											method: "GET",
-											url: "/core/v1.1/admin/videos",
-											params: {
-												search: value,
-												limit: 5,
-												offset: 0,
-											},
-										},
-										{ auth: true }
-									);
+									const response = await QueryVideos({
+										search: value,
+										limit: 5,
+										offset: 0,
+									});
 									if (response.success) {
 										let data = response.data;
 										setSearchResults(data);
@@ -385,39 +334,26 @@ const PlaylistsPage = () => {
 							{selectedPlaylist.videos ? (
 								<TeamModalList
 									title={"Playlist Videos"}
-									list={GenerateGeneralNSM(
-										selectedPlaylist.videos
-									)}
+									list={GenerateGeneralNSM(selectedPlaylist.videos)}
 									destructiveClick={(item) => {
 										// add to remove_videos
-										if (
-											changes?.add_videos?.indexOf(
-												item.id
-											) > -1
-										) {
+										if (changes?.add_videos?.indexOf(item.id) > -1) {
 											// remove from add_videos
-											let arrChanges =
-												changes?.add_videos;
+											let arrChanges = changes?.add_videos;
 											if (arrChanges.length == 1) {
 												deleteChange("add_videos");
 											} else {
 												if (!arrChanges) {
 													arrChanges = [];
 												}
-												arrChanges.splice(
-													arrChanges.indexOf(item.id),
-													1
-												);
+												arrChanges.splice(arrChanges.indexOf(item.id), 1);
 												inputChange({
 													add_videos: arrChanges,
 												});
 											}
 										} else {
 											// add to remove_videos
-											if (
-												changes?.remove_videos
-													?.length == 1
-											) {
+											if (changes?.remove_videos?.length == 1) {
 												deleteChange("remove_videos");
 											} else {
 												let arr = [];
@@ -433,15 +369,13 @@ const PlaylistsPage = () => {
 										setSelectedPlaylist({
 											...selectedPlaylist,
 											videos: selectedPlaylist.videos!.filter(
-												(video: Video) =>
-													video.id != item.id
+												(video: Video) => video.id != item.id
 											),
 										});
 									}}
 									itemClick={(item) => {
 										window.open(
-											"https://hillview.tv/watch?v=" +
-												item.id,
+											"https://hillview.tv/watch?v=" + item.id,
 											"_blank"
 										);
 									}}
@@ -487,10 +421,7 @@ const PlaylistsPage = () => {
 												className="relative w-[130px] h-[75px] rounded-md overflow-hidden shadow-md border cursor-pointer"
 												onClick={() => {
 													document
-														.getElementById(
-															"open-playlist-" +
-																playlist.id
-														)
+														.getElementById("open-playlist-" + playlist.id)
 														?.click();
 												}}
 											>
@@ -501,43 +432,28 @@ const PlaylistsPage = () => {
 													}}
 													sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw,  33vw"
 													src={playlist.banner_image}
-													alt={
-														"video " + playlist.name
-													}
+													alt={"video " + playlist.name}
 												/>
 											</div>
 										</div>
+										<p className="w-[calc(33%-170px)]">{playlist.name}</p>
+										<p className="w-[calc(33%-170px)]">/{playlist.route}</p>
 										<p className="w-[calc(33%-170px)]">
-											{playlist.name}
-										</p>
-										<p className="w-[calc(33%-170px)]">
-											/{playlist.route}
-										</p>
-										<p className="w-[calc(33%-170px)]">
-											{playlist.videos?.length || 0}{" "}
-											Videos
+											{playlist.videos?.length || 0} Videos
 										</p>
 										<div className="w-[200px] flex gap-2 pr-10">
 											<button
 												className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
 												onClick={() => {
-													setSelectedPlaylist(
-														playlist
-													);
+													setSelectedPlaylist(playlist);
 												}}
 											>
 												Inspect
 											</button>
 											<Link
-												href={
-													"https://hillview.tv/playlist/" +
-													playlist.route
-												}
+												href={"https://hillview.tv/playlist/" + playlist.route}
 												target="_blank"
-												id={
-													"open-playlist-" +
-													playlist.id
-												}
+												id={"open-playlist-" + playlist.id}
 											>
 												<button className="px-4 text-sm py-1.5 bg-slate-600 hover:bg-slate-800 transition text-white rounded-md">
 													Open

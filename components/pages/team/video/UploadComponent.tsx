@@ -3,7 +3,8 @@ import Uppy from "@uppy/core";
 import Tus from "@uppy/tus";
 
 import { CloudflareStatus } from "../../../../models/cloudflareStatus.model";
-import { FetchAPI } from "../../../../services/http/requestHandler";
+
+import { QueryCloudflareStatus } from "../../../../hooks/QueryCloudflareStatus";
 
 interface PageProps {
 	hidden?: boolean;
@@ -70,13 +71,7 @@ const UploadComponent = (props: PageProps) => {
 
 	const getEncodingProgress = async () => {
 		let poller = setInterval(async () => {
-			const response = await FetchAPI<CloudflareStatus>(
-				{
-					method: "GET",
-					url: `/video/v1.1/upload/cf/${videoID}`,
-				},
-				{ auth: true }
-			);
+			const response = await QueryCloudflareStatus(videoID);
 			if (!response) {
 				clearInterval(poller);
 				return;
@@ -91,10 +86,7 @@ const UploadComponent = (props: PageProps) => {
 			setStatusBody(data);
 			if (data.success) {
 				let status = data.result.status;
-				if (
-					status.state === "ready" &&
-					parseInt(status.pctComplete) > 99
-				) {
+				if (status.state === "ready" && parseInt(status.pctComplete) > 99) {
 					setUppyState("done");
 					console.log(data.result);
 					onSourceURL(data.result.playback.hls);
@@ -196,18 +188,13 @@ const UploadComponent = (props: PageProps) => {
 			{uppyState === "done" ||
 				(uppyState == "status-rolling" &&
 					statusBody &&
-					statusBody.result.readyToStream && (
-						<div>Ready to Stream!</div>
-					))}
+					statusBody.result.readyToStream && <div>Ready to Stream!</div>)}
 			{uppyState === "status-rolling" &&
 				statusBody &&
 				statusBody.result.status.state != "queued" && (
 					<div>
 						Encoding:{" "}
-						{Math.round(
-							parseInt(statusBody.result.status.pctComplete)
-						)}
-						%
+						{Math.round(parseInt(statusBody.result.status.pctComplete))}%
 					</div>
 				)}
 			{uppyState === "done" && <div>Done!</div>}

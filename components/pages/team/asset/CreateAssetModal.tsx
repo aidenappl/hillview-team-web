@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Asset } from "../../../../models/asset.model";
 import { AssetCategories } from "../../../../models/assetCategories.model";
 import TeamModal from "../TeamModal";
 import TeamModalInput from "../TeamModalInput";
@@ -8,7 +7,7 @@ import TeamModalTextarea from "../TeamModalTextarea";
 
 import toast from "react-hot-toast";
 import ValidAsset from "../../../../validators/asset.validator";
-import { FetchAPI } from "../../../../services/http/requestHandler";
+import { CreateAsset } from "../../../../hooks/CreateAsset";
 
 interface Props {
 	cancelHit?: () => void;
@@ -57,14 +56,7 @@ const CreateAssetModal = (props: Props) => {
 			return;
 		}
 		setSaving(true);
-		const response = await FetchAPI(
-			{
-				method: "POST",
-				url: "/core/v1.1/admin/asset",
-				data: validator.value,
-			},
-			{ auth: true }
-		);
+		const response = await CreateAsset(validator.value);
 		if (response.success) {
 			console.log(response.data);
 			toast.success("Asset Created");

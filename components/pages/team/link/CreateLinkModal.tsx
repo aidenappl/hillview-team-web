@@ -6,7 +6,7 @@ import TeamModalTextarea from "../TeamModalTextarea";
 
 import toast from "react-hot-toast";
 import ValidLink from "../../../../validators/link.validator";
-import { FetchAPI } from "../../../../services/http/requestHandler";
+import { CreateLink } from "../../../../hooks/CreateLink";
 
 interface Props {
 	cancelHit?: () => void;
@@ -55,14 +55,7 @@ const CreateLinkModal = (props: Props) => {
 			return;
 		}
 		setSaving(true);
-		const response = await FetchAPI(
-			{
-				method: "POST",
-				url: "/core/v1.1/admin/link",
-				data: validator.value,
-			},
-			{ auth: true }
-		);
+		const response = await CreateLink(validator.value);
 		if (response.success) {
 			console.log(response.data);
 			toast.success("Link Created");

@@ -5,7 +5,6 @@ import Spinner from "../../../components/general/Spinner";
 import { useCallback, useEffect, useState } from "react";
 import { Video } from "../../../models/video.model";
 import Image from "next/image";
-import { FetchAPI } from "../../../services/http/requestHandler";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import PageModal from "../../../components/general/PageModal";
@@ -14,6 +13,10 @@ import CreateVideoModal from "../../../components/pages/team/video/CreateVideoMo
 import SpotlightedVideosModal from "../../../components/pages/team/video/SpotlightedVideosModal";
 import VideoInspectionModal from "../../../components/pages/team/videos/VideoInspectionModal";
 import Button from "../../../components/general/Button";
+import { UpdateVideo } from "../../../hooks/UpdateVideo";
+import { QueryVideos } from "../../../hooks/QueryVideos";
+import { CreateDownloadUrl } from "../../../hooks/CreateDownloadUrl";
+import { QuerySpotlight } from "../../../hooks/QuerySpotlight";
 
 const VideosPage = () => {
 	const router = useRouter();
@@ -75,17 +78,10 @@ const VideosPage = () => {
 	}, []);
 
 	const hydrateSpotlight = async () => {
-		const response = await FetchAPI<any>(
-			{
-				method: "GET",
-				url: "/core/v1.1/admin/spotlight",
-				params: {
-					limit: 20,
-					offset: 0,
-				},
-			},
-			{ auth: true }
-		);
+		const response = await QuerySpotlight({
+			limit: 20,
+			offset: 0,
+		});
 		if (response.success) {
 			let data = response.data;
 			console.log(data);
@@ -96,17 +92,10 @@ const VideosPage = () => {
 	const initialize = async () => {
 		setVideos(null);
 		setOffset(0);
-		const response = await FetchAPI<Video[]>(
-			{
-				method: "GET",
-				url: "/core/v1.1/admin/videos",
-				params: {
-					limit: 20,
-					offset: 0,
-				},
-			},
-			{ auth: true }
-		);
+		const response = await QueryVideos({
+			limit: 20,
+			offset: 0,
+		});
 		if (response.success) {
 			let data = response.data;
 			console.log(data);
@@ -133,13 +122,7 @@ const VideosPage = () => {
 				`cloudflarestream\.com\/([a-zA-Z0-9]+)\/manifest`
 			)?.[1];
 			if (id && id.length > 0) {
-				const response = await FetchAPI<any>(
-					{
-						method: "POST",
-						url: `/video/v1.1/upload/cf/${id}/generateDownload`,
-					},
-					{ auth: true }
-				);
+				const response = await CreateDownloadUrl(id);
 				if (response.success) {
 					console.log(response.data.result.default.url);
 					inputChange({
@@ -170,17 +153,10 @@ const VideosPage = () => {
 	const loadMore = async () => {
 		let newOffset = offset + 20;
 		setOffset(newOffset);
-		const response = await FetchAPI<Video[]>(
-			{
-				method: "GET",
-				url: "/core/v1.1/admin/videos",
-				params: {
-					limit: 20,
-					offset: newOffset,
-				},
-			},
-			{ auth: true }
-		);
+		const response = await QueryVideos({
+			limit: 20,
+			offset: newOffset,
+		});
 		if (response.success) {
 			let data = response.data;
 			console.log(data);
@@ -225,17 +201,7 @@ const VideosPage = () => {
 	const saveVideoInspection = async () => {
 		if (changes && Object.keys(changes).length > 0) {
 			setSaving(true);
-			const response = await FetchAPI(
-				{
-					method: "PUT",
-					url: "/core/v1.1/admin/video/" + selectedVideo!.id,
-					data: {
-						id: selectedVideo!.id,
-						changes: changes,
-					},
-				},
-				{ auth: true }
-			);
+			const response = await UpdateVideo(selectedVideo!.id, changes);
 			if (response.success) {
 				setSelectedVideo(null);
 				setChanges(null);
@@ -254,18 +220,9 @@ const VideosPage = () => {
 	};
 
 	const archiveVideo = async () => {
-		const response = await FetchAPI(
-			{
-				method: "PUT",
-				url: "/core/v1.1/admin/video/" + selectedVideo!.id,
-				data: {
-					changes: {
-						status: VideoStatus.Archived,
-					},
-				},
-			},
-			{ auth: true }
-		);
+		const response = await UpdateVideo(selectedVideo!.id, {
+			status: VideoStatus.Archived,
+		});
 		if (response.success) {
 			setSelectedVideo(null);
 			setChanges(null);
@@ -386,10 +343,7 @@ const VideosPage = () => {
 												className="relative w-[130px] h-[75px] rounded-md overflow-hidden shadow-md border cursor-pointer"
 												onClick={() => {
 													document
-														.getElementById(
-															"watch-video-" +
-																video.uuid
-														)
+														.getElementById("watch-video-" + video.uuid)
 														?.click();
 												}}
 											>
@@ -409,8 +363,7 @@ const VideosPage = () => {
 										</p>
 										<p className="hidden xl:block xl:w-[calc(25%-125px)] pr-2">
 											{video.downloads}{" "}
-											{video.downloads > 1 ||
-											video.downloads == 0
+											{video.downloads > 1 || video.downloads == 0
 												? "downloads"
 												: "download"}
 										</p>
@@ -421,12 +374,9 @@ const VideosPage = () => {
 											<a
 												className={
 													"px-3 py-1.5 text-xs lg:text-sm rounded-md  " +
-													(video.status.short_name ==
-													"public"
+													(video.status.short_name == "public"
 														? "text-white bg-green-500"
-														: video.status
-																.short_name ==
-														  "unlisted"
+														: video.status.short_name == "unlisted"
 														? "text-white bg-green-700"
 														: "text-white bg-slate-500")
 												}
@@ -447,60 +397,30 @@ const VideosPage = () => {
 											>
 												Inspect
 											</Button>
-											{video.status.short_name !=
-												"draft" && (
+											{video.status.short_name != "draft" && (
 												<Link
-													href={
-														"https://hillview.tv/watch?v=" +
-														video.uuid
-													}
+													href={"https://hillview.tv/watch?v=" + video.uuid}
 													target="_blank"
 													className="hidden lg:block "
-													id={
-														"watch-video-" +
-														video.uuid
-													}
+													id={"watch-video-" + video.uuid}
 												>
-													<Button variant="secondary">
-														Watch
-													</Button>
+													<Button variant="secondary">Watch</Button>
 												</Link>
 											)}
-											{video.status.short_name !=
-												"public" && (
+											{video.status.short_name != "public" && (
 												<Button
 													onClick={async () => {
-														const response =
-															await FetchAPI(
-																{
-																	method: "PUT",
-																	url:
-																		"/core/v1.1/admin/video/" +
-																		video.id,
-																	data: {
-																		id: video.id,
-																		changes:
-																			{
-																				status: VideoStatus.Public,
-																			},
-																	},
-																},
-																{ auth: true }
-															);
+														const response = await UpdateVideo(video.id, {
+															status: VideoStatus.Public,
+														});
 														if (response.success) {
 															initialize();
 														} else {
-															console.error(
-																response
-															);
+															console.error(response);
 															setSaving(false);
-															toast.error(
-																"Failed to save changes",
-																{
-																	position:
-																		"top-center",
-																}
-															);
+															toast.error("Failed to save changes", {
+																position: "top-center",
+															});
 														}
 													}}
 												>
