@@ -9,7 +9,9 @@ import TeamModal from "../../../components/pages/team/TeamModal";
 import TeamModalInput from "../../../components/pages/team/TeamModalInput";
 import toast from "react-hot-toast";
 import CreateLinkModal from "../../../components/pages/team/link/CreateLinkModal";
-import { FetchAPI } from "../../../services/http/requestHandler";
+
+import { UpdateLink } from "../../../hooks/UpdateLink";
+import { QueryLinks } from "../../../hooks/QueryLinks";
 
 const LinksPage = () => {
 	const router = useRouter();
@@ -30,17 +32,10 @@ const LinksPage = () => {
 
 	const initialize = async () => {
 		setLinks(null);
-		const response = await FetchAPI<Link[]>(
-			{
-				method: "GET",
-				url: "/core/v1.1/admin/links",
-				params: {
-					limit: 20,
-					offset: offset,
-				},
-			},
-			{ auth: true }
-		);
+		const response = await QueryLinks({
+			limit: 20,
+			offset: 0,
+		});
 		if (response.success) {
 			let data = response.data;
 			console.log(data);
@@ -51,17 +46,10 @@ const LinksPage = () => {
 	const loadMore = async () => {
 		let newOffset = offset + 20;
 		setOffset(newOffset);
-		const response = await FetchAPI<Link[]>(
-			{
-				method: "GET",
-				url: "/core/v1.1/admin/links",
-				params: {
-					limit: 20,
-					offset: newOffset,
-				},
-			},
-			{ auth: true }
-		);
+		const response = await QueryLinks({
+			limit: 20,
+			offset: newOffset,
+		});
 		if (response.success) {
 			let data = response.data;
 			console.log(data);
@@ -100,17 +88,7 @@ const LinksPage = () => {
 	const saveLinkInspection = async () => {
 		if (changes && Object.keys(changes).length > 0) {
 			setSaving(true);
-			const response = await FetchAPI(
-				{
-					method: "PUT",
-					url: "/core/v1.1/admin/link/" + selectedLink!.id,
-					data: {
-						id: selectedLink!.id,
-						changes: changes,
-					},
-				},
-				{ auth: true }
-			);
+			const response = await UpdateLink(selectedLink!.id, changes);
 			if (response.success) {
 				setSelectedLink(null);
 				setChanges(null);
@@ -129,18 +107,9 @@ const LinksPage = () => {
 	};
 
 	const archiveLink = async () => {
-		const response = await FetchAPI(
-			{
-				method: "PUT",
-				url: "/core/v1.1/admin/link/" + selectedLink!.id,
-				data: {
-					changes: {
-						active: false,
-					},
-				},
-			},
-			{ auth: true }
-		);
+		const response = await UpdateLink(selectedLink!.id, {
+			active: false,
+		});
 		if (response.success) {
 			setSelectedLink(null);
 			setChanges(null);
@@ -249,9 +218,7 @@ const LinksPage = () => {
 										key={index}
 										className="flex items-center w-full h-[70px] flex-shrink-0 hover:bg-slate-50"
 									>
-										<p className="w-[20%] pr-10">
-											/{link.route}
-										</p>
+										<p className="w-[20%] pr-10">/{link.route}</p>
 										<a
 											className="w-[40%] break-all overflow-ellipsis line-clamp-2 overflow-hidden text-blue-600 font-medium pr-10"
 											href={link.destination}
@@ -259,12 +226,8 @@ const LinksPage = () => {
 										>
 											{link.destination}
 										</a>
-										<p className="w-[10%] pr-10">
-											{link.creator.name}
-										</p>
-										<p className="w-[10%] pr-10">
-											{link.clicks}
-										</p>
+										<p className="w-[10%] pr-10">{link.creator.name}</p>
+										<p className="w-[10%] pr-10">{link.clicks}</p>
 										<div className="w-[20%] flex justify-end pr-10 gap-3">
 											<button
 												className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
@@ -278,14 +241,11 @@ const LinksPage = () => {
 												className="px-4 text-sm py-1.5 bg-slate-600 hover:bg-slate-800 transition text-white rounded-md"
 												onClick={(e: any) => {
 													navigator.clipboard.writeText(
-														"https://hillview.tv/" +
-															link.route
+														"https://hillview.tv/" + link.route
 													);
-													e.target.innerHTML =
-														"Copied!";
+													e.target.innerHTML = "Copied!";
 													setTimeout(() => {
-														e.target.innerHTML =
-															"Copy";
+														e.target.innerHTML = "Copy";
 													}, 2000);
 												}}
 											>

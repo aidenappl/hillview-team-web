@@ -16,7 +16,9 @@ import Spinner from "../../../components/general/Spinner";
 import UploadImage from "../../../services/uploadHandler";
 import PageModal from "../../../components/general/PageModal";
 import CreateAssetModal from "../../../components/pages/team/asset/CreateAssetModal";
-import { FetchAPI } from "../../../services/http/requestHandler";
+
+import { UpdateAsset } from "../../../hooks/UpdateAsset";
+import { QueryAssets } from "../../../hooks/QueryAssets";
 
 const AssetsPage = () => {
 	const router = useRouter();
@@ -49,18 +51,11 @@ const AssetsPage = () => {
 
 	const initialize = async () => {
 		setAssets(null);
-		const response = await FetchAPI<Asset[]>(
-			{
-				method: "GET",
-				url: "/core/v1.1/admin/assets",
-				params: {
-					limit: 50,
-					sort: "DESC",
-					offset: 0,
-				},
-			},
-			{ auth: true }
-		);
+		const response = await QueryAssets({
+			limit: 50,
+			sort: "DESC",
+			offset: 0,
+		});
 		if (response.success) {
 			let data = response.data;
 			console.log(data);
@@ -69,19 +64,9 @@ const AssetsPage = () => {
 	};
 
 	const deleteAsset = async () => {
-		const response = await FetchAPI(
-			{
-				method: "PUT",
-				url: "/core/v1.1/admin/asset/" + selectedAsset!.id,
-				data: {
-					id: selectedAsset!.id,
-					changes: {
-						status: AssetStatus.Deleted,
-					},
-				},
-			},
-			{ auth: true }
-		);
+		const response = await UpdateAsset(selectedAsset!.id, {
+			status: AssetStatus.Deleted,
+		});
 		if (response.success) {
 			setSelectedAsset(null);
 			setChanges(null);
@@ -99,17 +84,7 @@ const AssetsPage = () => {
 	const saveAssetInspection = async () => {
 		if (changes && Object.keys(changes).length > 0) {
 			setSaving(true);
-			const response = await FetchAPI(
-				{
-					method: "PUT",
-					url: "/core/v1.1/admin/asset/" + selectedAsset!.id,
-					data: {
-						id: selectedAsset!.id,
-						changes: changes,
-					},
-				},
-				{ auth: true }
-			);
+			const response = await UpdateAsset(selectedAsset!.id, changes);
 			if (response.success) {
 				setSelectedAsset(null);
 				setChanges(null);
@@ -341,15 +316,9 @@ const AssetsPage = () => {
 											</div>
 										</div>
 										<p className="w-1/4">{asset.name}</p>
-										<p className="w-1/4">
-											{asset.identifier}
-										</p>
-										<p className="w-1/4">
-											{asset.category.name}
-										</p>
-										<p className="w-1/4">
-											{asset.status.name}
-										</p>
+										<p className="w-1/4">{asset.identifier}</p>
+										<p className="w-1/4">{asset.category.name}</p>
+										<p className="w-1/4">{asset.status.name}</p>
 										<div className="w-[200px]">
 											<button
 												className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"

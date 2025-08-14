@@ -9,9 +9,11 @@ import TeamModalInput from "../TeamModalInput";
 import PageModal from "../../../general/PageModal";
 import ValidMobileUser from "../../../../validators/mobileUser.validator";
 import CreatePlatformUserModal from "./CreatePlatformUserModal";
-import { FetchAPI } from "../../../../services/http/requestHandler";
 
-type MobileUser = {
+import { UpdateMobileUser } from "../../../../hooks/UpdateMobileUser";
+import { QueryMobileUsers } from "../../../../hooks/QueryMobileUsers";
+
+export type MobileUser = {
 	id: number;
 	name: string;
 	email: string;
@@ -26,25 +28,6 @@ const MobileUserType = {
 	Suspended: 2,
 	Deactivated: 3,
 };
-
-const MobileUserTypes: GeneralNSM[] = [
-	{
-		id: 1,
-		name: "Active",
-		short_name: "active",
-	},
-	{
-		id: 2,
-		name: "Suspended",
-		short_name: "suspended",
-	},
-	{
-		id: 3,
-		name: "Deactivated",
-		short_name: "deactivated",
-		hidden: true,
-	},
-];
 
 interface Props {
 	setShowCreateUser?: (show: boolean) => void;
@@ -71,17 +54,10 @@ const UsersPagePlatformUsers = (props: Props) => {
 		setChanges(null);
 		setUsers(null);
 		setPageLoading(true);
-		const response = await FetchAPI<MobileUser[]>(
-			{
-				url: "/core/v1.1/admin/mobileUsers",
-				method: "GET",
-				params: {
-					limit: 25,
-					offset: 0,
-				},
-			},
-			{ auth: true }
-		);
+		const response = await QueryMobileUsers({
+			limit: 25,
+			offset: 0,
+		});
 
 		if (response.success) {
 			console.log(response.data);
@@ -113,15 +89,9 @@ const UsersPagePlatformUsers = (props: Props) => {
 				return;
 			}
 			setSaveLoading(true);
-			const response = await FetchAPI(
-				{
-					url: `/core/v1.1/admin/mobileUser/${selectedUser!.id}`,
-					method: "PUT",
-					data: {
-						changes,
-					},
-				},
-				{ auth: true }
+			const response = await UpdateMobileUser(
+				selectedUser!.id,
+				validator.value
 			);
 			if (response.success) {
 				toast.success("User updated");
@@ -137,18 +107,9 @@ const UsersPagePlatformUsers = (props: Props) => {
 	};
 
 	const archiveUser = async () => {
-		const response = await FetchAPI(
-			{
-				url: `/core/v1.1/admin/mobileUser/${selectedUser!.id}`,
-				method: "PUT",
-				data: {
-					changes: {
-						status: MobileUserType.Deactivated,
-					},
-				},
-			},
-			{ auth: true }
-		);
+		const response = await UpdateMobileUser(selectedUser!.id, {
+			status: MobileUserType.Deactivated,
+		});
 		if (response.success) {
 			toast.success("User deleted");
 			setSelectedUser(null);
@@ -285,10 +246,7 @@ const UsersPagePlatformUsers = (props: Props) => {
 										<div className="relative w-[38px] h-[38px] rounded-full overflow-hidden shadow-md border-2">
 											<Image
 												src={user.profile_image_url}
-												alt={
-													user.name +
-													"'s profile image"
-												}
+												alt={user.name + "'s profile image"}
 												fill
 												style={{ objectFit: "cover" }}
 											/>

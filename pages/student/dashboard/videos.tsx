@@ -14,7 +14,9 @@ import CreateVideoModal from "../../../components/pages/team/video/CreateVideoMo
 import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
 import UploadImage from "../../../services/uploadHandler";
 import SelectThumbnailModal from "../../../components/pages/team/video/SelectThumbnailModal";
-import { FetchAPI } from "../../../services/http/requestHandler";
+
+import { UpdateVideo } from "../../../hooks/UpdateVideo";
+import { QueryVideos } from "../../../hooks/QueryVideos";
 
 const VideosPage = () => {
 	const router = useRouter();
@@ -56,17 +58,10 @@ const VideosPage = () => {
 
 	const initialize = async () => {
 		setVideos(null);
-		const response = await FetchAPI<Video[]>(
-			{
-				method: "GET",
-				url: "/core/v1.1/admin/videos",
-				params: {
-					limit: 20,
-					offset: 0,
-				},
-			},
-			{ auth: true }
-		);
+		const response = await QueryVideos({
+			limit: 20,
+			offset: 0,
+		});
 		if (response.success) {
 			let data = response.data;
 			console.log(data);
@@ -77,17 +72,10 @@ const VideosPage = () => {
 	const loadMore = async () => {
 		let newOffset = offset + 20;
 		setOffset(newOffset);
-		const response = await FetchAPI<Video[]>(
-			{
-				method: "GET",
-				url: "/core/v1.1/admin/videos",
-				params: {
-					limit: 20,
-					offset: newOffset,
-				},
-			},
-			{ auth: true }
-		);
+		const response = await QueryVideos({
+			limit: 20,
+			offset: newOffset,
+		});
 		if (response.success) {
 			let data = response.data;
 			console.log(data);
@@ -126,17 +114,7 @@ const VideosPage = () => {
 	const saveVideoInspection = async () => {
 		if (changes && Object.keys(changes).length > 0) {
 			setSaving(true);
-			const response = await FetchAPI(
-				{
-					method: "PUT",
-					url: "/core/v1.1/admin/video/" + selectedVideo!.id,
-					data: {
-						id: selectedVideo!.id,
-						changes: changes,
-					},
-				},
-				{ auth: true }
-			);
+			const response = await UpdateVideo(selectedVideo!.id, changes);
 			if (response.success) {
 				setSelectedVideo(null);
 				setChanges(null);
@@ -226,9 +204,7 @@ const VideosPage = () => {
 						}}
 					/>
 					<TeamModalUploader
-						imageSource={
-							changes?.thumbnail || selectedVideo.thumbnail
-						}
+						imageSource={changes?.thumbnail || selectedVideo.thumbnail}
 						altText={selectedVideo.title}
 						showImageLoader={showImageLoader}
 						onChange={async (e: any): Promise<void> => {
@@ -241,9 +217,7 @@ const VideosPage = () => {
 								console.log(file);
 								// check max size 1mb
 								if (file.size > 1000000) {
-									toast.error(
-										"Please upload an image smaller than 1MB"
-									);
+									toast.error("Please upload an image smaller than 1MB");
 									return;
 								}
 
@@ -316,10 +290,7 @@ const VideosPage = () => {
 												className="relative w-[130px] h-[75px] rounded-md overflow-hidden shadow-md border cursor-pointer"
 												onClick={() => {
 													document
-														.getElementById(
-															"watch-video-" +
-																video.uuid
-														)
+														.getElementById("watch-video-" + video.uuid)
 														?.click();
 												}}
 											>
@@ -334,9 +305,7 @@ const VideosPage = () => {
 												/>
 											</div>
 										</div>
-										<p className="w-[calc(33%-167px)] pr-2">
-											{video.title}
-										</p>
+										<p className="w-[calc(33%-167px)] pr-2">{video.title}</p>
 										<p className="w-[calc(33%-167px)] pr-2">
 											{video.views} views
 										</p>
@@ -344,12 +313,9 @@ const VideosPage = () => {
 											<a
 												className={
 													"px-3 py-1.5 text-sm rounded-md " +
-													(video.status.short_name ==
-													"public"
+													(video.status.short_name == "public"
 														? "text-white bg-green-500"
-														: video.status
-																.short_name ==
-														  "unlisted"
+														: video.status.short_name == "unlisted"
 														? "text-white bg-green-700"
 														: "text-white bg-slate-500")
 												}
@@ -366,18 +332,11 @@ const VideosPage = () => {
 											>
 												Inspect
 											</button>
-											{video.status.short_name !=
-											"draft" ? (
+											{video.status.short_name != "draft" ? (
 												<Link
-													href={
-														"https://hillview.tv/watch?v=" +
-														video.uuid
-													}
+													href={"https://hillview.tv/watch?v=" + video.uuid}
 													target="_blank"
-													id={
-														"watch-video-" +
-														video.uuid
-													}
+													id={"watch-video-" + video.uuid}
 												>
 													<button className="px-4 text-sm py-1.5 bg-slate-600 hover:bg-slate-800 transition text-white rounded-md">
 														Watch

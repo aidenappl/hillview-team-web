@@ -10,7 +10,9 @@ import TeamModalUploader from "../TeamModalUploader";
 import UploadImage from "../../../../services/uploadHandler";
 import SelectThumbnailModal from "./SelectThumbnailModal";
 import UploadComponent from "./UploadComponent";
-import { FetchAPI } from "../../../../services/http/requestHandler";
+
+import { CreateVideo } from "../../../../hooks/CreateVideo";
+import { CreateDownloadUrl } from "../../../../hooks/CreateDownloadUrl";
 
 interface Props {
 	cancelHit?: () => void;
@@ -79,13 +81,7 @@ const CreateVideoModal = (props: Props) => {
 				`cloudflarestream\.com\/([a-zA-Z0-9]+)\/manifest`
 			)[1];
 			if (id && id.length > 0) {
-				const response = await FetchAPI<any>(
-					{
-						method: "POST",
-						url: `/video/v1.1/upload/cf/${id}/generateDownload`,
-					},
-					{ auth: true }
-				);
+				const response = await CreateDownloadUrl(id);
 				if (response.success) {
 					console.log(response.data);
 					inputChange({
@@ -121,14 +117,7 @@ const CreateVideoModal = (props: Props) => {
 			return;
 		}
 		setSaving(true);
-		const response = await FetchAPI(
-			{
-				method: "POST",
-				url: "/core/v1.1/admin/video",
-				data: validator.value,
-			},
-			{ auth: true }
-		);
+		const response = await CreateVideo(validator.value);
 		if (response.success) {
 			console.log(response.data);
 			toast.success("Video Created");
@@ -253,9 +242,7 @@ const CreateVideoModal = (props: Props) => {
 								title: !video.title
 									? status.result.meta.filename.substring(
 											0,
-											status.result.meta.filename.lastIndexOf(
-												"."
-											)
+											status.result.meta.filename.lastIndexOf(".")
 									  ) || status.result.meta.filename
 									: video.title,
 							});
@@ -301,9 +288,7 @@ const CreateVideoModal = (props: Props) => {
 							console.log(file);
 							// check max size 1mb
 							if (file.size > 1000000) {
-								toast.error(
-									"Please upload an image smaller than 1MB"
-								);
+								toast.error("Please upload an image smaller than 1MB");
 								return;
 							}
 
