@@ -147,7 +147,7 @@ const TeamNavbar = (props: Props) => {
 					</div>
 				) : null}
 			</div>
-			<div className="absolute bottom-[40px] left-0 md:w-[calc(100%-80px)] w-full">
+			<div className="absolute bottom-[40px] left-0 md:left-auto md:w-[calc(100%-80px)] w-full">
 				<div className="flex flex-col gap-0.5">
 					<Option
 						icon={faArrowRightToBracket}

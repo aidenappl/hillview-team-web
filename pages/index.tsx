@@ -23,18 +23,13 @@ const LoginPage = () => {
 	const router = useRouter();
 	const dispatch = useDispatch();
 
-	const login = () => {
-		console.log("Login");
-		handleLocalLogin();
-	};
-
 	const googleLogin = () => {
 		console.log("Google Login");
 		setGoogleLoading(true);
 		triggerLoginWindow();
 	};
 
-	const handleLocalLogin = async (): Promise<void> => {
+	const localLogin = async (): Promise<void> => {
 		if (email && password && !loadingLocal && !loadingGoogle) {
 			setLoadingLocal(true);
 			const response = await FetchAPI<any>({
@@ -132,16 +127,11 @@ const LoginPage = () => {
 			{/* Left Container */}
 			<div className="xl:w-1/2 md:w-4/5 w-full h-full items-center justify-center flex">
 				<div className="sm:w-[500px] w-full px-5 sm:px-0">
-					<h2 className="text-3xl font-bold tracking-tight">
-						Login ✌️
-					</h2>
+					<h2 className="text-3xl font-bold tracking-tight">Login ✌️</h2>
 					<p className="mt-1 pb-10">
 						Let's get things rolling! Get started below...
 					</p>
-					<GoogleLoginButton
-						loading={loadingGoogle}
-						onClick={googleLogin}
-					/>
+					<GoogleLoginButton loading={loadingGoogle} onClick={googleLogin} />
 					<LineBreakText text="or Sign in with Email" />
 					<LoginInputText
 						value={email}
@@ -163,14 +153,10 @@ const LoginPage = () => {
 					</a>
 					<button
 						className="w-full bg-blue-600 text-white py-4 rounded-xl mt-9 relative h-[56px]"
-						onClick={login}
+						onClick={localLogin}
 					>
 						{loadingLocal ? (
-							<Spinner
-								wrapperClass="full-center"
-								size={25}
-								style="light"
-							/>
+							<Spinner wrapperClass="full-center" size={25} style="light" />
 						) : (
 							"Login"
 						)}
