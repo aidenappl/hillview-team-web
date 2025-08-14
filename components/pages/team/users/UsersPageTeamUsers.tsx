@@ -210,7 +210,7 @@ const UsersPageTeamUsers = () => {
 					<p className="truncate">Status</p>
 					<p className="truncate">Last Active</p>
 					<div /> {/* Actions column */}
-					<div className="col-span-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
+					<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
 				</div>
 
 				{/* List Body */}
