@@ -376,7 +376,7 @@ const VideosPage = () => {
 										<p className="pr-2 hidden md:block">{video.views} views</p>
 
 										{/* Status */}
-										<p className="">
+										<p className="text-right sm:text-left">
 											<a
 												className={
 													"sm:px-3 sm:py-1.5 sm:text-sm sm:rounded-md px-2 py-1 rounded text-xs " +
