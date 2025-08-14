@@ -17,6 +17,9 @@ import { UpdateUser } from "../../../../hooks/UpdateUser";
 import { QueryUsers } from "../../../../hooks/QueryUsers";
 dayjs.extend(relativeTime);
 
+const GRID_COLS =
+	"grid grid-cols-[100px_1fr_15%_20%_1fr_1fr_150px] items-center";
+
 const UsersPageTeamUsers = () => {
 	const [pageLoading, setPageLoading] = useState<boolean>(true);
 	const [users, setUsers] = useState<User[] | null>(null);
@@ -199,16 +202,17 @@ const UsersPageTeamUsers = () => {
 			) : null}
 			<div className="w-full h-[calc(100%-100px)] flex flex-col">
 				{/* List Header */}
-				<div className="w-full h-[60px] flex items-center justify-between pr-[15px] relative">
-					<div className="w-[100px] flex-shrink-0" />
-					<p className="w-1/5 font-medium">Name</p>
-					<p className="w-1/6 font-medium">Username</p>
-					<p className="w-1/5 font-medium">Email</p>
-					<p className="w-1/5 font-medium">Status</p>
-					<p className="w-1/5 font-medium">Last Active</p>
-					<div className="w-[150px] flex-shrink-0" />
-					<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
+				<div className={`${GRID_COLS} h-[60px] pr-[15px] relative font-medium`}>
+					<div /> {/* Profile image column */}
+					<p className="truncate">Name</p>
+					<p className="truncate">Username</p>
+					<p className="truncate">Email</p>
+					<p className="truncate">Status</p>
+					<p className="truncate">Last Active</p>
+					<div /> {/* Actions column */}
+					<div className="col-span-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
 				</div>
+
 				{/* List Body */}
 				<div className="w-full h-[calc(100%-60px)] overflow-y-scroll overflow-x-hidden">
 					{pageLoading && !users ? (
@@ -216,54 +220,63 @@ const UsersPageTeamUsers = () => {
 							<Spinner />
 						</div>
 					) : (
-						users?.map((user, index) => {
-							return (
-								<div
-									key={index}
-									className="w-full h-[55px] flex items-center justify-between hover:bg-slate-50"
-								>
-									<div className="w-[100px] flex-shrink-0 items-center flex justify-center ">
-										<div className="relative w-[38px] h-[38px] rounded-full overflow-hidden shadow-md border-2">
-											<Image
-												src={user.profile_image_url}
-												alt={user.name + "'s profile image"}
-												fill
-												style={{
-													objectFit: "cover",
-												}}
-											/>
-										</div>
-									</div>
-									<p className="w-1/5">{user.name}</p>
-									{user.username ? (
-										<a className="w-1/6 text-blue-600 font-medium">
-											@{user.username}
-										</a>
-									) : (
-										<a className="w-1/6 text-blue-950 font-medium cursor-pointer">
-											Claim
-										</a>
-									)}
-									<p className="w-1/5">{user.email}</p>
-									<p className="w-1/5">{user.authentication.name}</p>
-									{user.last_active ? (
-										<p className="w-1/5">{dayjs(user.last_active).fromNow()}</p>
-									) : (
-										<p className="w-1/5">No Activity</p>
-									)}
-									<div className="flex items-center h-full w-[150px] flex-shrink-0">
-										<button
-											className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
-											onClick={() => {
-												setSelectedUser(user);
-											}}
-										>
-											Inspect
-										</button>
+						users?.map((user, index) => (
+							<div
+								key={index}
+								className={`${GRID_COLS} h-[55px] hover:bg-slate-50`}
+							>
+								{/* Profile Image */}
+								<div className="flex items-center justify-center">
+									<div className="relative w-[38px] h-[38px] rounded-full overflow-hidden shadow-md border-2">
+										<Image
+											src={user.profile_image_url}
+											alt={`${user.name}'s profile image`}
+											fill
+											style={{ objectFit: "cover" }}
+										/>
 									</div>
 								</div>
-							);
-						})
+
+								{/* Name */}
+								<p className="truncate">{user.name}</p>
+
+								{/* Username */}
+								{user.username ? (
+									<a className="truncate text-blue-600 font-medium">
+										@{user.username}
+									</a>
+								) : (
+									<a className="truncate text-blue-950 font-medium cursor-pointer">
+										Claim
+									</a>
+								)}
+
+								{/* Email */}
+								<p className="truncate">{user.email}</p>
+
+								{/* Status */}
+								<p className="truncate">{user.authentication.name}</p>
+
+								{/* Last Active */}
+								{user.last_active ? (
+									<p className="truncate">
+										{dayjs(user.last_active).fromNow()}
+									</p>
+								) : (
+									<p className="truncate">No Activity</p>
+								)}
+
+								{/* Actions */}
+								<div className="flex items-center justify-start">
+									<button
+										className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
+										onClick={() => setSelectedUser(user)}
+									>
+										Inspect
+									</button>
+								</div>
+							</div>
+						))
 					)}
 				</div>
 			</div>

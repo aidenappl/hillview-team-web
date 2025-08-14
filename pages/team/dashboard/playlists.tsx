@@ -33,6 +33,8 @@ import { QueryPlaylists } from "../../../hooks/QueryPlaylists";
 
 const PlaylistInspectorTabs = GenerateGeneralNSM(["General", "Videos"]);
 
+const GRID_TEMPLATE = "grid-cols-[180px_1fr_1fr_1fr_200px]";
+
 const PlaylistsPage = () => {
 	const router = useRouter();
 	const [playlists, setPlaylists] = useState<Playlist[] | null>(null);
@@ -405,79 +407,83 @@ const PlaylistsPage = () => {
 					Create Playlist
 				</button>
 			</TeamHeader>
-			{/* Data Body */}
-			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
-				<div className="w-[300px]" />
-				<p className="w-[calc(33%-170px)] font-semibold">Title</p>
-				<p className="w-[calc(33%-170px)] font-semibold">Route</p>
-				<p className="w-[calc(33%-170px)] font-semibold"># Videos</p>
-				<div className="w-[200px]" />
+			{/* Header */}
+			<div
+				className={`grid ${GRID_TEMPLATE} items-center w-full h-[70px] flex-shrink-0 relative pr-4 text-sm`}
+			>
+				<div /> {/* Thumbnail spacer */}
+				<p className="font-semibold">Title</p>
+				<p className="font-semibold">Route</p>
+				<p className="font-semibold"># Videos</p>
+				<div /> {/* Actions spacer */}
 				<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
 			</div>
+
+			{/* Body */}
 			<div className="w-full h-[calc(100%-170px)] overflow-y-scroll overflow-x-auto">
-				{/* Table Body */}
 				<div className="w-full h-[calc(100%-70px)]">
-					<>
-						{playlists && playlists.length > 0 ? (
-							playlists.map((playlist, index) => {
-								return (
+					{playlists && playlists.length > 0 ? (
+						playlists.map((playlist) => (
+							<div
+								key={playlist.id}
+								className={`grid ${GRID_TEMPLATE} items-center w-full h-[100px] flex-shrink-0 hover:bg-slate-50 text-sm`}
+							>
+								{/* Thumbnail */}
+								<div className="flex items-center justify-center">
 									<div
-										key={index}
-										className="flex items-center w-full h-[100px] flex-shrink-0 hover:bg-slate-50"
+										className="relative w-[130px] h-[75px] rounded-md overflow-hidden shadow-md border cursor-pointer"
+										onClick={() => {
+											document
+												.getElementById("open-playlist-" + playlist.id)
+												?.click();
+										}}
 									>
-										<div className="w-[300px] flex items-center justify-center">
-											<div
-												className="relative w-[130px] h-[75px] rounded-md overflow-hidden shadow-md border cursor-pointer"
-												onClick={() => {
-													document
-														.getElementById("open-playlist-" + playlist.id)
-														?.click();
-												}}
-											>
-												<Image
-													fill
-													style={{
-														objectFit: "cover",
-													}}
-													sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw,  33vw"
-													src={playlist.banner_image}
-													alt={"video " + playlist.name}
-												/>
-											</div>
-										</div>
-										<p className="w-[calc(33%-170px)]">{playlist.name}</p>
-										<p className="w-[calc(33%-170px)]">/{playlist.route}</p>
-										<p className="w-[calc(33%-170px)]">
-											{playlist.videos?.length || 0} Videos
-										</p>
-										<div className="w-[200px] flex gap-2 pr-10">
-											<button
-												className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
-												onClick={() => {
-													setSelectedPlaylist(playlist);
-												}}
-											>
-												Inspect
-											</button>
-											<Link
-												href={"https://hillview.tv/playlist/" + playlist.route}
-												target="_blank"
-												id={"open-playlist-" + playlist.id}
-											>
-												<button className="px-4 text-sm py-1.5 bg-slate-600 hover:bg-slate-800 transition text-white rounded-md">
-													Open
-												</button>
-											</Link>
-										</div>
+										<Image
+											fill
+											style={{ objectFit: "cover" }}
+											sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+											src={playlist.banner_image}
+											alt={"video " + playlist.name}
+										/>
 									</div>
-								);
-							})
-						) : (
-							<div className="w-full h-[100px] flex items-center justify-center">
-								<Spinner />
+								</div>
+
+								{/* Title */}
+								<p className="truncate">{playlist.name}</p>
+
+								{/* Route */}
+								<p className="truncate">/{playlist.route}</p>
+
+								{/* # Videos */}
+								<p>{playlist.videos?.length || 0} Videos</p>
+
+								{/* Actions */}
+								<div className="flex gap-2 pr-4">
+									<button
+										className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
+										onClick={() => {
+											setSelectedPlaylist(playlist);
+										}}
+									>
+										Inspect
+									</button>
+									<Link
+										href={"https://hillview.tv/playlist/" + playlist.route}
+										target="_blank"
+										id={"open-playlist-" + playlist.id}
+									>
+										<button className="px-4 text-sm py-1.5 bg-slate-600 hover:bg-slate-800 transition text-white rounded-md">
+											Open
+										</button>
+									</Link>
+								</div>
 							</div>
-						)}
-					</>
+						))
+					) : (
+						<div className="w-full h-[100px] flex items-center justify-center">
+							<Spinner />
+						</div>
+					)}
 				</div>
 			</div>
 		</TeamContainer>

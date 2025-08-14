@@ -12,6 +12,7 @@ import CreateLinkModal from "../../../components/pages/team/link/CreateLinkModal
 
 import { UpdateLink } from "../../../hooks/UpdateLink";
 import { QueryLinks } from "../../../hooks/QueryLinks";
+const GRID_TEMPLATE = "grid-cols-[20%_30%_20%_10%_20%]";
 
 const LinksPage = () => {
 	const router = useRouter();
@@ -32,28 +33,19 @@ const LinksPage = () => {
 
 	const initialize = async () => {
 		setLinks(null);
-		const response = await QueryLinks({
-			limit: 20,
-			offset: 0,
-		});
+		setOffset(0);
+		const response = await QueryLinks({ limit: 20, offset: 0 });
 		if (response.success) {
-			let data = response.data;
-			console.log(data);
-			setLinks(data);
+			setLinks(response.data);
 		}
 	};
 
 	const loadMore = async () => {
-		let newOffset = offset + 20;
+		const newOffset = offset + 20;
 		setOffset(newOffset);
-		const response = await QueryLinks({
-			limit: 20,
-			offset: newOffset,
-		});
+		const response = await QueryLinks({ limit: 20, offset: newOffset });
 		if (response.success) {
-			let data = response.data;
-			console.log(data);
-			setLinks([...links!, ...data]);
+			setLinks((prev) => [...(prev ?? []), ...response.data]);
 		}
 	};
 
@@ -64,31 +56,27 @@ const LinksPage = () => {
 	};
 
 	const inputChange = async (modifier: Object) => {
-		setChanges({ ...changes, ...modifier });
+		setChanges((prev: any) => ({ ...(prev ?? {}), ...modifier }));
 	};
 
-	const deleteChange = async (key: string, forcedArr?: any) => {
-		let splitKey = key.split(".");
-		let newChanges;
-		if (forcedArr) {
-			newChanges = { ...forcedArr };
-		} else {
-			newChanges = { ...changes };
+	const deleteChange = async (key: string, forcedObj?: any) => {
+		const obj = forcedObj ? { ...forcedObj } : { ...(changes ?? {}) };
+		if (key in obj) {
+			delete obj[key];
+			setChanges(obj);
+			return;
 		}
-		for (var k in newChanges) {
-			if (k == key) {
-				delete newChanges[key];
-				setChanges(newChanges);
-			} else if (typeof newChanges[k] === "object" && splitKey[0] == k) {
-				deleteChange(splitKey[1], newChanges[k]);
-			}
+		const [head, ...rest] = key.split(".");
+		if (typeof obj[head] === "object" && obj[head] !== null) {
+			await deleteChange(rest.join("."), obj[head]);
+			setChanges({ ...obj, [head]: obj[head] });
 		}
 	};
 
 	const saveLinkInspection = async () => {
-		if (changes && Object.keys(changes).length > 0) {
+		if (changes && Object.keys(changes).length > 0 && selectedLink) {
 			setSaving(true);
-			const response = await UpdateLink(selectedLink!.id, changes);
+			const response = await UpdateLink(selectedLink.id, changes);
 			if (response.success) {
 				setSelectedLink(null);
 				setChanges(null);
@@ -97,9 +85,7 @@ const LinksPage = () => {
 			} else {
 				console.error(response);
 				setSaving(false);
-				toast.error("Failed to save changes", {
-					position: "top-center",
-				});
+				toast.error("Failed to save changes", { position: "top-center" });
 			}
 		} else {
 			setSelectedLink(null);
@@ -107,9 +93,8 @@ const LinksPage = () => {
 	};
 
 	const archiveLink = async () => {
-		const response = await UpdateLink(selectedLink!.id, {
-			active: false,
-		});
+		if (!selectedLink) return;
+		const response = await UpdateLink(selectedLink.id, { active: false });
 		if (response.success) {
 			setSelectedLink(null);
 			setChanges(null);
@@ -118,9 +103,7 @@ const LinksPage = () => {
 		} else {
 			console.error(response);
 			setSaving(false);
-			toast.error("Failed to save changes", {
-				position: "top-center",
-			});
+			toast.error("Failed to save changes", { position: "top-center" });
 		}
 	};
 
@@ -131,33 +114,29 @@ const LinksPage = () => {
 				bodyText="Are you sure you want to archive this link? This action is irreversible."
 				primaryText="Archive"
 				secondaryText="Cancel"
-				cancelHit={() => {
-					// do nothing
-				}}
-				actionHit={() => {
-					archiveLink();
-				}}
+				cancelHit={() => {}}
+				actionHit={archiveLink}
 				setShow={setShowConfirmDeleteLink}
 				show={showConfirmDeleteLink}
 			/>
+
 			{showCreateLink ? (
 				<CreateLinkModal
-					cancelHit={() => {
-						setShowCreateLink(false);
-					}}
+					cancelHit={() => setShowCreateLink(false)}
 					saveHit={() => {
 						setShowCreateLink(false);
 						initialize();
 					}}
 				/>
 			) : null}
+
 			{selectedLink ? (
 				<TeamModal
 					className="gap-6"
 					loader={saving}
-					saveActive={changes && Object.keys(changes).length > 0}
-					cancelHit={() => cancelLinkInspection()}
-					saveHit={() => saveLinkInspection()}
+					saveActive={!!(changes && Object.keys(changes).length > 0)}
+					cancelHit={cancelLinkInspection}
+					saveHit={saveLinkInspection}
 					deleteHit={() => setShowConfirmDeleteLink(true)}
 					destructiveText="Archive"
 				>
@@ -167,11 +146,8 @@ const LinksPage = () => {
 						value={selectedLink.route}
 						setValue={(value: string) => {
 							value = value.replaceAll("/", "");
-							if (value != selectedLink.route) {
-								inputChange({ route: value });
-							} else {
-								deleteChange("route");
-							}
+							if (value !== selectedLink.route) inputChange({ route: value });
+							else deleteChange("route");
 						}}
 					/>
 					<TeamModalInput
@@ -179,88 +155,95 @@ const LinksPage = () => {
 						placeholder="Link Destination URL"
 						value={selectedLink.destination}
 						setValue={(value: string) => {
-							if (value != selectedLink.destination) {
+							if (value !== selectedLink.destination)
 								inputChange({ destination: value });
-							} else {
-								deleteChange("destination");
-							}
+							else deleteChange("destination");
 						}}
 					/>
 				</TeamModal>
 			) : null}
+
 			{/* Team Heading */}
 			<TeamHeader title="Custom Links">
 				<button
 					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
-					onClick={() => {
-						setShowCreateLink(true);
-					}}
+					onClick={() => setShowCreateLink(true)}
 				>
 					Create Link
 				</button>
 			</TeamHeader>
-			{/* Data Body */}
-			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
-				<p className="w-[20%] font-semibold">Route</p>
-				<p className="w-[40%] font-semibold">Destination</p>
-				<p className="w-[10%] font-semibold">Creator</p>
-				<p className="w-[20%] font-semibold">Clicks</p>
+
+			{/* Grid Header Row */}
+			<div
+				className={`grid ${GRID_TEMPLATE} items-center w-full h-[70px] flex-shrink-0 relative pr-4 text-sm`}
+			>
+				<p className="font-semibold">Route</p>
+				<p className="font-semibold">Destination</p>
+				<p className="font-semibold">Creator</p>
+				<p className="font-semibold">Clicks</p>
+				<div /> {/* Actions spacer */}
 				<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
 			</div>
+
+			{/* Body */}
 			<div className="w-full h-[calc(100%-170px)] overflow-y-auto overflow-x-auto">
-				{/* Table Body */}
 				<div className="w-full h-[calc(100%-70px)]">
-					<>
-						{links && links.length > 0 ? (
-							links.map((link, index) => {
-								return (
-									<div
-										key={index}
-										className="flex items-center w-full h-[70px] flex-shrink-0 hover:bg-slate-50"
+					{links && links.length > 0 ? (
+						<>
+							{links.map((link) => (
+								<div
+									key={link.id}
+									className={`grid ${GRID_TEMPLATE} items-center w-full h-[70px] flex-shrink-0 hover:bg-slate-50 text-sm`}
+								>
+									{/* Route */}
+									<p className="pr-10 truncate">/{link.route}</p>
+
+									{/* Destination */}
+									<a
+										className="break-all overflow-ellipsis line-clamp-2 overflow-hidden text-blue-600 font-medium pr-10"
+										href={link.destination}
+										target="_blank"
+										rel="noopener noreferrer"
+										title={link.destination}
 									>
-										<p className="w-[20%] pr-10">/{link.route}</p>
-										<a
-											className="w-[40%] break-all overflow-ellipsis line-clamp-2 overflow-hidden text-blue-600 font-medium pr-10"
-											href={link.destination}
-											target="_blank"
+										{link.destination}
+									</a>
+
+									{/* Creator */}
+									<p className="pr-10 truncate">{link.creator.name}</p>
+
+									{/* Clicks */}
+									<p className="pr-10">{link.clicks}</p>
+
+									{/* Actions */}
+									<div className="flex justify-end pr-10 gap-3">
+										<button
+											className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
+											onClick={() => setSelectedLink(link)}
 										>
-											{link.destination}
-										</a>
-										<p className="w-[10%] pr-10">{link.creator.name}</p>
-										<p className="w-[10%] pr-10">{link.clicks}</p>
-										<div className="w-[20%] flex justify-end pr-10 gap-3">
-											<button
-												className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
-												onClick={() => {
-													setSelectedLink(link);
-												}}
-											>
-												Inspect
-											</button>
-											<button
-												className="px-4 text-sm py-1.5 bg-slate-600 hover:bg-slate-800 transition text-white rounded-md"
-												onClick={(e: any) => {
-													navigator.clipboard.writeText(
-														"https://hillview.tv/" + link.route
-													);
-													e.target.innerHTML = "Copied!";
-													setTimeout(() => {
-														e.target.innerHTML = "Copy";
-													}, 2000);
-												}}
-											>
-												Copy
-											</button>
-										</div>
+											Inspect
+										</button>
+										<button
+											className="px-4 text-sm py-1.5 bg-slate-600 hover:bg-slate-800 transition text-white rounded-md"
+											onClick={(e) => {
+												navigator.clipboard.writeText(
+													"https://hillview.tv/" + link.route
+												);
+												const btn = e.currentTarget as HTMLButtonElement;
+												const prev = btn.innerText;
+												btn.innerText = "Copied!";
+												setTimeout(() => {
+													btn.innerText = prev;
+												}, 2000);
+											}}
+										>
+											Copy
+										</button>
 									</div>
-								);
-							})
-						) : (
-							<div className="w-full h-[100px] flex items-center justify-center">
-								<Spinner />
-							</div>
-						)}
-						{links && links.length > 0 ? (
+								</div>
+							))}
+
+							{/* Load more */}
 							<div className="w-full h-[150px] flex items-center justify-center">
 								<button
 									onClick={loadMore}
@@ -269,8 +252,12 @@ const LinksPage = () => {
 									Load More
 								</button>
 							</div>
-						) : null}
-					</>
+						</>
+					) : (
+						<div className="w-full h-[100px] flex items-center justify-center">
+							<Spinner />
+						</div>
+					)}
 				</div>
 			</div>
 		</TeamContainer>

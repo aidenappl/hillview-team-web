@@ -23,52 +23,39 @@ const LoginPage = () => {
 	const router = useRouter();
 	const dispatch = useDispatch();
 
+	// Google Login Handler
+	// triggerLoginWindow pops up the Google Oauth window
 	const googleLogin = () => {
-		console.log("Google Login");
+		// Set loading state
 		setGoogleLoading(true);
+		// trigger the login window
 		triggerLoginWindow();
 	};
 
-	const localLogin = async (): Promise<void> => {
-		if (email && password && !loadingLocal && !loadingGoogle) {
-			setLoadingLocal(true);
-			const response = await FetchAPI<any>({
-				url: "/auth/v1.1/local",
-				method: "POST",
-				data: {
-					email,
-					password,
-				},
-			});
-			console.log(response);
+	// triggerLoginWindow pops up the Google Oauth window
+	// calls back with the token response to the handleGoogleResponse function
+	const triggerLoginWindow = useGoogleLogin({
+		// Successful login -> handleGoogleResponse
+		onSuccess: (tokenResponse) => handleGoogleResponse(tokenResponse),
+		// Error -> toast error
+		onError(errorResponse) {
+			console.error("Google Login Error", errorResponse);
+			toast.error(
+				errorResponse.error_description ||
+					"An error occurred during Google login."
+			);
+			setGoogleLoading(false);
+		},
+		// Non-OAuth Error -> toast error
+		onNonOAuthError(nonOAuthError) {
+			console.error("nonOAuthError Occured", nonOAuthError);
+			setGoogleLoading(false);
+		},
+		flow: "auth-code",
+	});
 
-			if (response.success) {
-				let data = response.data;
-				const initializerResp = await InitializeSession({
-					accessToken: data.accessToken,
-					refreshToken: data.refreshToken,
-					user: data.user,
-					dispatch,
-				});
-				if (initializerResp.success) {
-					if (router.query.redirect) {
-						router.push(router.query.redirect as string);
-						setLoadingLocal(false);
-					} else {
-						router.push(GetAccountLander(data.user));
-						setLoadingLocal(false);
-					}
-				}
-			} else {
-				console.error("Error");
-				setLoadingLocal(false);
-			}
-		} else {
-			console.error("Error");
-			setLoadingLocal(false);
-		}
-	};
-
+	// handleGoogleResponse takes the responding token and
+	// exchanges it for user session tokens
 	const handleGoogleResponse = async (
 		tokenResponse: Omit<
 			CodeResponse,
@@ -103,24 +90,59 @@ const LoginPage = () => {
 					}
 				}
 			} else {
-				console.error("Error");
-				toast.error(response.error_message);
+				console.error("Failed to exchange Google token", response);
+				toast.error(
+					response.error_message || "An error occurred during Google login."
+				);
+				setGoogleLoading(false);
 			}
 		}
 	};
 
-	const triggerLoginWindow = useGoogleLogin({
-		onSuccess: (tokenResponse) => handleGoogleResponse(tokenResponse),
-		onError(errorResponse) {
-			console.error(errorResponse);
-			setGoogleLoading(false);
-		},
-		onNonOAuthError(nonOAuthError) {
-			console.error(nonOAuthError);
-			setGoogleLoading(false);
-		},
-		flow: "auth-code",
-	});
+	// localLogin handles local email/password login
+	const localLogin = async (): Promise<void> => {
+		if (email && password && !loadingLocal && !loadingGoogle) {
+			setLoadingLocal(true);
+			const response = await FetchAPI<any>({
+				url: "/auth/v1.1/local",
+				method: "POST",
+				data: {
+					email,
+					password,
+				},
+			});
+			console.log(response);
+
+			if (response.success) {
+				let data = response.data;
+				const initializerResp = await InitializeSession({
+					accessToken: data.accessToken,
+					refreshToken: data.refreshToken,
+					user: data.user,
+					dispatch,
+				});
+				if (initializerResp.success) {
+					if (router.query.redirect) {
+						router.push(router.query.redirect as string);
+					} else {
+						router.push(GetAccountLander(data.user));
+					}
+				} else {
+					console.error("Error", initializerResp);
+					toast.error("Login failed. Please try again.");
+					setLoadingLocal(false);
+				}
+			} else {
+				console.error("Error", response);
+				toast.error("Login failed. Please try again.");
+				setLoadingLocal(false);
+			}
+		} else {
+			console.error("Error");
+			toast.error("Please enter both email and password.");
+			setLoadingLocal(false);
+		}
+	};
 
 	return (
 		<PageContainer className="flex">
@@ -147,6 +169,7 @@ const LoginPage = () => {
 						label="Password"
 						wrapperClassName="mt-4"
 						setValue={setPassword}
+						onEnterKey={localLogin}
 					/>
 					<a className="text-blue-600 font-medium float-right mt-4 cursor-pointer">
 						Forgot Password?

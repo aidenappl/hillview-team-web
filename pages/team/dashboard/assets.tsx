@@ -19,6 +19,7 @@ import CreateAssetModal from "../../../components/pages/team/asset/CreateAssetMo
 
 import { UpdateAsset } from "../../../hooks/UpdateAsset";
 import { QueryAssets } from "../../../hooks/QueryAssets";
+const GRID_TEMPLATE = "grid-cols-[110px_1fr_1fr_1fr_1fr_200px]";
 
 const AssetsPage = () => {
 	const router = useRouter();
@@ -40,9 +41,7 @@ const AssetsPage = () => {
 	const [showCreateAsset, setShowCreateAsset] = useState<boolean>(false);
 
 	useEffect(() => {
-		if (selectedAsset) {
-			setSelectedAssetImage(selectedAsset.image_url);
-		}
+		if (selectedAsset) setSelectedAssetImage(selectedAsset.image_url);
 	}, [selectedAsset]);
 
 	useEffect(() => {
@@ -56,11 +55,7 @@ const AssetsPage = () => {
 			sort: "DESC",
 			offset: 0,
 		});
-		if (response.success) {
-			let data = response.data;
-			console.log(data);
-			setAssets(data);
-		}
+		if (response.success) setAssets(response.data);
 	};
 
 	const deleteAsset = async () => {
@@ -75,9 +70,7 @@ const AssetsPage = () => {
 		} else {
 			console.error(response);
 			setSaving(false);
-			toast.error("Failed to save changes", {
-				position: "top-center",
-			});
+			toast.error("Failed to save changes", { position: "top-center" });
 		}
 	};
 
@@ -93,9 +86,7 @@ const AssetsPage = () => {
 			} else {
 				console.error(response);
 				setSaving(false);
-				toast.error("Failed to save changes", {
-					position: "top-center",
-				});
+				toast.error("Failed to save changes", { position: "top-center" });
 			}
 		} else {
 			setSelectedAsset(null);
@@ -110,24 +101,20 @@ const AssetsPage = () => {
 	};
 
 	const inputChange = async (modifier: Object) => {
-		setChanges({ ...changes, ...modifier });
+		setChanges((prev: any) => ({ ...(prev ?? {}), ...modifier }));
 	};
 
-	const deleteChange = async (key: string, forcedArr?: any) => {
-		let splitKey = key.split(".");
-		let newChanges;
-		if (forcedArr) {
-			newChanges = { ...forcedArr };
-		} else {
-			newChanges = { ...changes };
+	const deleteChange = async (key: string, forcedObj?: any) => {
+		const obj = forcedObj ? { ...forcedObj } : { ...(changes ?? {}) };
+		if (key in obj) {
+			delete obj[key];
+			setChanges(obj);
+			return;
 		}
-		for (var k in newChanges) {
-			if (k == key) {
-				delete newChanges[key];
-				setChanges(newChanges);
-			} else if (typeof newChanges[k] === "object" && splitKey[0] == k) {
-				deleteChange(splitKey[1], newChanges[k]);
-			}
+		const [head, ...rest] = key.split(".");
+		if (typeof obj[head] === "object" && obj[head] !== null) {
+			await deleteChange(rest.join("."), obj[head]);
+			setChanges({ ...obj, [head]: obj[head] });
 		}
 	};
 
@@ -138,15 +125,12 @@ const AssetsPage = () => {
 				bodyText="Are you sure you want to delete this asset? This action is irreversible."
 				primaryText="Delete"
 				secondaryText="Cancel"
-				cancelHit={() => {
-					// do nothing
-				}}
-				actionHit={() => {
-					deleteAsset();
-				}}
+				cancelHit={() => {}}
+				actionHit={deleteAsset}
 				setShow={setShowConfirmDeleteAsset}
 				show={showConfirmDeleteAsset}
 			/>
+
 			{/* Create Asset Modal */}
 			{showCreateAsset ? (
 				<CreateAssetModal
@@ -154,19 +138,18 @@ const AssetsPage = () => {
 						setShowCreateAsset(false);
 						initialize();
 					}}
-					cancelHit={(): void => {
-						setShowCreateAsset(false);
-					}}
+					cancelHit={() => setShowCreateAsset(false)}
 				/>
 			) : null}
-			{/* Modal */}
+
+			{/* Inspector Modal */}
 			{selectedAsset && selectedAssetImage ? (
 				<TeamModal
 					className="gap-6"
 					loader={saving}
-					saveActive={changes && Object.keys(changes).length > 0}
-					cancelHit={() => cancelAssetInspection()}
-					saveHit={() => saveAssetInspection()}
+					saveActive={!!(changes && Object.keys(changes).length > 0)}
+					cancelHit={cancelAssetInspection}
+					saveHit={saveAssetInspection}
 					deleteHit={() => setShowConfirmDeleteAsset(true)}
 				>
 					<div className="flex justify-between w-full gap-4">
@@ -175,11 +158,8 @@ const AssetsPage = () => {
 							placeholder="Item Name"
 							value={selectedAsset.name}
 							setValue={(value: string) => {
-								if (value != selectedAsset.name) {
-									inputChange({ name: value });
-								} else {
-									deleteChange("name");
-								}
+								if (value !== selectedAsset.name) inputChange({ name: value });
+								else deleteChange("name");
 							}}
 						/>
 						<TeamModalInput
@@ -187,11 +167,9 @@ const AssetsPage = () => {
 							placeholder="Item Identifier"
 							value={selectedAsset.identifier}
 							setValue={(value: string) => {
-								if (value != selectedAsset.identifier) {
+								if (value !== selectedAsset.identifier)
 									inputChange({ identifier: value });
-								} else {
-									deleteChange("identifier");
-								}
+								else deleteChange("identifier");
 							}}
 						/>
 					</div>
@@ -201,11 +179,9 @@ const AssetsPage = () => {
 						values={AssetStatuses}
 						value={selectedAsset.status}
 						setValue={(value) => {
-							if (value.name != selectedAsset.status.name) {
+							if (value.name !== selectedAsset.status.name)
 								inputChange({ status: value.id });
-							} else {
-								deleteChange("status");
-							}
+							else deleteChange("status");
 						}}
 					/>
 					<TeamModalSelect
@@ -213,11 +189,9 @@ const AssetsPage = () => {
 						values={AssetCategories}
 						value={selectedAsset.category}
 						setValue={(value) => {
-							if (value.name != selectedAsset.category.name) {
+							if (value.name !== selectedAsset.category.name)
 								inputChange({ category: value.id });
-							} else {
-								deleteChange("category");
-							}
+							else deleteChange("category");
 						}}
 					/>
 					<TeamModalTextarea
@@ -226,12 +200,8 @@ const AssetsPage = () => {
 						runner="Notes about the item's state"
 						value={selectedAsset.metadata.notes}
 						setValue={(value: string) => {
-							if (value != selectedAsset.metadata.notes) {
-								inputChange({
-									metadata: {
-										notes: value,
-									},
-								});
+							if (value !== selectedAsset.metadata.notes) {
+								inputChange({ metadata: { notes: value } });
 							} else {
 								deleteChange("metadata.notes");
 							}
@@ -240,7 +210,7 @@ const AssetsPage = () => {
 					<TeamModalUploader
 						title="Asset Photo"
 						imageSource={selectedAssetImage}
-						imageClassName="w-[70px]"
+						imageClassName="w-[60px]"
 						altText={selectedAsset.name + " banner image"}
 						showImageLoader={showImageLoader}
 						onChange={async (e: any) => {
@@ -255,9 +225,7 @@ const AssetsPage = () => {
 								if (result.success) {
 									setShowImageLoader(false);
 									setSelectedAssetImage(result.data.data.url);
-									inputChange({
-										image_url: result.data.data.url,
-									});
+									inputChange({ image_url: result.data.data.url });
 								} else {
 									console.error(result);
 									toast.error("Failed to upload image", {
@@ -270,74 +238,80 @@ const AssetsPage = () => {
 					/>
 				</TeamModal>
 			) : null}
-			{/* Team Heading */}
+
+			{/* Header */}
 			<TeamHeader title="System Assets">
 				<button
 					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
-					onClick={() => {
-						setShowCreateAsset(true);
-					}}
+					onClick={() => setShowCreateAsset(true)}
 				>
 					Create Asset
 				</button>
 			</TeamHeader>
-			{/* Data Content */}
-			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
-				<div className="w-[110px]" />
-				<p className="w-1/4 font-semibold">Asset</p>
-				<p className="w-1/4 font-semibold">Identifier</p>
-				<p className="w-1/4 font-semibold">Device Type</p>
-				<p className="w-1/4 font-semibold">Status</p>
-				<div className="w-[200px]" />
+
+			{/* Grid Header Row */}
+			<div
+				className={`grid ${GRID_TEMPLATE} items-center w-full h-[60px] flex-shrink-0 relative pr-4 text-sm`}
+			>
+				<div /> {/* image spacer */}
+				<p className="font-semibold">Asset</p>
+				<p className="font-semibold">Identifier</p>
+				<p className="font-semibold">Device Type</p>
+				<p className="font-semibold">Status</p>
+				<div /> {/* actions spacer */}
 				<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
 			</div>
-			<div className="w-full h-[calc(100%-170px)] overflow-y-auto overflow-x-auto">
-				{/* Table Body */}
-				<div className="w-full h-[calc(100%-70px)]">
-					<>
-						{assets && assets.length > 0 ? (
-							assets.map((asset, index) => {
-								return (
-									<div
-										key={index}
-										className="flex items-center w-full h-[70px] flex-shrink-0 hover:bg-slate-50"
-									>
-										<div className="w-[110px] flex items-center justify-center">
-											<div className="relative w-[50px] h-[40px] rounded-lg overflow-hidden shadow-md">
-												<Image
-													fill
-													style={{
-														objectFit: "cover",
-													}}
-													sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw,  33vw"
-													src={asset.image_url}
-													alt={"asset " + asset.name}
-												/>
-											</div>
-										</div>
-										<p className="w-1/4">{asset.name}</p>
-										<p className="w-1/4">{asset.identifier}</p>
-										<p className="w-1/4">{asset.category.name}</p>
-										<p className="w-1/4">{asset.status.name}</p>
-										<div className="w-[200px]">
-											<button
-												className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
-												onClick={() => {
-													setSelectedAsset(asset);
-												}}
-											>
-												Inspect
-											</button>
-										</div>
+
+			{/* Body */}
+			<div className="w-full h-[calc(100%-160px)] overflow-y-auto overflow-x-auto">
+				<div className="w-full h-[calc(100%-60px)]">
+					{assets && assets.length > 0 ? (
+						assets.map((asset) => (
+							<div
+								key={asset.id}
+								className={`grid ${GRID_TEMPLATE} items-center w-full h-[60px] flex-shrink-0 hover:bg-slate-50 text-sm`}
+							>
+								{/* Image */}
+								<div className="flex items-center justify-center">
+									<div className="relative w-[50px] h-[40px] rounded-lg overflow-hidden shadow-md">
+										<Image
+											fill
+											style={{ objectFit: "cover" }}
+											sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+											src={asset.image_url}
+											alt={"asset " + asset.name}
+										/>
 									</div>
-								);
-							})
-						) : (
-							<div className="w-full h-[100px] flex items-center justify-center">
-								<Spinner />
+								</div>
+
+								{/* Asset */}
+								<p className="truncate">{asset.name}</p>
+
+								{/* Identifier */}
+								<p className="truncate">{asset.identifier}</p>
+
+								{/* Device Type */}
+								<p className="truncate">{asset.category.name}</p>
+
+								{/* Status */}
+								<p className="truncate">{asset.status.name}</p>
+
+								{/* Actions */}
+								<div className="flex items-center">
+									<button
+										className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
+										onClick={() => setSelectedAsset(asset)}
+									>
+										Inspect
+									</button>
+								</div>
 							</div>
-						)}
-					</>
+						))
+					) : (
+						<div className="w-full h-[100px] flex items-center justify-center">
+							<Spinner />
+						</div>
+					)}
 				</div>
 			</div>
 		</TeamContainer>
