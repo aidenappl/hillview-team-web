@@ -22,7 +22,7 @@ export const VideosTable = ({
 	return (
 		<div className="w-full h-[calc(100%-100px)] md:h-[calc(100%-170px)] overflow-y-auto overflow-x-auto">
 			{/* Header Row */}
-			<div className="text-sm grid grid-cols-[1fr_80px] sm:grid-cols-2 md:grid-cols-5 xl:grid-cols-6 items-center w-full h-[70px] flex-shrink-0 relative pr-4">
+			<div className="text-sm grid grid-cols-[1fr_80px] sm:grid-cols-2 gap-3 md:grid-cols-5 xl:grid-cols-6 items-center w-full h-[70px] flex-shrink-0 relative">
 				<div className="hidden md:block w-[200px] xl:w-[250px]" />
 				<p className="font-semibold">Title</p>
 				<p className="hidden font-semibold xl:block">Downloads</p>
@@ -70,7 +70,7 @@ function VideoRow({
 }) {
 	return (
 		<div
-			className="text-sm relative grid grid-cols-[1fr_80px] sm:grid-cols-2 md:grid-cols-5 xl:grid-cols-6 items-center w-full h-[50px] sm:h-[100px] flex-shrink-0 hover:bg-slate-50 cursor-pointer"
+			className="text-sm relative grid gap-3 grid-cols-[1fr_80px] sm:grid-cols-2 md:grid-cols-5 xl:grid-cols-6 items-center w-full h-[50px] sm:h-[100px] flex-shrink-0 hover:bg-slate-50 cursor-pointer"
 			onClick={onInspect}
 		>
 			{/* Thumbnail */}
@@ -93,15 +93,15 @@ function VideoRow({
 			</div>
 
 			{/* Title */}
-			<p className="pr-2">{video.title}</p>
+			<p>{video.title}</p>
 
 			{/* Downloads */}
-			<p className="hidden pr-2 xl:block">
+			<p className="hidden  xl:block">
 				{video.downloads} {video.downloads === 1 ? "download" : "downloads"}
 			</p>
 
 			{/* Views */}
-			<p className="hidden pr-2 md:block">{video.views} views</p>
+			<p className="hidden md:block">{video.views} views</p>
 
 			{/* Status */}
 			<p className="text-right sm:text-left">
@@ -120,7 +120,7 @@ function VideoRow({
 			</p>
 
 			{/* Actions */}
-			<div className="absolute right-0 justify-end hidden gap-2 pr-2 sm:flex">
+			<div className="absolute right-0 justify-end hidden gap-2 sm:flex">
 				<Button
 					onClick={(e) => {
 						e.stopPropagation();
