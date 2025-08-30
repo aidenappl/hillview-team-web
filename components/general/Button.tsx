@@ -15,7 +15,7 @@ const Button = ({
 	return (
 		<button
 			disabled={disabled}
-			className={`px-3 py-1.5 transition text-sm text-white rounded-md ${
+			className={`px-3 py-1.5 text-sm text-white rounded-md ${
 				variant === "primary"
 					? "bg-blue-600 hover:bg-blue-800"
 					: "bg-slate-500 hover:bg-slate-700"

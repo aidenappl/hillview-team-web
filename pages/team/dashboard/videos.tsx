@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import TeamContainer from "../../../components/pages/team/TeamContainer";
 import TeamHeader from "../../../components/pages/team/TeamHeader";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Video } from "../../../models/video.model";
 import toast from "react-hot-toast";
 import PageModal from "../../../components/general/PageModal";
@@ -25,7 +25,8 @@ const VideosPage = () => {
 	const [showConfirmArchive, setShowConfirmArchive] = useState(false);
 
 	// Data
-	const { videos, initialize, loadMore, loadingMore } = useVideos();
+	const { videos, initialize, loadMore, loadingMore, searchVideos } =
+		useVideos();
 	const { spotlightedVideos, hydrateSpotlight, clearSpotlight } =
 		useSpotlight();
 
@@ -51,6 +52,19 @@ const VideosPage = () => {
 		if (spotlightControls) hydrateSpotlight();
 		else clearSpotlight();
 	}, [spotlightControls, hydrateSpotlight, clearSpotlight]);
+
+	// Escape closes inspector
+	const escHandler = useCallback((e: KeyboardEvent) => {
+		if (e.key === "Escape") {
+			cancelVideoInspection();
+			setSpotlightControls(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		document.addEventListener("keydown", escHandler);
+		return () => document.removeEventListener("keydown", escHandler);
+	}, [escHandler]);
 
 	// Initial load
 	useEffect(() => {
@@ -101,7 +115,10 @@ const VideosPage = () => {
 			{spotlightControls ? (
 				<SpotlightedVideosModal
 					spotlightedVideos={spotlightedVideos}
-					saveDone={() => {
+					onSearchVideos={async (s) => {
+						console.log(await searchVideos(s));
+					}}
+					saveHit={() => {
 						setSpotlightControls(false);
 					}}
 					cancelHit={() => {

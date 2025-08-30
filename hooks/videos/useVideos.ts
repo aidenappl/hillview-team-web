@@ -20,6 +20,12 @@ export const useVideos = () => {
 		fetchingRef.current = false;
 	}, []);
 
+	const searchVideos = useCallback(async (search: string): Promise<Video[]> => {
+		const response = await QueryVideos({limit: 5, offset: 0, search})
+		if (response.success) return response.data
+		return []
+	}, [])
+
 	const loadMore = useCallback(async () => {
 		if (fetchingRef.current) return;
 		fetchingRef.current = true;
@@ -34,5 +40,5 @@ export const useVideos = () => {
 		fetchingRef.current = false;
 	}, [offset]);
 
-	return { videos, initialize, loadMore, loadingMore };
+	return { videos, initialize, loadMore, searchVideos, loadingMore };
 };

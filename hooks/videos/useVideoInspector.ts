@@ -22,16 +22,6 @@ export function useVideoInspector({ onSaved }: Params) {
 
 	const [showThumbnailSelector, setShowThumbnailSelector] = useState(false);
 
-	// Escape closes inspector
-	const escHandler = useCallback((e: KeyboardEvent) => {
-		if (e.key === "Escape") cancelVideoInspection();
-	}, []);
-
-	useEffect(() => {
-		document.addEventListener("keydown", escHandler);
-		return () => document.removeEventListener("keydown", escHandler);
-	}, [escHandler]);
-
 	const resetDownloadBtn = () =>
 		setDownloadButtonParams({
 			loading: false,

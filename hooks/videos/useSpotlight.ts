@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Video } from "../../models/video.model";
 import { QuerySpotlight } from "../QuerySpotlight";
 
