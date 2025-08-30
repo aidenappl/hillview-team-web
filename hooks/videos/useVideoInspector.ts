@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { Video } from "../../models/video.model";
 import { UpdateVideo } from "../UpdateVideo";
 import { CreateDownloadUrl } from "../CreateDownloadUrl";
 import { extractCloudflareIdFromUrl } from "../../utils/cloudflare";
+import { Video } from "../../types";
 
 type Params = {
 	onSaved: () => void;

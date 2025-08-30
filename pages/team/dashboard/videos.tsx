@@ -2,7 +2,6 @@ import { useRouter } from "next/router";
 import TeamContainer from "../../../components/pages/team/TeamContainer";
 import TeamHeader from "../../../components/pages/team/TeamHeader";
 import { useCallback, useEffect, useState } from "react";
-import { Video } from "../../../models/video.model";
 import toast from "react-hot-toast";
 import PageModal from "../../../components/general/PageModal";
 import { VideoStatus } from "../../../models/videoStatus.model";
@@ -16,6 +15,7 @@ import { VideosTable } from "../../../components/pages/team/video/VideosTable";
 import { useVideos } from "../../../hooks/videos/useVideos";
 import { useSpotlight } from "../../../hooks/videos/useSpotlight";
 import { useVideoInspector } from "../../../hooks/videos/useVideoInspector";
+import { Video } from "../../../types";
 
 const VideosPage = () => {
 	const router = useRouter();
@@ -115,10 +115,10 @@ const VideosPage = () => {
 			{spotlightControls ? (
 				<SpotlightedVideosModal
 					spotlightedVideos={spotlightedVideos}
-					onSearchVideos={async (s) => {
-						console.log(await searchVideos(s));
+					onSearchVideos={(s) => {
+						return searchVideos(s);
 					}}
-					saveHit={() => {
+					saveDone={() => {
 						setSpotlightControls(false);
 					}}
 					cancelHit={() => {
@@ -149,7 +149,7 @@ const VideosPage = () => {
 					variant="secondary"
 					onClick={() => setSpotlightControls(true)}
 				>
-					Spotlight
+					Spotlight Video
 				</Button>
 				<Button
 					size="medium"

@@ -2,7 +2,7 @@ import Spinner from "../../../general/Spinner";
 import Button from "../../../general/Button";
 import Link from "next/link";
 import Image from "next/image";
-import { Video } from "../../../../models/video.model";
+import { Video } from "../../../../types";
 
 type Props = {
 	videos: Video[] | null;

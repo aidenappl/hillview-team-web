@@ -22,6 +22,8 @@ interface Props {
 	actionButtonDisabled?: boolean;
 	disabled?: boolean;
 	actionButtonClick?: () => void;
+
+	className?: string;
 }
 
 const TeamModalInput = (props: Props) => {
@@ -35,6 +37,7 @@ const TeamModalInput = (props: Props) => {
 		actionButtonDisabled = false,
 		actionButtonText = "Untitled",
 		disabled = false,
+		className = "",
 		actionButtonClick = () => {},
 	} = props;
 
@@ -53,7 +56,7 @@ const TeamModalInput = (props: Props) => {
 	}, [props.value]);
 
 	return (
-		<div className="flex flex-col gap-2 w-full relative">
+		<div className={`flex flex-col gap-2 w-full relative ${className}`}>
 			<label className="font-medium text-[#101827] flex gap-1">
 				{props.title}
 				{props.required ? <p className="text-red-700">*</p> : null}
@@ -73,9 +76,7 @@ const TeamModalInput = (props: Props) => {
 				{showActionButton ? (
 					<button
 						className="bg-blue-600 text-white rounded-md whitespace-nowrap px-3 shadow-md text-sm outline-none focus:ring-blue-500 focus:ring-2 hover:bg-blue-700"
-						onClick={
-							!actionButtonDisabled ? actionButtonClick : () => {}
-						}
+						onClick={!actionButtonDisabled ? actionButtonClick : () => {}}
 					>
 						{actionButtonLoading && <Spinner style="light" />}
 						{!actionButtonLoading && <p>{actionButtonText}</p>}

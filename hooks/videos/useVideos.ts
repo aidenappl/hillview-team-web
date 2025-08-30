@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
-import { Video } from "../../models/video.model";
 import { QueryVideos } from "../QueryVideos";
+import { Video } from "../../types";
 
 const PAGE_SIZE = 20;
 

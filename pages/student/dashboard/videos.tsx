@@ -3,7 +3,6 @@ import TeamContainer from "../../../components/pages/team/TeamContainer";
 import TeamHeader from "../../../components/pages/team/TeamHeader";
 import Spinner from "../../../components/general/Spinner";
 import { useCallback, useEffect, useState } from "react";
-import { Video } from "../../../models/video.model";
 import Image from "next/image";
 import Link from "next/link";
 import TeamModal from "../../../components/pages/team/TeamModal";
@@ -17,6 +16,7 @@ import SelectThumbnailModal from "../../../components/pages/team/video/SelectThu
 
 import { UpdateVideo } from "../../../hooks/UpdateVideo";
 import { QueryVideos } from "../../../hooks/QueryVideos";
+import { Video } from "../../../types";
 
 const VideosPage = () => {
 	const router = useRouter();

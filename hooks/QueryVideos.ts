@@ -1,5 +1,6 @@
-import { Video } from "../models/video.model";
+
 import { FetchAPI } from "../services/http/requestHandler";
+import { Video } from "../types";
 
 export const QueryVideos = (params: {
 	search?: string;

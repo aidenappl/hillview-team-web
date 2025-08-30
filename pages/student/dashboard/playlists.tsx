@@ -21,15 +21,14 @@ import {
 	GenerateGeneralNSM,
 } from "../../../models/generalNSM.model";
 import TeamModalList from "../../../components/pages/team/TeamModalList";
-import { Video } from "../../../models/video.model";
 import CreatePlaylistModal from "../../../components/pages/team/playlist/CreatePlaylistModal";
 import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
 import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
 import UploadImage from "../../../services/uploadHandler";
-import { FetchAPI } from "../../../services/http/requestHandler";
 import { UpdatePlaylist } from "../../../hooks/UpdatePlaylist";
 import { QueryPlaylists } from "../../../hooks/QueryPlaylists";
 import { QueryVideos } from "../../../hooks/QueryVideos";
+import { Video } from "../../../types";
 
 const PlaylistInspectorTabs = GenerateGeneralNSM(["General", "Videos"]);
 

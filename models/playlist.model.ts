@@ -1,4 +1,5 @@
-import { Video } from "./video.model";
+
+import { Video } from "../types";
 import { GeneralNSM } from "./generalNSM.model";
 export interface Playlist {
 	id: number;

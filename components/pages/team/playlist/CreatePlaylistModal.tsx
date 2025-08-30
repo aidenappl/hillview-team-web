@@ -9,9 +9,9 @@ import TeamModalTextarea from "../TeamModalTextarea";
 import ValidPlaylist from "../../../../validators/playlist.validator";
 import TeamModalList from "../TeamModalList";
 import { GenerateGeneralNSM } from "../../../../models/generalNSM.model";
-import { Video } from "../../../../models/video.model";
 import { CreatePlaylist } from "../../../../hooks/CreatePlaylist";
 import { QueryVideos } from "../../../../hooks/QueryVideos";
+import { Video } from "../../../../types";
 
 interface Props {
 	cancelHit?: () => void;

@@ -9,8 +9,8 @@ import TeamModalSelect from "../TeamModalSelect";
 import TeamModalTextarea from "../TeamModalTextarea";
 import TeamModalUploader from "../TeamModalUploader";
 import { FrameGrabber } from "../video/FrameGrabber";
-import { Video } from "../../../../models/video.model";
 import { useState } from "react";
+import { Video } from "../../../../types";
 
 interface VideoInspectionModalProps {
 	changes: any;
@@ -173,10 +173,7 @@ const VideoInspectionModal = ({
 									maxSizeMB: 1,
 									useWebWorker: true,
 								};
-								const compressedFile = await imageCompression(
-									file,
-									options
-								);
+								const compressedFile = await imageCompression(file, options);
 
 								// upload image
 								let result = await UploadImage({
@@ -198,9 +195,7 @@ const VideoInspectionModal = ({
 									setShowImageLoader(false);
 								}
 							} else {
-								toast.error(
-									"Please upload an image smaller than 1MB"
-								);
+								toast.error("Please upload an image smaller than 1MB");
 							}
 							return;
 						} else {

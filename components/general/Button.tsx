@@ -3,6 +3,7 @@ type ButtonProps = {
 	variant?: "primary" | "secondary";
 	size?: "xsmall" | "small" | "medium" | "large";
 	children?: React.ReactNode;
+	className?: string;
 	disabled?: boolean;
 };
 
@@ -10,12 +11,13 @@ const Button = ({
 	onClick = (e) => {},
 	children,
 	variant = "primary",
+	className,
 	disabled = false,
 }: ButtonProps) => {
 	return (
 		<button
 			disabled={disabled}
-			className={`px-3 py-1.5 text-sm text-white rounded-md ${
+			className={`${className} px-3 py-1.5 text-sm text-white rounded-md ${
 				variant === "primary"
 					? "bg-blue-600 hover:bg-blue-800"
 					: "bg-slate-500 hover:bg-slate-700"
