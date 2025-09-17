@@ -8,6 +8,7 @@ import { on } from "events";
 import { GenerateGeneralNSM } from "../../../../models/generalNSM.model";
 import { useSpotlight } from "../../../../hooks/videos/useSpotlight";
 import Spinner from "../../../general/Spinner";
+import toast from "react-hot-toast";
 
 interface Props {
 	cancelHit?: () => void;
@@ -35,7 +36,6 @@ const VideoSpotlight = (props: VideoSpotlightItemProps) => {
 
 	const [searchValue, setSearchValue] = useState<string>("");
 	const [searchResults, setSearchResults] = useState<Video[]>([]);
-	const [messages, setMessages] = useState<string>("");
 	return (
 		<div className="flex items-center gap-1">
 			{spot.video ? (
@@ -89,15 +89,11 @@ const VideoSpotlight = (props: VideoSpotlightItemProps) => {
 								dropdownClick={(item) => {
 									const found = searchResults.find((v) => v.id == item.id);
 									if (found) {
-										setMessages(
-											`Selected video: ${found.title}, click save to confirm.`
-										);
 										setNewVideo(found);
 									}
 								}}
 								dropdown={GenerateGeneralNSM(searchResults)}
 							/>
-							<p className="pt-4 text-sm text-green-500">{messages}</p>
 						</div>
 					) : null}
 				</div>
@@ -176,6 +172,15 @@ const SpotlightedVideosModal = (props: Props) => {
 												setActiveSpotlightSlot(v);
 											}}
 											setNewVideo={(v) => {
+												if (!v) return;
+												if (
+													spotlightedVideos.find((s) => s.video_id === v.id)
+												) {
+													toast.error(
+														"This video is already spotlighted in another slot."
+													);
+													return;
+												}
 												spot.video = v;
 												spot.video_id = v.id;
 												if (
