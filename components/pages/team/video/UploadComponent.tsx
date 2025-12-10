@@ -70,6 +70,47 @@ const UploadComponent = (props: PageProps) => {
 	}, [statusBody]);
 
 	const getEncodingProgress = async () => {
+		let retryCount = 0;
+		const maxRetries = 10;
+		const initialDelay = 500;
+
+		const waitForVideoAvailable = async (): Promise<boolean> => {
+			const response = await QueryCloudflareStatus(videoID);
+
+			console.log(response);
+
+			if (
+				!response ||
+				!response.success ||
+				!response.data ||
+				!response.data.result ||
+				typeof response.data.result !== "object" ||
+				Object.keys(response.data.result).length === 0
+			) {
+				if (retryCount < maxRetries) {
+					retryCount++;
+					const delay = initialDelay * Math.pow(1.5, retryCount - 1);
+					console.log(
+						`Video not ready yet (attempt ${retryCount}/${maxRetries}), retrying in ${delay}ms...`
+					);
+					await new Promise((resolve) => setTimeout(resolve, delay));
+					return waitForVideoAvailable();
+				} else {
+					console.error(
+						"Max retries reached waiting for video to be available"
+					);
+					setUppyState("failed");
+					return false;
+				}
+			}
+
+			return true;
+		};
+
+		const isAvailable = await waitForVideoAvailable();
+		if (!isAvailable) return;
+
+		// Now start regular polling
 		let poller = setInterval(async () => {
 			const response = await QueryCloudflareStatus(videoID);
 			if (!response) {
@@ -86,7 +127,11 @@ const UploadComponent = (props: PageProps) => {
 			setStatusBody(data);
 			if (data.success) {
 				let status = data.result.status;
-				if (status.state === "ready" && parseInt(status.pctComplete) > 99) {
+				if (
+					status.state === "ready" &&
+					status.pctComplete &&
+					parseInt(status.pctComplete) > 99
+				) {
 					setUppyState("done");
 					console.log(data.result);
 					onSourceURL(data.result.playback.hls);
@@ -101,7 +146,7 @@ const UploadComponent = (props: PageProps) => {
 					onSourceURL(data.result.playback.hls);
 				}
 				if (status.state !== "queued") {
-					onEncodingProgress(parseInt(status.pctComplete));
+					onEncodingProgress(parseInt(status.pctComplete || "0"));
 				} else {
 					onEncodingProgress(0);
 				}
@@ -194,7 +239,7 @@ const UploadComponent = (props: PageProps) => {
 				statusBody.result.status.state != "queued" && (
 					<div>
 						Encoding:{" "}
-						{Math.round(parseInt(statusBody.result.status.pctComplete))}%
+						{Math.round(parseInt(statusBody.result.status.pctComplete || "0"))}%
 					</div>
 				)}
 			{uppyState === "done" && <div>Done!</div>}
