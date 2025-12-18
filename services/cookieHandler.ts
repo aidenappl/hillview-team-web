@@ -1,8 +1,7 @@
 import {
 	getCookie,
 	setCookie,
-	removeCookies,
-	CookieValueTypes,
+	deleteCookie,
 } from "cookies-next";
 
 import { TokenTypes } from "./tokenHandler";
@@ -49,7 +48,7 @@ const RetrieveToken = (type: TokenTypes): string | null => {
 // Removing token from cookies
 const RemoveToken = async (type: TokenTypes): Promise<GeneralResponse> => {
 	try {
-		await removeCookies(type, { secure: true, sameSite: "none" });
+		deleteCookie(type, { secure: true, sameSite: "none" });
 		return {
 			status: 200,
 			message: "Successfully removed token",

@@ -185,11 +185,15 @@ const KillSession = async (
 	}
 };
 
+type TokenResponse = {
+	access_token: string
+}
+
 // Refresh Session
 const RefreshSession = async (): Promise<GeneralResponse> => {
 	const refresh = await RetrieveToken("refresh");
 	if (refresh) {
-		const tokenRequest = await FetchAPI<any>({
+		const tokenRequest = await FetchAPI<TokenResponse>({
 			method: "POST",
 			url: "/auth/v1.1/token",
 			data: {

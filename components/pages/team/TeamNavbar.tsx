@@ -11,7 +11,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { NextRouter } from "next/router";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectUser } from "../../../redux/user/slice";
 import { User } from "../../../types";
 
@@ -20,6 +20,7 @@ interface Props {
 }
 
 const TeamNavbar = (props: Props) => {
+	const dispatch = useDispatch();
 	const user: User = useSelector(selectUser);
 	const Option = (props: {
 		icon: IconProp;
