@@ -21,9 +21,7 @@ const SelectThumbnailModal = (props: {
 				<div className="fixed top-0 left-0 w-full h-screen flex items-center justify-center z-30">
 					<div className="w-2/3 max-w-3xl bg-white p-8 shadow-md border rounded-md flex flex-col gap-6">
 						<div>
-							<h1 className="font-semibold text-lg">
-								Grab a Thumbnail
-							</h1>
+							<h1 className="font-semibold text-lg">Grab a Thumbnail</h1>
 							<p className="text-slate-700 text-sm">
 								Drag the playhead to the perfect moment!
 							</p>
@@ -51,31 +49,19 @@ const SelectThumbnailModal = (props: {
 
 								// get the current frame
 								const context = canvas.getContext("2d")!;
-								context.drawImage(
-									video,
-									0,
-									0,
-									canvas.width,
-									canvas.height
-								);
+								context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
 								let filename = "thumbnail.jpg";
 
 								canvas.toBlob(
 									async (blob) => {
 										// convert blob to file
-										const file = new File(
-											[blob!],
-											filename,
-											{
-												type: "image/jpeg",
-												lastModified: Date.now(),
-											}
-										);
+										const file = new File([blob!], filename, {
+											type: "image/jpeg",
+											lastModified: Date.now(),
+										});
 
-										const url = URL.createObjectURL(
-											blob as Blob
-										);
+										const url = URL.createObjectURL(blob as Blob);
 
 										const options = {
 											maxSizeMB: 1,
@@ -83,11 +69,10 @@ const SelectThumbnailModal = (props: {
 											useWebWorker: true,
 										};
 										try {
-											const compressedFile =
-												await imageCompression(
-													file,
-													options
-												);
+											const compressedFile = await imageCompression(
+												file,
+												options
+											);
 
 											let result = await UploadImage({
 												image: file,
@@ -96,23 +81,17 @@ const SelectThumbnailModal = (props: {
 											});
 											if (result.success) {
 												e.target.innerHTML = "Done";
-												toast.success(
-													"Thumbnail uploaded successfully",
-													{
-														position: "top-center",
-													}
-												);
+												toast.success("Thumbnail uploaded successfully", {
+													position: "top-center",
+												});
 												success(result.data.data.url);
 												exit();
 											} else {
 												e.target.innerHTML = "Select";
 												console.error(result);
-												toast.error(
-													"Failed to upload image",
-													{
-														position: "top-center",
-													}
-												);
+												toast.error("Failed to upload image", {
+													position: "top-center",
+												});
 											}
 										} catch (error) {
 											console.error(error);

@@ -7,7 +7,7 @@ const makeStore = () =>
     reducer: {
       user: userReducer,
     },
-});
+  });
 
 export type AppStore = ReturnType<typeof makeStore>;
 
