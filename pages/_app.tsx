@@ -91,7 +91,6 @@ const GlobalAuth = (props: RouteGuardParams) => {
 			if (result === false) {
 				let query = {} as any;
 				let lander = GetAccountLander(user);
-				console.log(lander);
 				if (lander === "/") {
 					query.redirect = router.asPath;
 				}
@@ -101,7 +100,8 @@ const GlobalAuth = (props: RouteGuardParams) => {
 				});
 			}
 		});
-	}, [router]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [router, user]);
 
 	return authorized && children;
 };
@@ -113,6 +113,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 
 	useEffect(() => {
 		init(dispatch);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch]);
 
 	const init = async (dispatch: any) => {
@@ -131,9 +132,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 
 	return (
 		<>
-			<GoogleOAuthProvider
-				clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
-			>
+			<GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
 				<PageHead title={pageProps.title} />
 				<Toaster
 					position="bottom-left"

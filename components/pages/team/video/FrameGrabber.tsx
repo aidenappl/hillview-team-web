@@ -20,24 +20,23 @@ export const FrameGrabber = (props: Props) => {
 	const [currentTime, setCurrentTime] = useState<number>(0);
 
 	useEffect(() => {
-		document.addEventListener("keydown", (e) => {
+		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === "Escape") {
 				onCloseHit();
 			}
-		});
-	}, []);
+		};
+		document.addEventListener("keydown", handleKeyDown);
+		return () => document.removeEventListener("keydown", handleKeyDown);
+	}, [onCloseHit]);
 
 	return (
 		<>
 			{show && (
 				<div className="full-center bg-white p-10 w-[150%] z-10 shadow-md rounded-md">
 					<div className="flex flex-col mb-7">
-						<h2 className="text-xl font-semibold">
-							Frame Selector
-						</h2>
+						<h2 className="text-xl font-semibold">Frame Selector</h2>
 						<p className="text-sm">
-							Scrub to a part of the video you want to select as
-							the thumbnail.
+							Scrub to a part of the video you want to select as the thumbnail.
 						</p>
 					</div>
 					<video

@@ -70,6 +70,7 @@ const CreatePlatformUserModal = (props: Props) => {
 			profile_image_url:
 				"https://content.hillview.tv/images/mobile/default.jpg",
 		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (

@@ -59,14 +59,17 @@ const UploadComponent = (props: PageProps) => {
 			getEncodingProgress();
 		}
 		onUppyState(uppyState);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [uppyState]);
 
 	useEffect(() => {
 		onProgress(progress);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [progress]);
 
 	useEffect(() => {
 		onStatusBody(statusBody);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [statusBody]);
 
 	const getEncodingProgress = async () => {

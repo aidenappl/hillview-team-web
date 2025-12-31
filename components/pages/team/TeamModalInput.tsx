@@ -49,7 +49,7 @@ const TeamModalInput = (props: Props) => {
 		}, delay);
 
 		return () => clearTimeout(delayDebounceFn);
-	}, [internalValue]);
+	}, [internalValue, delay, setDelayedValue]);
 
 	useEffect(() => {
 		setInternalValue(props.value || "");

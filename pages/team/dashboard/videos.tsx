@@ -54,12 +54,15 @@ const VideosPage = () => {
 	}, [spotlightControls, hydrateSpotlight, clearSpotlight]);
 
 	// Escape closes inspector
-	const escHandler = useCallback((e: KeyboardEvent) => {
-		if (e.key === "Escape") {
-			cancelVideoInspection();
-			setSpotlightControls(false);
-		}
-	}, []);
+	const escHandler = useCallback(
+		(e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				cancelVideoInspection();
+				setSpotlightControls(false);
+			}
+		},
+		[cancelVideoInspection]
+	);
 
 	useEffect(() => {
 		document.addEventListener("keydown", escHandler);

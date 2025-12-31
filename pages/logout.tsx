@@ -13,7 +13,7 @@ const LogoutPage = () => {
 			dispatch: dispatch,
 			router: router,
 		});
-	}, []);
+	}, [dispatch, router]);
 
 	return (
 		<PageContainer>
