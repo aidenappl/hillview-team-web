@@ -64,7 +64,6 @@ const VideosPage = () => {
 		});
 		if (response.success) {
 			let data = response.data;
-			console.log(data);
 			setVideos(data);
 		}
 	};
@@ -78,7 +77,6 @@ const VideosPage = () => {
 		});
 		if (response.success) {
 			let data = response.data;
-			console.log(data);
 			setVideos([...videos!, ...data]);
 		}
 	};

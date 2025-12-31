@@ -43,7 +43,6 @@ const UsersPageTeamUsers = () => {
 		});
 
 		if (response.success) {
-			console.log(response.data);
 			setUsers(response.data);
 		} else {
 			console.error(response);

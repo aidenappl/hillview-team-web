@@ -30,7 +30,6 @@ const CheckoutsPage = () => {
 		});
 		if (response.success) {
 			let data = response.data;
-			console.log(data);
 			setCheckouts(data);
 		}
 	};

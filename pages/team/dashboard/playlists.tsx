@@ -62,7 +62,6 @@ const PlaylistsPage = () => {
 		});
 		if (response.success) {
 			let data = response.data;
-			console.log(data);
 			setPlaylists(data);
 		}
 	};
@@ -137,10 +136,6 @@ const PlaylistsPage = () => {
 	useEffect(() => {
 		initialize();
 	}, []);
-
-	useEffect(() => {
-		console.log(changes);
-	}, [changes]);
 
 	return (
 		<TeamContainer pageTitle="Playlists" router={router}>

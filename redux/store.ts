@@ -1,7 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { createWrapper } from 'next-redux-wrapper';
 import userReducer from './user/slice';
-import { wrapMakeStore } from 'next-redux-cookie-wrapper';
 
 const makeStore = () =>
   configureStore({
@@ -10,9 +9,7 @@ const makeStore = () =>
     },
 });
 
-const wrappedMakeStore = wrapMakeStore(makeStore);
-
 export type AppStore = ReturnType<typeof makeStore>;
 
-export const store = wrappedMakeStore;
-export const wrapper = createWrapper<AppStore>(wrappedMakeStore);
+export const store = makeStore;
+export const wrapper = createWrapper<AppStore>(makeStore);

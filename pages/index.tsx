@@ -111,7 +111,6 @@ const LoginPage = () => {
 					password,
 				},
 			});
-			console.log(response);
 
 			if (response.success) {
 				let data = response.data;
