@@ -1,8 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { createWrapper } from 'next-redux-wrapper';
 import userReducer from './user/slice';
 
-const makeStore = () =>
+export const makeStore = () =>
   configureStore({
     reducer: {
       user: userReducer,
@@ -10,6 +9,5 @@ const makeStore = () =>
   });
 
 export type AppStore = ReturnType<typeof makeStore>;
-
-export const store = makeStore;
-export const wrapper = createWrapper<AppStore>(makeStore);
+export type RootState = ReturnType<AppStore['getState']>;
+export type AppDispatch = AppStore['dispatch'];

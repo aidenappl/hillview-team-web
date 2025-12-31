@@ -1,13 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	reactStrictMode: false,
-	swcMinify: true,
+	compiler: {
+		styledComponents: true,
+	},
 	images: {
-		domains: [
-			"content.hillview.tv",
-			"google.com",
-			"customer-nakrsdfbtn3mdz5z.cloudflarestream.com",
-			"lh3.googleusercontent.com"
+		remotePatterns: [
+			{ hostname: "content.hillview.tv" },
+			{ hostname: "google.com" },
+			{ hostname: "customer-nakrsdfbtn3mdz5z.cloudflarestream.com" },
+			{ hostname: "lh3.googleusercontent.com" },
 		],
 	},
 };

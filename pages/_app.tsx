@@ -3,13 +3,13 @@ import type { AppProps } from "next/app";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector, Provider } from "react-redux";
 import {
 	LoadSessionFromStore,
 	SessionInService,
 } from "../services/sessionHandler";
-import { wrapper } from "../redux/store";
+import { makeStore, AppStore } from "../redux/store";
 import { Toaster } from "react-hot-toast";
 import { useRouter } from "next/router";
 import { GetAccountLander } from "../services/accountLander";
@@ -106,7 +106,7 @@ const GlobalAuth = (props: RouteGuardParams) => {
 	return authorized && children;
 };
 
-const App = ({ Component, pageProps }: AppProps) => {
+const AppContent = ({ Component, pageProps }: AppProps) => {
 	const [loading, setLoading] = useState(true);
 	const [hasInitialized, setInitialization] = useState(false);
 	const dispatch = useDispatch();
@@ -154,4 +154,17 @@ const App = ({ Component, pageProps }: AppProps) => {
 	);
 };
 
-export default wrapper.withRedux(App);
+const App = (props: AppProps) => {
+	const storeRef = useRef<AppStore | null>(null);
+	if (!storeRef.current) {
+		storeRef.current = makeStore();
+	}
+
+	return (
+		<Provider store={storeRef.current}>
+			<AppContent {...props} />
+		</Provider>
+	);
+};
+
+export default App;
