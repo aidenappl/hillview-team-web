@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { createWrapper } from 'next-redux-wrapper';
 import userReducer from './user/slice';
-import { nextReduxCookieMiddleware, wrapMakeStore } from 'next-redux-cookie-wrapper';
+import { wrapMakeStore } from 'next-redux-cookie-wrapper';
 
 const makeStore = () =>
   configureStore({
