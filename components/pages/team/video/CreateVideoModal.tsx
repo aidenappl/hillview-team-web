@@ -83,7 +83,6 @@ const CreateVideoModal = (props: Props) => {
 			if (id && id.length > 0) {
 				const response = await CreateDownloadUrl(id);
 				if (response.success) {
-					console.log(response.data);
 					inputChange({
 						download_url: response.data.result.default.url,
 					});
@@ -119,7 +118,6 @@ const CreateVideoModal = (props: Props) => {
 		setSaving(true);
 		const response = await CreateVideo(validator.value);
 		if (response.success) {
-			console.log(response.data);
 			toast.success("Video Created");
 			setSaving(false);
 			saveDone();
@@ -285,7 +283,6 @@ const CreateVideoModal = (props: Props) => {
 								return;
 							}
 							const file = e.target.files[0];
-							console.log(file);
 							// check max size 1mb
 							if (file.size > 1000000) {
 								toast.error("Please upload an image smaller than 1MB");
@@ -309,7 +306,6 @@ const CreateVideoModal = (props: Props) => {
 							});
 							if (result.success) {
 								setShowImageLoader(false);
-								console.log(result.data.data.url);
 								inputChange({
 									thumbnail: result.data.data.url,
 								});

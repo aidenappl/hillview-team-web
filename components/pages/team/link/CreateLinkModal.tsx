@@ -57,7 +57,6 @@ const CreateLinkModal = (props: Props) => {
 		setSaving(true);
 		const response = await CreateLink(validator.value);
 		if (response.success) {
-			console.log(response.data);
 			toast.success("Link Created");
 			setSaving(false);
 			saveDone();

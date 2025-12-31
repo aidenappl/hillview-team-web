@@ -119,7 +119,6 @@ const VideoInspectionModal = ({
 						"/thumbnails/thumbnail.jpg?time=" +
 						timestamp +
 						"s&width=1280&height=720";
-					console.log(newURL);
 					inputChange({ thumbnail: newURL });
 				}}
 			/>
@@ -183,7 +182,6 @@ const VideoInspectionModal = ({
 								});
 								if (result.success) {
 									setShowImageLoader(false);
-									console.log(result.data.data.url);
 									inputChange({
 										thumbnail: result.data.data.url,
 									});
@@ -216,7 +214,6 @@ const VideoInspectionModal = ({
 							});
 							if (result.success) {
 								setShowImageLoader(false);
-								console.log(result.data.data.url);
 								inputChange({
 									thumbnail: result.data.data.url,
 								});

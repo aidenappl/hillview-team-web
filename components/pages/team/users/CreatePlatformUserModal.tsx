@@ -54,7 +54,6 @@ const CreatePlatformUserModal = (props: Props) => {
 		setSaving(true);
 		const response = await CreateMobileUser(validator.value);
 		if (response.success) {
-			console.log(response.data);
 			toast.success("User Created");
 			setSaving(false);
 			saveDone();

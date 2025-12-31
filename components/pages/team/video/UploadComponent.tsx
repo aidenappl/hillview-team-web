@@ -80,8 +80,6 @@ const UploadComponent = (props: PageProps) => {
 		const waitForVideoAvailable = async (): Promise<boolean> => {
 			const response = await QueryCloudflareStatus(videoID);
 
-			console.log(response);
-
 			if (
 				!response ||
 				!response.success ||
@@ -93,9 +91,6 @@ const UploadComponent = (props: PageProps) => {
 				if (retryCount < maxRetries) {
 					retryCount++;
 					const delay = initialDelay * Math.pow(1.5, retryCount - 1);
-					console.log(
-						`Video not ready yet (attempt ${retryCount}/${maxRetries}), retrying in ${delay}ms...`
-					);
 					await new Promise((resolve) => setTimeout(resolve, delay));
 					return waitForVideoAvailable();
 				} else {
@@ -136,7 +131,6 @@ const UploadComponent = (props: PageProps) => {
 					parseInt(status.pctComplete) > 99
 				) {
 					setUppyState("done");
-					console.log(data.result);
 					onSourceURL(data.result.playback.hls);
 					onThumbnailURL(data.result.thumbnail);
 					clearInterval(poller);
@@ -174,7 +168,7 @@ const UploadComponent = (props: PageProps) => {
 
 		uppyInstance.on("upload-progress", (file, progress) => {
 			let precProgress = Math.round(
-				(progress.bytesUploaded / progress.bytesTotal) * 100
+				((progress.bytesUploaded ?? 0) / (progress.bytesTotal ?? 1)) * 100
 			);
 			if (precProgress === 100) {
 				setUppyState("finishing-up");
@@ -185,8 +179,10 @@ const UploadComponent = (props: PageProps) => {
 		});
 
 		uppyInstance.on("complete", (result) => {
-			console.log("Successfully uploaded files:", result.successful);
-			setVideoID(formatVideoURL(result.successful[0].uploadURL));
+			const uploadURL = result.successful?.[0]?.uploadURL;
+			if (uploadURL) {
+				setVideoID(formatVideoURL(uploadURL));
+			}
 			setUppyState("status-checks");
 			// Handle result here
 		});

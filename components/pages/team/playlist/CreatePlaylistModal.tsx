@@ -65,7 +65,6 @@ const CreatePlaylistModal = (props: Props) => {
 		setSaving(true);
 		const response = await CreatePlaylist(validator.value);
 		if (response.success) {
-			console.log(response.data);
 			toast.success("Playlist Created");
 			setSaving(false);
 			saveDone();
@@ -252,10 +251,10 @@ const CreatePlaylistModal = (props: Props) => {
 				destructiveClick={(item) => {
 					let index = playlist.videos.map((e: any) => e.id).indexOf(item.id);
 					if (index > -1) {
-						console.log(playlist.videos.splice(index, 1));
+						playlist.videos.splice(index, 1);
 						setPlaylist({
 							...playlist,
-							videos: playlist.videos.splice(index, 1),
+							videos: [...playlist.videos],
 						});
 					}
 				}}

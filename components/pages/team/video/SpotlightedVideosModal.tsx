@@ -135,10 +135,6 @@ const SpotlightedVideosModal = (props: Props) => {
 		}
 	};
 
-	useEffect(() => {
-		console.log(changes);
-	}, [changes]);
-
 	return (
 		<>
 			<TeamModal

@@ -58,7 +58,6 @@ const CreateAssetModal = (props: Props) => {
 		setSaving(true);
 		const response = await CreateAsset(validator.value);
 		if (response.success) {
-			console.log(response.data);
 			toast.success("Asset Created");
 			setSaving(false);
 			saveDone();

@@ -88,17 +88,6 @@ const SelectThumbnailModal = (props: {
 													file,
 													options
 												);
-											console.log(
-												"compressedFile instanceof Blob",
-												compressedFile instanceof Blob
-											); // true
-											console.log(
-												`compressedFile size ${
-													compressedFile.size /
-													1024 /
-													1024
-												} MB`
-											); // smaller than maxSizeMB
 
 											let result = await UploadImage({
 												image: file,
@@ -107,9 +96,6 @@ const SelectThumbnailModal = (props: {
 											});
 											if (result.success) {
 												e.target.innerHTML = "Done";
-												console.log(
-													result.data.data.url
-												);
 												toast.success(
 													"Thumbnail uploaded successfully",
 													{
@@ -129,7 +115,7 @@ const SelectThumbnailModal = (props: {
 												);
 											}
 										} catch (error) {
-											console.log(error);
+											console.error(error);
 										}
 									},
 									"image/jpeg",

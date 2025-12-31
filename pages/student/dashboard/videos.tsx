@@ -212,7 +212,6 @@ const VideosPage = () => {
 									return;
 								}
 								const file = e.target.files[0];
-								console.log(file);
 								// check max size 1mb
 								if (file.size > 1000000) {
 									toast.error("Please upload an image smaller than 1MB");
@@ -236,7 +235,6 @@ const VideosPage = () => {
 								});
 								if (result.success) {
 									setShowImageLoader(false);
-									console.log(result.data.data.url);
 									inputChange({
 										thumbnail: result.data.data.url,
 									});
