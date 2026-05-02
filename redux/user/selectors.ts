@@ -1,2 +1,4 @@
 
-export const getUser = () => (state: any) => state?.user.data;
+import { RootState } from '../store';
+
+export const getUser = () => (state: RootState) => state?.user.data;

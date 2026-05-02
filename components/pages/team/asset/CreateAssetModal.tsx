@@ -7,8 +7,9 @@ import TeamModalTextarea from "../TeamModalTextarea";
 
 import toast from "react-hot-toast";
 import ValidAsset from "../../../../validators/asset.validator";
-import { CreateAsset } from "../../../../hooks/CreateAsset";
+import { reqCreateAsset } from "../../../../services/api/asset.service";
 import { removeChange, applyChange } from "../../../../utils/changeTracking";
+import { AssetInput } from "../../../../types";
 
 interface Props {
 	cancelHit?: () => void;
@@ -17,7 +18,7 @@ interface Props {
 }
 
 const CreateAssetModal = (props: Props) => {
-	const [asset, setAsset] = useState<any>({});
+	const [asset, setAsset] = useState<Partial<AssetInput>>({});
 	const [saving, setSaving] = useState<boolean>(false);
 	const [saveActive, setSaveActive] = useState<boolean>(false);
 
@@ -28,11 +29,11 @@ const CreateAssetModal = (props: Props) => {
 	} = props;
 
 	const inputChange = (modifier: Record<string, any>) => {
-		setAsset((prev: any) => applyChange(prev, modifier));
+		setAsset((prev) => applyChange(prev, modifier) as Partial<AssetInput>);
 	};
 
 	const deleteChange = (key: string) => {
-		setAsset((prev: any) => removeChange(prev, key) ?? {});
+		setAsset((prev) => (removeChange(prev, key) ?? {}) as Partial<AssetInput>);
 	};
 
 	const runCreateAsset = async () => {
@@ -43,13 +44,12 @@ const CreateAssetModal = (props: Props) => {
 			return;
 		}
 		setSaving(true);
-		const response = await CreateAsset(validator.value);
+		const response = await reqCreateAsset(validator.value);
 		if (response.success) {
 			toast.success("Asset Created");
 			setSaving(false);
 			saveDone();
 		} else {
-			console.error(response);
 			toast.error(response.error_message);
 		}
 	};

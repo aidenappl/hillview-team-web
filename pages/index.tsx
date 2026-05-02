@@ -39,7 +39,6 @@ const LoginPage = () => {
 		onSuccess: (tokenResponse) => handleGoogleResponse(tokenResponse),
 		// Error -> toast error
 		onError(errorResponse) {
-			console.error("Google Login Error", errorResponse);
 			toast.error(
 				errorResponse.error_description ||
 					"An error occurred during Google login."
@@ -48,7 +47,6 @@ const LoginPage = () => {
 		},
 		// Non-OAuth Error -> toast error
 		onNonOAuthError(nonOAuthError) {
-			console.error("nonOAuthError Occured", nonOAuthError);
 			setGoogleLoading(false);
 		},
 		flow: "auth-code",
@@ -90,7 +88,6 @@ const LoginPage = () => {
 					}
 				}
 			} else {
-				console.error("Failed to exchange Google token", response);
 				toast.error(
 					response.error_message || "An error occurred during Google login."
 				);
@@ -127,17 +124,14 @@ const LoginPage = () => {
 						router.push(GetAccountLander(data.user));
 					}
 				} else {
-					console.error("Error", initializerResp);
 					toast.error("Login failed. Please try again.");
 					setLoadingLocal(false);
 				}
 			} else {
-				console.error("Error", response);
 				toast.error("Login failed. Please try again.");
 				setLoadingLocal(false);
 			}
 		} else {
-			console.error("Error");
 			toast.error("Please enter both email and password.");
 			setLoadingLocal(false);
 		}

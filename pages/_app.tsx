@@ -24,7 +24,7 @@ interface RouteGuardParams {
 }
 
 interface GlobalAuthProps {
-	user: User;
+	user: User | null;
 	protected?: boolean;
 	allowAuthenticatedUsers?: boolean;
 	requireAccountStatus?: string;
@@ -36,7 +36,7 @@ const AuthCheck = async (opts: GlobalAuthProps) => {
 	let { user } = opts;
 	if (opts.protected) {
 		// is there a session?
-		if (session) {
+		if (session && user) {
 			// Continue - Check if required account status & grants are met
 			if (
 				opts.requireAccountStatus &&

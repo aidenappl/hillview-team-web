@@ -6,8 +6,9 @@ import TeamModalTextarea from "../TeamModalTextarea";
 
 import toast from "react-hot-toast";
 import ValidLink from "../../../../validators/link.validator";
-import { CreateLink } from "../../../../hooks/CreateLink";
+import { reqCreateLink } from "../../../../services/api/link.service";
 import { removeChange, applyChange } from "../../../../utils/changeTracking";
+import { LinkInput } from "../../../../types";
 
 interface Props {
 	cancelHit?: () => void;
@@ -16,7 +17,7 @@ interface Props {
 }
 
 const CreateLinkModal = (props: Props) => {
-	const [link, setLink] = useState<any>({});
+	const [link, setLink] = useState<Partial<LinkInput>>({});
 	const [saving, setSaving] = useState<boolean>(false);
 	const [saveActive, setSaveActive] = useState<boolean>(false);
 
@@ -27,11 +28,11 @@ const CreateLinkModal = (props: Props) => {
 	} = props;
 
 	const inputChange = (modifier: Record<string, any>) => {
-		setLink((prev: any) => applyChange(prev, modifier));
+		setLink((prev) => applyChange(prev, modifier) as Partial<LinkInput>);
 	};
 
 	const deleteChange = (key: string) => {
-		setLink((prev: any) => removeChange(prev, key) ?? {});
+		setLink((prev) => (removeChange(prev, key) ?? {}) as Partial<LinkInput>);
 	};
 
 	const runCreateLink = async () => {
@@ -42,13 +43,12 @@ const CreateLinkModal = (props: Props) => {
 			return;
 		}
 		setSaving(true);
-		const response = await CreateLink(validator.value);
+		const response = await reqCreateLink(validator.value);
 		if (response.success) {
 			toast.success("Link Created");
 			setSaving(false);
 			saveDone();
 		} else {
-			console.error(response);
 			toast.error(response.error_message);
 		}
 	};
@@ -99,7 +99,7 @@ const CreateLinkModal = (props: Props) => {
 			<TeamModalInput
 				title="Destination"
 				placeholder="Enter the Destination for this link..."
-				value={link.destination}
+				value={link.destination || ""}
 				required
 				setValue={(value: string): void => {
 					if (value.length > 0) {

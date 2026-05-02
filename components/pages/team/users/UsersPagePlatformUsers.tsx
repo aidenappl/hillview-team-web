@@ -10,9 +10,10 @@ import PageModal from "../../../general/PageModal";
 import ValidMobileUser from "../../../../validators/mobileUser.validator";
 import CreatePlatformUserModal from "./CreatePlatformUserModal";
 
-import { UpdateMobileUser } from "../../../../hooks/UpdateMobileUser";
-import { QueryMobileUsers } from "../../../../hooks/QueryMobileUsers";
+import { reqUpdateMobileUser } from "../../../../services/api/user.service";
+import { reqGetMobileUsers } from "../../../../services/api/user.service";
 import { removeChange, applyChange } from "../../../../utils/changeTracking";
+import { MobileUserChanges } from "../../../../types";
 
 export type MobileUser = {
 	id: number;
@@ -43,7 +44,7 @@ const UsersPagePlatformUsers = (props: Props) => {
 
 	// Inspect User Modal
 	const [selectedUser, setSelectedUser] = useState<MobileUser | null>(null);
-	const [changes, setChanges] = useState<any>(null);
+	const [changes, setChanges] = useState<MobileUserChanges | null>(null);
 	const [saveLoading, setSaveLoading] = useState<boolean>(false);
 	const [showDeleteUser, setShowDeleteUser] = useState<boolean>(false);
 
@@ -57,23 +58,22 @@ const UsersPagePlatformUsers = (props: Props) => {
 		setChanges(null);
 		setUsers(null);
 		setPageLoading(true);
-		const response = await QueryMobileUsers({ limit: 25, offset: 0 });
+		const response = await reqGetMobileUsers({ limit: 25, offset: 0 });
 
 		if (response.success) {
 			setUsers(response.data);
 		} else {
-			console.error(response);
-			toast.error("Failed to load users");
+				toast.error("Failed to load users");
 		}
 		setPageLoading(false);
 	};
 
 	const inputChange = (modifier: Record<string, any>) => {
-		setChanges((prev: any) => applyChange(prev, modifier));
+		setChanges((prev) => applyChange(prev, modifier) as MobileUserChanges);
 	};
 
 	const deleteChange = (key: string) => {
-		setChanges((prev: any) => removeChange(prev, key));
+		setChanges((prev) => removeChange(prev, key) as MobileUserChanges | null);
 	};
 
 	const triggerSave = async () => {
@@ -87,21 +87,20 @@ const UsersPagePlatformUsers = (props: Props) => {
 			return;
 		}
 		setSaveLoading(true);
-		const response = await UpdateMobileUser(selectedUser!.id, validator.value);
+		const response = await reqUpdateMobileUser(selectedUser!.id, validator.value);
 		if (response.success) {
 			toast.success("User updated");
 			setChanges(null);
 			setSelectedUser(null);
 			initialize();
 		} else {
-			console.error(response);
-			toast.error("Failed to update user");
+				toast.error("Failed to update user");
 		}
 		setSaveLoading(false);
 	};
 
 	const archiveUser = async () => {
-		const response = await UpdateMobileUser(selectedUser!.id, {
+		const response = await reqUpdateMobileUser(selectedUser!.id, {
 			status: MobileUserType.Deactivated,
 		});
 		if (response.success) {
@@ -109,8 +108,7 @@ const UsersPagePlatformUsers = (props: Props) => {
 			setSelectedUser(null);
 			initialize();
 		} else {
-			console.error(response);
-			toast.error("Failed to delete user");
+				toast.error("Failed to delete user");
 		}
 	};
 

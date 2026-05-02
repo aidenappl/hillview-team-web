@@ -8,8 +8,8 @@ import Image from "next/image";
 import dayjs from "dayjs";
 import toast from "react-hot-toast";
 
-import { UpdateCheckout } from "../../../hooks/UpdateCheckout";
-import { QueryCheckouts } from "../../../hooks/QueryCheckouts";
+import { reqUpdateCheckout } from "../../../services/api/checkout.service";
+import { reqGetCheckouts } from "../../../services/api/checkout.service";
 require("dayjs/locale/en");
 
 const GRID_TEMPLATE = "grid-cols-[80px_1fr_1fr_1fr_1fr_100px]"; // avatar | user | asset | out | in | actions
@@ -24,7 +24,7 @@ const CheckoutsPage = () => {
 
 	const initialize = async () => {
 		setCheckouts(null);
-		const response = await QueryCheckouts({
+		const response = await reqGetCheckouts({
 			limit: 50,
 			offset: 0,
 		});
@@ -110,7 +110,7 @@ const CheckoutsPage = () => {
 											<button
 												className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
 												onClick={async () => {
-													const response = await UpdateCheckout(checkout.id, {
+													const response = await reqUpdateCheckout(checkout.id, {
 														check_in: true,
 													});
 													if (response.success) {
@@ -120,7 +120,6 @@ const CheckoutsPage = () => {
 														toast.error(
 															"Failed to check in: " + response.error_message
 														);
-														console.error(response);
 													}
 												}}
 											>

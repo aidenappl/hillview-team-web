@@ -2,7 +2,7 @@ import { User } from "../types"
 
 
 
-const GetAccountLander = (user: User): string => {
+const GetAccountLander = (user: User | null): string => {
     if (!user) return '/'
     if (user.authentication.short_name === 'admin' ) {
         return '/team/dashboard'

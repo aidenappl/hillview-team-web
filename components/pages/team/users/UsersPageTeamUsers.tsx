@@ -12,9 +12,9 @@ import TeamModalSelect from "../TeamModalSelect";
 import PageModal from "../../../general/PageModal";
 import ValidUser from "../../../../validators/user.validator";
 
-import { User } from "../../../../types";
-import { UpdateUser } from "../../../../hooks/UpdateUser";
-import { QueryUsers } from "../../../../hooks/QueryUsers";
+import { User, UserChanges } from "../../../../types";
+import { reqUpdateUser } from "../../../../services/api/user.service";
+import { reqGetUsers } from "../../../../services/api/user.service";
 import { removeChange, applyChange } from "../../../../utils/changeTracking";
 dayjs.extend(relativeTime);
 
@@ -27,7 +27,7 @@ const UsersPageTeamUsers = () => {
 
 	// Inspect User Modal
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
-	const [changes, setChanges] = useState<any>(null);
+	const [changes, setChanges] = useState<UserChanges | null>(null);
 	const [saveLoading, setSaveLoading] = useState<boolean>(false);
 	const [showDeleteUser, setShowDeleteUser] = useState<boolean>(false);
 
@@ -38,7 +38,7 @@ const UsersPageTeamUsers = () => {
 	const initialize = async () => {
 		setUsers(null);
 		setPageLoading(true);
-		const response = await QueryUsers({
+		const response = await reqGetUsers({
 			limit: 25,
 			offset: 0,
 		});
@@ -46,18 +46,17 @@ const UsersPageTeamUsers = () => {
 		if (response.success) {
 			setUsers(response.data);
 		} else {
-			console.error(response);
 			toast.error("Failed to load users");
 		}
 		setPageLoading(false);
 	};
 
 	const inputChange = (modifier: Record<string, any>) => {
-		setChanges((prev: any) => applyChange(prev, modifier));
+		setChanges((prev) => applyChange(prev, modifier) as UserChanges);
 	};
 
 	const deleteChange = (key: string) => {
-		setChanges((prev: any) => removeChange(prev, key));
+		setChanges((prev) => removeChange(prev, key) as UserChanges | null);
 	};
 
 	const triggerSave = async () => {
@@ -70,22 +69,21 @@ const UsersPageTeamUsers = () => {
 				return;
 			}
 			setSaveLoading(true);
-			const response = await UpdateUser(selectedUser!.id, validator.value);
+			const response = await reqUpdateUser(selectedUser!.id, validator.value);
 			if (response.success) {
 				toast.success("User updated");
 				setChanges(null);
 				setSelectedUser(null);
 				initialize();
 			} else {
-				console.error(response);
-				toast.error("Failed to update user");
+					toast.error("Failed to update user");
 			}
 			setSaveLoading(false);
 		}
 	};
 
 	const archiveUser = async () => {
-		const response = await UpdateUser(selectedUser!.id, {
+		const response = await reqUpdateUser(selectedUser!.id, {
 			authentication: UserType.Deleted,
 		});
 		if (response.success) {
@@ -93,7 +91,6 @@ const UsersPageTeamUsers = () => {
 			setSelectedUser(null);
 			initialize();
 		} else {
-			console.error(response);
 			toast.error("Failed to delete user");
 		}
 	};

@@ -9,9 +9,9 @@ import TeamModalTextarea from "../TeamModalTextarea";
 import ValidPlaylist from "../../../../validators/playlist.validator";
 import TeamModalList from "../TeamModalList";
 import { GenerateGeneralNSM } from "../../../../models/generalNSM.model";
-import { CreatePlaylist } from "../../../../hooks/CreatePlaylist";
-import { QueryVideos } from "../../../../hooks/QueryVideos";
-import { Video } from "../../../../types";
+import { reqCreatePlaylist } from "../../../../services/api/playlist.service";
+import { reqGetVideos } from "../../../../services/api/video.service";
+import { Video, PlaylistInput } from "../../../../types";
 import { removeChange, applyChange } from "../../../../utils/changeTracking";
 
 interface Props {
@@ -21,7 +21,7 @@ interface Props {
 }
 
 const CreatePlaylistModal = (props: Props) => {
-	const [playlist, setPlaylist] = useState<any>({});
+	const [playlist, setPlaylist] = useState<Partial<Omit<PlaylistInput, 'videos'>> & { videos?: Video[] }>({});
 	const [saving, setSaving] = useState<boolean>(false);
 	const [saveActive, setSaveActive] = useState<boolean>(false);
 	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
@@ -34,11 +34,11 @@ const CreatePlaylistModal = (props: Props) => {
 	} = props;
 
 	const inputChange = (modifier: Record<string, any>) => {
-		setPlaylist((prev: any) => applyChange(prev, modifier));
+		setPlaylist((prev) => applyChange(prev, modifier) as typeof prev);
 	};
 
 	const deleteChange = (key: string) => {
-		setPlaylist((prev: any) => removeChange(prev, key) ?? {});
+		setPlaylist((prev) => (removeChange(prev, key) ?? {}) as typeof prev);
 	};
 
 	const runCreatePlaylist = async () => {
@@ -50,13 +50,12 @@ const CreatePlaylistModal = (props: Props) => {
 			return;
 		}
 		setSaving(true);
-		const response = await CreatePlaylist(validator.value);
+		const response = await reqCreatePlaylist(validator.value);
 		if (response.success) {
 			toast.success("Playlist Created");
 			setSaving(false);
 			saveDone();
 		} else {
-			console.error(response);
 			toast.error(response.error_message);
 		}
 	};
@@ -118,7 +117,7 @@ const CreatePlaylistModal = (props: Props) => {
 			<TeamModalInput
 				title="Route"
 				placeholder="Enter the Route of the playlist... (e.g. hillviewShow)"
-				value={playlist.route}
+				value={playlist.route || ""}
 				required
 				setValue={(value: string): void => {
 					if (value.length > 0) {
@@ -149,7 +148,7 @@ const CreatePlaylistModal = (props: Props) => {
 			<TeamModalInput
 				title="Thumbnail URL"
 				placeholder="Enter the Thumbnail URL of the playlist..."
-				value={playlist.banner_image}
+				value={playlist.banner_image || ""}
 				required
 				setValue={(value: string): void => {
 					if (value.length > 0) {
@@ -181,7 +180,6 @@ const CreatePlaylistModal = (props: Props) => {
 									banner_image: result.data.data.url,
 								});
 							} else {
-								console.error(result);
 								toast.error("Failed to upload image", {
 									position: "top-center",
 								});
@@ -198,7 +196,7 @@ const CreatePlaylistModal = (props: Props) => {
 				dropdownClick={(item) => {
 					if (playlist.videos) {
 						let videos = playlist.videos;
-						videos.push(item);
+						videos.push(item as any);
 						setPlaylist({
 							...playlist,
 							videos: videos,
@@ -206,14 +204,14 @@ const CreatePlaylistModal = (props: Props) => {
 					} else {
 						setPlaylist({
 							...playlist,
-							videos: [item],
+							videos: [item as any],
 						});
 					}
 				}}
 				dropdown={searchResults ? GenerateGeneralNSM(searchResults) : undefined}
 				setDelayedValue={async (value: string): Promise<void> => {
 					if (value.length < 3) return;
-					const response = await QueryVideos({
+					const response = await reqGetVideos({
 						search: value,
 						limit: 5,
 						offset: 0,
@@ -234,14 +232,14 @@ const CreatePlaylistModal = (props: Props) => {
 			/>
 			<TeamModalList
 				title={"Playlist Videos"}
-				list={GenerateGeneralNSM(playlist.videos)}
+				list={GenerateGeneralNSM(playlist.videos ?? [])}
 				destructiveClick={(item) => {
-					let index = playlist.videos.map((e: any) => e.id).indexOf(item.id);
+					let index = playlist.videos!.map((e: any) => e.id).indexOf(item.id);
 					if (index > -1) {
-						playlist.videos.splice(index, 1);
+						playlist.videos!.splice(index, 1);
 						setPlaylist({
 							...playlist,
-							videos: [...playlist.videos],
+							videos: [...playlist.videos!],
 						});
 					}
 				}}

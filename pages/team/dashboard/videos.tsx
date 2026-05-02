@@ -9,7 +9,7 @@ import CreateVideoModal from "../../../components/pages/team/video/CreateVideoMo
 import SpotlightedVideosModal from "../../../components/pages/team/video/SpotlightedVideosModal";
 import VideoInspectionModal from "../../../components/pages/team/videos/VideoInspectionModal";
 import Button from "../../../components/general/Button";
-import { UpdateVideo } from "../../../hooks/UpdateVideo";
+import { reqUpdateVideo } from "../../../services/api/video.service";
 import { GetStaticProps } from "next";
 import { VideosTable } from "../../../components/pages/team/video/VideosTable";
 import { useVideos } from "../../../hooks/videos/useVideos";
@@ -76,7 +76,7 @@ const VideosPage = () => {
 
 	const archiveVideo = async () => {
 		if (!selectedVideo) return;
-		const response = await UpdateVideo(selectedVideo.id, {
+		const response = await reqUpdateVideo(selectedVideo.id, {
 			status: VideoStatus.Archived,
 		});
 		if (response.success) {
@@ -171,7 +171,7 @@ const VideosPage = () => {
 					setSelectedVideo(v);
 				}}
 				onPublish={async (v: Video) => {
-					const res = await UpdateVideo(v.id, { status: VideoStatus.Public });
+					const res = await reqUpdateVideo(v.id, { status: VideoStatus.Public });
 					if (res.success) initialize();
 					else {
 						console.error(res);

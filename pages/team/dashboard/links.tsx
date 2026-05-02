@@ -10,9 +10,10 @@ import TeamModalInput from "../../../components/pages/team/TeamModalInput";
 import toast from "react-hot-toast";
 import CreateLinkModal from "../../../components/pages/team/link/CreateLinkModal";
 
-import { UpdateLink } from "../../../hooks/UpdateLink";
-import { QueryLinks } from "../../../hooks/QueryLinks";
+import { reqUpdateLink } from "../../../services/api/link.service";
+import { reqGetLinks } from "../../../services/api/link.service";
 import { removeChange, applyChange } from "../../../utils/changeTracking";
+import { LinkChanges } from "../../../types";
 const GRID_TEMPLATE = "grid-cols-[20%_30%_20%_10%_20%]";
 
 const LinksPage = () => {
@@ -25,7 +26,7 @@ const LinksPage = () => {
 	// Link Inspector
 	const [selectedLink, setSelectedLink] = useState<Link | null>(null);
 	const [saving, setSaving] = useState<boolean>(false);
-	const [changes, setChanges] = useState<any>(null);
+	const [changes, setChanges] = useState<LinkChanges | null>(null);
 	const [showCreateLink, setShowCreateLink] = useState<boolean>(false);
 
 	useEffect(() => {
@@ -35,7 +36,7 @@ const LinksPage = () => {
 	const initialize = async () => {
 		setLinks(null);
 		setOffset(0);
-		const response = await QueryLinks({ limit: 20, offset: 0 });
+		const response = await reqGetLinks({ limit: 20, offset: 0 });
 		if (response.success) {
 			setLinks(response.data);
 		}
@@ -44,7 +45,7 @@ const LinksPage = () => {
 	const loadMore = async () => {
 		const newOffset = offset + 20;
 		setOffset(newOffset);
-		const response = await QueryLinks({ limit: 20, offset: newOffset });
+		const response = await reqGetLinks({ limit: 20, offset: newOffset });
 		if (response.success) {
 			setLinks((prev) => [...(prev ?? []), ...response.data]);
 		}
@@ -57,24 +58,23 @@ const LinksPage = () => {
 	};
 
 	const inputChange = (modifier: Record<string, any>) => {
-		setChanges((prev: any) => applyChange(prev, modifier));
+		setChanges((prev) => applyChange(prev, modifier) as LinkChanges);
 	};
 
 	const deleteChange = (key: string) => {
-		setChanges((prev: any) => removeChange(prev, key));
+		setChanges((prev) => removeChange(prev, key) as LinkChanges | null);
 	};
 
 	const saveLinkInspection = async () => {
 		if (changes && Object.keys(changes).length > 0 && selectedLink) {
 			setSaving(true);
-			const response = await UpdateLink(selectedLink.id, changes);
+			const response = await reqUpdateLink(selectedLink.id, changes);
 			if (response.success) {
 				setSelectedLink(null);
 				setChanges(null);
 				setSaving(false);
 				initialize();
 			} else {
-				console.error(response);
 				setSaving(false);
 				toast.error("Failed to save changes", { position: "top-center" });
 			}
@@ -85,14 +85,13 @@ const LinksPage = () => {
 
 	const archiveLink = async () => {
 		if (!selectedLink) return;
-		const response = await UpdateLink(selectedLink.id, { active: false });
+		const response = await reqUpdateLink(selectedLink.id, { active: false });
 		if (response.success) {
 			setSelectedLink(null);
 			setChanges(null);
 			setSaving(false);
 			initialize();
 		} else {
-			console.error(response);
 			setSaving(false);
 			toast.error("Failed to save changes", { position: "top-center" });
 		}

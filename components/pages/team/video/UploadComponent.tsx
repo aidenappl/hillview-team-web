@@ -4,7 +4,7 @@ import Tus from "@uppy/tus";
 
 import { CloudflareStatus } from "../../../../models/cloudflareStatus.model";
 
-import { QueryCloudflareStatus } from "../../../../hooks/QueryCloudflareStatus";
+import { reqGetCloudflareStatus } from "../../../../services/api/cloudflare.service";
 
 interface PageProps {
 	hidden?: boolean;
@@ -78,7 +78,7 @@ const UploadComponent = (props: PageProps) => {
 		const initialDelay = 500;
 
 		const waitForVideoAvailable = async (): Promise<boolean> => {
-			const response = await QueryCloudflareStatus(videoID);
+			const response = await reqGetCloudflareStatus(videoID);
 
 			if (
 				!response ||
@@ -110,7 +110,7 @@ const UploadComponent = (props: PageProps) => {
 
 		// Now start regular polling
 		let poller = setInterval(async () => {
-			const response = await QueryCloudflareStatus(videoID);
+			const response = await reqGetCloudflareStatus(videoID);
 			if (!response) {
 				clearInterval(poller);
 				return;

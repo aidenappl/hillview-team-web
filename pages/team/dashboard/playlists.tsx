@@ -26,10 +26,10 @@ import TeamModalSelect from "../../../components/pages/team/TeamModalSelect";
 import TeamModalUploader from "../../../components/pages/team/TeamModalUploader";
 import UploadImage from "../../../services/uploadHandler";
 
-import { UpdatePlaylist } from "../../../hooks/UpdatePlaylist";
-import { QueryVideos } from "../../../hooks/QueryVideos";
-import { QueryPlaylists } from "../../../hooks/QueryPlaylists";
-import { Video } from "../../../types";
+import { reqUpdatePlaylist } from "../../../services/api/playlist.service";
+import { reqGetVideos } from "../../../services/api/video.service";
+import { reqGetPlaylists } from "../../../services/api/playlist.service";
+import { Video, PlaylistChanges } from "../../../types";
 import { removeChange, applyChange } from "../../../utils/changeTracking";
 
 const PlaylistInspectorTabs = GenerateGeneralNSM(["General", "Videos"]);
@@ -44,7 +44,7 @@ const PlaylistsPage = () => {
 
 	// Playlist Inspector
 	const [saving, setSaving] = useState<boolean>(false);
-	const [changes, setChanges] = useState<any>(null);
+	const [changes, setChanges] = useState<PlaylistChanges | null>(null);
 	const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(
 		null
 	);
@@ -57,7 +57,7 @@ const PlaylistsPage = () => {
 	const initialize = async () => {
 		setPlaylists(null);
 		setActivePlaylistInspectorTab(PlaylistInspectorTabs[0]);
-		const response = await QueryPlaylists({
+		const response = await reqGetPlaylists({
 			limit: 50,
 			offset: 0,
 		});
@@ -68,11 +68,11 @@ const PlaylistsPage = () => {
 	};
 
 	const inputChange = (modifier: Record<string, any>) => {
-		setChanges((prev: any) => applyChange(prev, modifier));
+		setChanges((prev) => applyChange(prev, modifier) as PlaylistChanges);
 	};
 
 	const deleteChange = (key: string) => {
-		setChanges((prev: any) => removeChange(prev, key));
+		setChanges((prev) => removeChange(prev, key) as PlaylistChanges | null);
 	};
 
 	const cancelPlaylistInspection = async () => {
@@ -84,14 +84,13 @@ const PlaylistsPage = () => {
 	const savePlaylistInspection = async () => {
 		if (changes && Object.keys(changes).length > 0) {
 			setSaving(true);
-			const response = await UpdatePlaylist(selectedPlaylist!.id, changes);
+			const response = await reqUpdatePlaylist(selectedPlaylist!.id, changes);
 			if (response.success) {
 				setSelectedPlaylist(null);
 				setChanges(null);
 				setSaving(false);
 				initialize();
 			} else {
-				console.error(response);
 				setSaving(false);
 				toast.error("Failed to save changes", {
 					position: "top-center",
@@ -103,7 +102,7 @@ const PlaylistsPage = () => {
 	};
 
 	const archiveVideo = async () => {
-		const response = await UpdatePlaylist(selectedPlaylist!.id, {
+		const response = await reqUpdatePlaylist(selectedPlaylist!.id, {
 			status: PlaylistStatus.Archived,
 		});
 		if (response.success) {
@@ -112,7 +111,6 @@ const PlaylistsPage = () => {
 			setSaving(false);
 			initialize();
 		} else {
-			console.error(response);
 			setSaving(false);
 			toast.error("Failed to save changes", {
 				position: "top-center",
@@ -155,7 +153,7 @@ const PlaylistsPage = () => {
 				<TeamModal
 					className="gap-6"
 					loader={saving}
-					saveActive={changes && Object.keys(changes).length > 0}
+					saveActive={!!(changes && Object.keys(changes).length > 0)}
 					cancelHit={() => cancelPlaylistInspection()}
 					saveHit={() => savePlaylistInspection()}
 					deleteHit={() => setShowConfirmDeletePlaylist(true)}
@@ -250,7 +248,6 @@ const PlaylistsPage = () => {
 												banner_image: result.data.data.url,
 											});
 										} else {
-											console.error(result);
 											toast.error("Failed to upload image", {
 												position: "top-center",
 											});
@@ -296,7 +293,7 @@ const PlaylistsPage = () => {
 								}
 								setDelayedValue={async (value: string): Promise<void> => {
 									if (value.length < 3) return;
-									const response = await QueryVideos({
+									const response = await reqGetVideos({
 										search: value,
 										limit: 5,
 										offset: 0,
@@ -330,15 +327,12 @@ const PlaylistsPage = () => {
 									list={GenerateGeneralNSM(selectedPlaylist.videos)}
 									destructiveClick={(item) => {
 										// add to remove_videos
-										if (changes?.add_videos?.indexOf(item.id) > -1) {
+										if ((changes?.add_videos?.indexOf(item.id) ?? -1) > -1) {
 											// remove from add_videos
-											let arrChanges = changes?.add_videos;
+											let arrChanges = changes?.add_videos ?? [];
 											if (arrChanges.length === 1) {
 												deleteChange("add_videos");
 											} else {
-												if (!arrChanges) {
-													arrChanges = [];
-												}
 												arrChanges.splice(arrChanges.indexOf(item.id), 1);
 												inputChange({
 													add_videos: arrChanges,
@@ -349,7 +343,7 @@ const PlaylistsPage = () => {
 											if (changes?.remove_videos?.length === 1) {
 												deleteChange("remove_videos");
 											} else {
-												let arr = [];
+												let arr: number[] = [];
 												if (changes?.remove_videos) {
 													arr = changes.remove_videos;
 												}

@@ -21,7 +21,7 @@ interface Props {
 
 const TeamNavbar = (props: Props) => {
 	const dispatch = useDispatch();
-	const user: User = useSelector(selectUser);
+	const user: User | null = useSelector(selectUser);
 	const Option = (props: {
 		icon: IconProp;
 		text: string;

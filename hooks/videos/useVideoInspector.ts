@@ -1,7 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { UpdateVideo } from "../UpdateVideo";
-import { CreateDownloadUrl } from "../CreateDownloadUrl";
+import { reqUpdateVideo } from "../../services/api/video.service";
+import { reqCreateDownloadUrl } from "../../services/api/cloudflare.service";
 import { extractCloudflareIdFromUrl } from "../../utils/cloudflare";
 import { Video } from "../../types";
 
@@ -59,7 +59,7 @@ export function useVideoInspector({ onSaved }: Params) {
 	const saveVideoInspection = async () => {
 		if (changes && Object.keys(changes).length > 0 && selectedVideo) {
 			setSaving(true);
-			const response = await UpdateVideo(selectedVideo.id, changes);
+			const response = await reqUpdateVideo(selectedVideo.id, changes);
 			if (response.success) {
 				cancelVideoInspection();
 				onSaved();
@@ -91,7 +91,7 @@ export function useVideoInspector({ onSaved }: Params) {
 			text: "Generating...",
 			disabled: false,
 		});
-		const response = await CreateDownloadUrl(id);
+		const response = await reqCreateDownloadUrl(id);
 		if (response.success) {
 			const url = response.data.result?.default?.url;
 			await inputChange({ download_url: url });

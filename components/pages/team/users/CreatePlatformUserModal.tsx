@@ -4,8 +4,9 @@ import TeamModalInput from "../TeamModalInput";
 
 import toast from "react-hot-toast";
 import ValidMobileUser from "../../../../validators/mobileUser.validator";
-import { CreateMobileUser } from "../../../../hooks/CreateMobileUser";
+import { reqCreateMobileUser } from "../../../../services/api/user.service";
 import { removeChange, applyChange } from "../../../../utils/changeTracking";
+import { MobileUserInput } from "../../../../types";
 
 interface Props {
 	cancelHit?: () => void;
@@ -14,7 +15,7 @@ interface Props {
 }
 
 const CreatePlatformUserModal = (props: Props) => {
-	const [user, setUser] = useState<any>({});
+	const [user, setUser] = useState<Partial<MobileUserInput>>({});
 	const [saving, setSaving] = useState<boolean>(false);
 
 	const {
@@ -24,11 +25,11 @@ const CreatePlatformUserModal = (props: Props) => {
 	} = props;
 
 	const inputChange = (modifier: Record<string, any>) => {
-		setUser((prev: any) => applyChange(prev, modifier));
+		setUser((prev) => applyChange(prev, modifier) as Partial<MobileUserInput>);
 	};
 
 	const deleteChange = (key: string) => {
-		setUser((prev: any) => removeChange(prev, key) ?? {});
+		setUser((prev) => (removeChange(prev, key) ?? {}) as Partial<MobileUserInput>);
 	};
 
 	const runCreateUser = async () => {
@@ -39,13 +40,12 @@ const CreatePlatformUserModal = (props: Props) => {
 			return;
 		}
 		setSaving(true);
-		const response = await CreateMobileUser(validator.value);
+		const response = await reqCreateMobileUser(validator.value);
 		if (response.success) {
 			toast.success("User Created");
 			setSaving(false);
 			saveDone();
 		} else {
-			console.error(response);
 			setSaving(false);
 			toast.error(response.error_message);
 		}

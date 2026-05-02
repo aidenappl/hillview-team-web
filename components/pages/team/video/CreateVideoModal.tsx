@@ -11,9 +11,10 @@ import UploadImage from "../../../../services/uploadHandler";
 import SelectThumbnailModal from "./SelectThumbnailModal";
 import UploadComponent from "./UploadComponent";
 
-import { CreateVideo } from "../../../../hooks/CreateVideo";
-import { CreateDownloadUrl } from "../../../../hooks/CreateDownloadUrl";
+import { reqCreateVideo } from "../../../../services/api/video.service";
+import { reqCreateDownloadUrl } from "../../../../services/api/cloudflare.service";
 import { removeChange, applyChange } from "../../../../utils/changeTracking";
+import { VideoInput } from "../../../../types";
 
 interface Props {
 	cancelHit?: () => void;
@@ -22,7 +23,7 @@ interface Props {
 }
 
 const CreateVideoModal = (props: Props) => {
-	const [video, setVideo] = useState<any>({});
+	const [video, setVideo] = useState<Partial<VideoInput>>({});
 	const [saving, setSaving] = useState<boolean>(false);
 	const [saveActive, setSaveActive] = useState<boolean>(false);
 	const [dropzoneState, setDropzoneState] = useState<DropzoneStates>("none");
@@ -45,11 +46,11 @@ const CreateVideoModal = (props: Props) => {
 	} = props;
 
 	const inputChange = (modifier: Record<string, any>) => {
-		setVideo((prev: any) => applyChange(prev, modifier));
+		setVideo((prev) => applyChange(prev, modifier) as Partial<VideoInput>);
 	};
 
 	const deleteChange = (key: string) => {
-		setVideo((prev: any) => removeChange(prev, key) ?? {});
+		setVideo((prev) => (removeChange(prev, key) ?? {}) as Partial<VideoInput>);
 	};
 
 	const generateCloudflareDownload = async () => {
@@ -64,11 +65,11 @@ const CreateVideoModal = (props: Props) => {
 				text: "Generating...",
 				disabled: false,
 			});
-			let id = video.url.match(
+			let id = video.url!.match(
 				`cloudflarestream\.com\/([a-zA-Z0-9]+)\/manifest`
-			)[1];
+			)?.[1];
 			if (id && id.length > 0) {
-				const response = await CreateDownloadUrl(id);
+				const response = await reqCreateDownloadUrl(id);
 				if (response.success) {
 					inputChange({
 						download_url: response.data.result.default.url,
@@ -79,8 +80,7 @@ const CreateVideoModal = (props: Props) => {
 						text: "Done",
 					});
 				} else {
-					console.error(response);
-					toast.error(response.error_message);
+						toast.error(response.error_message);
 					setDownloadButtonParams({
 						loading: false,
 						disabled: false,
@@ -103,13 +103,12 @@ const CreateVideoModal = (props: Props) => {
 			return;
 		}
 		setSaving(true);
-		const response = await CreateVideo(validator.value);
+		const response = await reqCreateVideo(validator.value);
 		if (response.success) {
 			toast.success("Video Created");
 			setSaving(false);
 			saveDone();
 		} else {
-			console.error(response);
 			setSaving(false);
 			toast.error(response.error_message);
 		}
@@ -133,7 +132,7 @@ const CreateVideoModal = (props: Props) => {
 	return (
 		<>
 			<SelectThumbnailModal
-				url={video ? video!.download_url : ""}
+				url={video?.download_url ?? ""}
 				show={showThumbnailSelector}
 				exit={() => {
 					setShowThumbnailSelector(false);
@@ -164,7 +163,7 @@ const CreateVideoModal = (props: Props) => {
 				<TeamModalInput
 					title="Title"
 					placeholder="Enter the Title of the video..."
-					value={video.title}
+					value={video.title || ""}
 					required
 					setValue={(value: string): void => {
 						if (value.length > 0) {
@@ -180,7 +179,7 @@ const CreateVideoModal = (props: Props) => {
 					title="Description"
 					className="h-[200px]"
 					placeholder="Enter the Description of the video..."
-					value={video.description}
+					value={video.description || ""}
 					required
 					setValue={(value: string): void => {
 						if (value.length > 0) {
@@ -195,7 +194,7 @@ const CreateVideoModal = (props: Props) => {
 				<TeamModalInput
 					title="Source URL"
 					placeholder="Enter the Source URL of the video..."
-					value={video.url}
+					value={video.url || ""}
 					required
 					setValue={(value: string): void => {
 						if (value.length > 0) {
@@ -245,7 +244,7 @@ const CreateVideoModal = (props: Props) => {
 				<TeamModalInput
 					title="Thumbnail URL"
 					placeholder="Video Thumbnail URL"
-					value={video.thumbnail}
+					value={video.thumbnail || ""}
 					// showActionButton={video.download_url ? true : false}
 					// actionButtonText="Grab Thumbnail"
 					// actionButtonClick={() => {
@@ -260,8 +259,8 @@ const CreateVideoModal = (props: Props) => {
 					}}
 				/>
 				<TeamModalUploader
-					imageSource={video.thumbnail}
-					altText={video.title}
+					imageSource={video.thumbnail || ""}
+					altText={video.title || ""}
 					showImageLoader={showImageLoader}
 					onChange={async (e: any): Promise<void> => {
 						if (e.target.files && e.target.files.length > 0) {
@@ -297,7 +296,6 @@ const CreateVideoModal = (props: Props) => {
 									thumbnail: result.data.data.url,
 								});
 							} else {
-								console.error(result);
 								toast.error("Failed to upload image", {
 									position: "top-center",
 								});
@@ -310,7 +308,7 @@ const CreateVideoModal = (props: Props) => {
 					title="Download URL"
 					placeholder="Enter the Download URL of the video..."
 					disabled
-					value={video.download_url}
+					value={video.download_url || ""}
 					setValue={(value: string): void => {
 						if (value.length > 0) {
 							inputChange({
@@ -321,9 +319,9 @@ const CreateVideoModal = (props: Props) => {
 						}
 					}}
 					showActionButton={
-						video.url &&
+						!!(video.url &&
 						video.url.includes("cloudflarestream.com") &&
-						!video.download_url
+						!video.download_url)
 					}
 					actionButtonText={downloadButtonParams.text}
 					actionButtonLoading={downloadButtonParams.loading}

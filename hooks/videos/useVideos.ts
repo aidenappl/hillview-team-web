@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { QueryVideos } from "../QueryVideos";
+import { reqGetVideos } from "../../services/api/video.service";
 import { Video } from "../../types";
 
 const PAGE_SIZE = 20;
@@ -15,13 +15,13 @@ export const useVideos = () => {
 		fetchingRef.current = true;
 		setVideos(null);
 		setOffset(0);
-		const response = await QueryVideos({ limit: PAGE_SIZE, offset: 0 });
+		const response = await reqGetVideos({ limit: PAGE_SIZE, offset: 0 });
 		if (response.success) setVideos(response.data);
 		fetchingRef.current = false;
 	}, []);
 
 	const searchVideos = useCallback(async (search: string): Promise<Video[]> => {
-		const response = await QueryVideos({limit: 5, offset: 0, search})
+		const response = await reqGetVideos({limit: 5, offset: 0, search})
 		if (response.success) return response.data
 		return []
 	}, [])
@@ -31,7 +31,7 @@ export const useVideos = () => {
 		fetchingRef.current = true;
 		setLoadingMore(true);
 		const newOffset = offset + PAGE_SIZE;
-		const response = await QueryVideos({ limit: PAGE_SIZE, offset: newOffset });
+		const response = await reqGetVideos({ limit: PAGE_SIZE, offset: newOffset });
 		if (response.success) {
 			setVideos((prev) => [...(prev ?? []), ...response.data]);
 			setOffset(newOffset);

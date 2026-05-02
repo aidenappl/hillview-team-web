@@ -14,9 +14,9 @@ import TeamModalUploader from "../../../components/pages/team/TeamModalUploader"
 import UploadImage from "../../../services/uploadHandler";
 import SelectThumbnailModal from "../../../components/pages/team/video/SelectThumbnailModal";
 
-import { UpdateVideo } from "../../../hooks/UpdateVideo";
-import { QueryVideos } from "../../../hooks/QueryVideos";
-import { Video } from "../../../types";
+import { reqUpdateVideo } from "../../../services/api/video.service";
+import { reqGetVideos } from "../../../services/api/video.service";
+import { Video, VideoChanges } from "../../../types";
 import { removeChange, applyChange } from "../../../utils/changeTracking";
 
 const VideosPage = () => {
@@ -27,7 +27,7 @@ const VideosPage = () => {
 	// Video Inspector
 	const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
 	const [saving, setSaving] = useState<boolean>(false);
-	const [changes, setChanges] = useState<any>(null);
+	const [changes, setChanges] = useState<VideoChanges | null>(null);
 	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
 
 	// Video Uploader
@@ -59,7 +59,7 @@ const VideosPage = () => {
 
 	const initialize = async () => {
 		setVideos(null);
-		const response = await QueryVideos({
+		const response = await reqGetVideos({
 			limit: 20,
 			offset: 0,
 		});
@@ -72,7 +72,7 @@ const VideosPage = () => {
 	const loadMore = async () => {
 		let newOffset = offset + 20;
 		setOffset(newOffset);
-		const response = await QueryVideos({
+		const response = await reqGetVideos({
 			limit: 20,
 			offset: newOffset,
 		});
@@ -89,24 +89,23 @@ const VideosPage = () => {
 	};
 
 	const inputChange = (modifier: Record<string, any>) => {
-		setChanges((prev: any) => applyChange(prev, modifier));
+		setChanges((prev) => applyChange(prev, modifier) as VideoChanges);
 	};
 
 	const deleteChange = (key: string) => {
-		setChanges((prev: any) => removeChange(prev, key));
+		setChanges((prev) => removeChange(prev, key) as VideoChanges | null);
 	};
 
 	const saveVideoInspection = async () => {
 		if (changes && Object.keys(changes).length > 0) {
 			setSaving(true);
-			const response = await UpdateVideo(selectedVideo!.id, changes);
+			const response = await reqUpdateVideo(selectedVideo!.id, changes);
 			if (response.success) {
 				setSelectedVideo(null);
 				setChanges(null);
 				setSaving(false);
 				initialize();
 			} else {
-				console.error(response);
 				setSaving(false);
 				toast.error("Failed to save changes", {
 					position: "top-center",
@@ -144,7 +143,7 @@ const VideosPage = () => {
 				<TeamModal
 					className="gap-6"
 					loader={saving}
-					saveActive={changes && Object.keys(changes).length > 0}
+					saveActive={!!(changes && Object.keys(changes).length > 0)}
 					cancelHit={() => cancelVideoInspection()}
 					saveHit={() => saveVideoInspection()}
 					showDestructive={false}
@@ -226,7 +225,6 @@ const VideosPage = () => {
 										thumbnail: result.data.data.url,
 									});
 								} else {
-									console.error(result);
 									toast.error("Failed to upload image", {
 										position: "top-center",
 									});

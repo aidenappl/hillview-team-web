@@ -12,7 +12,7 @@ interface Props {
 const TeamTopNav = (props: Props) => {
 	const date = dayjs();
 	const formattedDate = date.locale("en").format("dddd MMMM DD, YYYY");
-	const user: User = useSelector(selectUser);
+	const user: User | null = useSelector(selectUser);
 
 	return (
 		<div className="w-full h-[100px] md:h-[160px] relative flex items-center justify-between">

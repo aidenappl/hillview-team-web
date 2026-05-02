@@ -17,9 +17,10 @@ import UploadImage from "../../../services/uploadHandler";
 import PageModal from "../../../components/general/PageModal";
 import CreateAssetModal from "../../../components/pages/team/asset/CreateAssetModal";
 
-import { UpdateAsset } from "../../../hooks/UpdateAsset";
-import { QueryAssets } from "../../../hooks/QueryAssets";
+import { reqUpdateAsset } from "../../../services/api/asset.service";
+import { reqGetAssets } from "../../../services/api/asset.service";
 import { removeChange, applyChange } from "../../../utils/changeTracking";
+import { AssetChanges } from "../../../types";
 const GRID_TEMPLATE = "grid-cols-[110px_1fr_1fr_1fr_1fr_200px]";
 
 const AssetsPage = () => {
@@ -32,7 +33,7 @@ const AssetsPage = () => {
 
 	// inspector states
 	const [saving, setSaving] = useState<boolean>(false);
-	const [changes, setChanges] = useState<any>(null);
+	const [changes, setChanges] = useState<AssetChanges | null>(null);
 	const [showImageLoader, setShowImageLoader] = useState<boolean>(false);
 	const [selectedAssetImage, setSelectedAssetImage] = useState<string | null>(
 		null
@@ -51,7 +52,7 @@ const AssetsPage = () => {
 
 	const initialize = async () => {
 		setAssets(null);
-		const response = await QueryAssets({
+		const response = await reqGetAssets({
 			limit: 50,
 			sort: "DESC",
 			offset: 0,
@@ -60,7 +61,7 @@ const AssetsPage = () => {
 	};
 
 	const deleteAsset = async () => {
-		const response = await UpdateAsset(selectedAsset!.id, {
+		const response = await reqUpdateAsset(selectedAsset!.id, {
 			status: AssetStatus.Deleted,
 		});
 		if (response.success) {
@@ -69,7 +70,6 @@ const AssetsPage = () => {
 			setSaving(false);
 			initialize();
 		} else {
-			console.error(response);
 			setSaving(false);
 			toast.error("Failed to save changes", { position: "top-center" });
 		}
@@ -78,14 +78,13 @@ const AssetsPage = () => {
 	const saveAssetInspection = async () => {
 		if (changes && Object.keys(changes).length > 0) {
 			setSaving(true);
-			const response = await UpdateAsset(selectedAsset!.id, changes);
+			const response = await reqUpdateAsset(selectedAsset!.id, changes);
 			if (response.success) {
 				setSelectedAsset(null);
 				setChanges(null);
 				setSaving(false);
 				initialize();
 			} else {
-				console.error(response);
 				setSaving(false);
 				toast.error("Failed to save changes", { position: "top-center" });
 			}
@@ -102,11 +101,11 @@ const AssetsPage = () => {
 	};
 
 	const inputChange = (modifier: Record<string, any>) => {
-		setChanges((prev: any) => applyChange(prev, modifier));
+		setChanges((prev) => applyChange(prev, modifier) as AssetChanges);
 	};
 
 	const deleteChange = (key: string) => {
-		setChanges((prev: any) => removeChange(prev, key));
+		setChanges((prev) => removeChange(prev, key) as AssetChanges | null);
 	};
 
 	return (
@@ -218,7 +217,6 @@ const AssetsPage = () => {
 									setSelectedAssetImage(result.data.data.url);
 									inputChange({ image_url: result.data.data.url });
 								} else {
-									console.error(result);
 									toast.error("Failed to upload image", {
 										position: "top-center",
 									});

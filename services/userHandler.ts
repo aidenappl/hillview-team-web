@@ -1,4 +1,4 @@
-import { QuerySelf } from "../hooks/QuerySelf";
+import { reqGetSelf } from "./api/user.service";
 import { User } from "../types";
 
 type GetTeamUserRequest = {
@@ -7,7 +7,7 @@ type GetTeamUserRequest = {
 
 const GetTeamUser = async (req: GetTeamUserRequest): Promise<User | null> => {
 	try {
-		const response = await QuerySelf(req.withToken);
+		const response = await reqGetSelf(req.withToken);
 		if (response.success) {
 			return response.data;
 		} else {

@@ -186,8 +186,7 @@ const VideoInspectionModal = ({
 										thumbnail: result.data.data.url,
 									});
 								} else {
-									console.error(result);
-									toast.error("Failed to upload image", {
+										toast.error("Failed to upload image", {
 										position: "top-center",
 									});
 									setShowImageLoader(false);
@@ -218,7 +217,6 @@ const VideoInspectionModal = ({
 									thumbnail: result.data.data.url,
 								});
 							} else {
-								console.error(result);
 								toast.error("Failed to upload image", {
 									position: "top-center",
 								});
