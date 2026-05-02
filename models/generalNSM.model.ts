@@ -25,14 +25,12 @@ export const GenerateGeneralNSM = (
 	} else {
 		// if it isn't, return the array of objects
 		return names.map((name) => {
+			const label = name.name || name.title;
 			return {
 				id: name.id,
-				name: name.name || name.title,
+				name: label,
 				short_name:
-					name.short_name || name.name
-						? name.name.toLocaleLowerCase().replace(" ", "_")
-						: null ||
-						  name.title.toLocaleLowerCase().replace(" ", "_"),
+					name.short_name || label.toLocaleLowerCase().replace(" ", "_"),
 			};
 		});
 	}
