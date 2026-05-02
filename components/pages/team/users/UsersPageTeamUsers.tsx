@@ -15,6 +15,7 @@ import ValidUser from "../../../../validators/user.validator";
 import { User } from "../../../../types";
 import { UpdateUser } from "../../../../hooks/UpdateUser";
 import { QueryUsers } from "../../../../hooks/QueryUsers";
+import { removeChange, applyChange } from "../../../../utils/changeTracking";
 dayjs.extend(relativeTime);
 
 const GRID_COLS =
@@ -51,14 +52,12 @@ const UsersPageTeamUsers = () => {
 		setPageLoading(false);
 	};
 
-	const inputChange = (modifier: Object) => {
-		setChanges({ ...changes, ...modifier });
+	const inputChange = (modifier: Record<string, any>) => {
+		setChanges((prev: any) => applyChange(prev, modifier));
 	};
 
 	const deleteChange = (key: string) => {
-		const newChanges = { ...changes };
-		delete newChanges[key];
-		setChanges(newChanges);
+		setChanges((prev: any) => removeChange(prev, key));
 	};
 
 	const triggerSave = async () => {

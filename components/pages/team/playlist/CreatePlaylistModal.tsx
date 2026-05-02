@@ -12,6 +12,7 @@ import { GenerateGeneralNSM } from "../../../../models/generalNSM.model";
 import { CreatePlaylist } from "../../../../hooks/CreatePlaylist";
 import { QueryVideos } from "../../../../hooks/QueryVideos";
 import { Video } from "../../../../types";
+import { removeChange, applyChange } from "../../../../utils/changeTracking";
 
 interface Props {
 	cancelHit?: () => void;
@@ -32,26 +33,12 @@ const CreatePlaylistModal = (props: Props) => {
 		saveDone = () => {},
 	} = props;
 
-	const inputChange = async (modifier: Object) => {
-		setPlaylist({ ...playlist, ...modifier });
+	const inputChange = (modifier: Record<string, any>) => {
+		setPlaylist((prev: any) => applyChange(prev, modifier));
 	};
 
-	const deleteChange = async (key: string, forcedArr?: any) => {
-		let splitKey = key.split(".");
-		let newChanges;
-		if (forcedArr) {
-			newChanges = { ...forcedArr };
-		} else {
-			newChanges = { ...playlist };
-		}
-		for (var k in newChanges) {
-			if (k == key) {
-				delete newChanges[key];
-				setPlaylist(newChanges);
-			} else if (typeof newChanges[k] === "object" && splitKey[0] == k) {
-				deleteChange(splitKey[1], newChanges[k]);
-			}
-		}
+	const deleteChange = (key: string) => {
+		setPlaylist((prev: any) => removeChange(prev, key) ?? {});
 	};
 
 	const runCreatePlaylist = async () => {
@@ -240,7 +227,7 @@ const CreatePlaylistModal = (props: Props) => {
 					}
 				}}
 				setValue={(value: string) => {
-					if (value.length == 0) {
+					if (value.length === 0) {
 						setSearchResults(null);
 					}
 				}}

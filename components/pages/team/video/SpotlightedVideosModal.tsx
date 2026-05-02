@@ -72,13 +72,13 @@ const VideoSpotlight = (props: VideoSpotlightItemProps) => {
 								title="Spotlighted Video"
 								delay={150}
 								setValue={async (value) => {
-									if (value.length == 0) {
+									if (value.length === 0) {
 										setSearchResults([]);
 									}
 									setSearchValue(value);
 								}}
 								setDelayedValue={async (value) => {
-									if (value.length == 0) {
+									if (value.length === 0) {
 										setSearchResults([]);
 										return;
 									}
@@ -86,7 +86,7 @@ const VideoSpotlight = (props: VideoSpotlightItemProps) => {
 									setSearchResults(results);
 								}}
 								dropdownClick={(item) => {
-									const found = searchResults.find((v) => v.id == item.id);
+									const found = searchResults.find((v) => v.id === item.id);
 									if (found) {
 										setNewVideo(found);
 									}

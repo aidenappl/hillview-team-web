@@ -58,7 +58,7 @@ const VideoInspectionModal = ({
 				placeholder="Video Title"
 				value={selectedVideo.title}
 				setValue={(value: string) => {
-					if (value != selectedVideo.title) {
+					if (value !== selectedVideo.title) {
 						inputChange({ title: value });
 					} else {
 						deleteChange("title");
@@ -71,7 +71,7 @@ const VideoInspectionModal = ({
 				value={selectedVideo.description}
 				className="h-[150px]"
 				setValue={(value: string) => {
-					if (value != selectedVideo.description) {
+					if (value !== selectedVideo.description) {
 						inputChange({ description: value });
 					} else {
 						deleteChange("description");
@@ -83,7 +83,7 @@ const VideoInspectionModal = ({
 				values={VideoStatuses}
 				value={selectedVideo.status}
 				setValue={(value) => {
-					if (value.id != selectedVideo.status.id) {
+					if (value.id !== selectedVideo.status.id) {
 						inputChange({ status: value.id });
 					} else {
 						deleteChange("status");
@@ -95,7 +95,7 @@ const VideoInspectionModal = ({
 				placeholder="Video Source URL"
 				value={selectedVideo.url}
 				setValue={(value: string) => {
-					if (value != selectedVideo.url) {
+					if (value !== selectedVideo.url) {
 						inputChange({ url: value });
 					} else {
 						deleteChange("url");
@@ -139,7 +139,7 @@ const VideoInspectionModal = ({
 				}}
 				value={changes?.thumbnail || selectedVideo.thumbnail}
 				setValue={(value: string) => {
-					if (value != selectedVideo.thumbnail) {
+					if (value !== selectedVideo.thumbnail) {
 						inputChange({ thumbnail: value });
 					} else {
 						deleteChange("thumbnail");
@@ -152,7 +152,7 @@ const VideoInspectionModal = ({
 				showImageLoader={showImageLoader}
 				onChange={async (e: any): Promise<void> => {
 					if (e.target.files && e.target.files.length > 0) {
-						if (e.target.files.length != 1) {
+						if (e.target.files.length !== 1) {
 							toast.error("Please only upload one image");
 							return;
 						}
@@ -237,7 +237,7 @@ const VideoInspectionModal = ({
 						: selectedVideo.download_url
 				}
 				setValue={(value: string) => {
-					if (value != selectedVideo.download_url) {
+					if (value !== selectedVideo.download_url) {
 						inputChange({ download_url: value });
 					} else {
 						deleteChange("download_url");
@@ -261,7 +261,7 @@ const VideoInspectionModal = ({
 				runner="Do you want to allow video downloads for this video?"
 				value={selectedVideo.allow_downloads}
 				setValue={(value: boolean) => {
-					if (value != selectedVideo.allow_downloads) {
+					if (value !== selectedVideo.allow_downloads) {
 						inputChange({ allow_downloads: value });
 					} else {
 						deleteChange("allow_downloads");

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import imageCompression from "browser-image-compression";
 import UploadImage from "../../../../services/uploadHandler";
 import toast from "react-hot-toast";
@@ -14,6 +15,84 @@ const SelectThumbnailModal = (props: {
 		exit = () => {},
 		success = (url: string) => {},
 	} = props;
+
+	const [uploadState, setUploadState] = useState<
+		"idle" | "uploading" | "done"
+	>("idle");
+
+	const buttonText =
+		uploadState === "uploading"
+			? "Uploading..."
+			: uploadState === "done"
+			? "Done"
+			: "Select";
+
+	const handleSelect = () => {
+		setUploadState("uploading");
+
+		// get the video element
+		const video = document.getElementById(
+			"thumbnail-selector"
+		)! as HTMLVideoElement;
+
+		// create a canvas element
+		const canvas = document.createElement("canvas");
+		canvas.width = video.videoWidth;
+		canvas.height = video.videoHeight;
+
+		// get the current frame
+		const context = canvas.getContext("2d")!;
+		context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+		const filename = "thumbnail.jpg";
+
+		canvas.toBlob(
+			async (blob) => {
+				// convert blob to file
+				const file = new File([blob!], filename, {
+					type: "image/jpeg",
+					lastModified: Date.now(),
+				});
+
+				const options = {
+					maxSizeMB: 1,
+					maxWidthOrHeight: 1920,
+					useWebWorker: true,
+				};
+				try {
+					const compressedFile = await imageCompression(
+						file,
+						options
+					);
+
+					const result = await UploadImage({
+						image: compressedFile,
+						route: "thumbnails/",
+						id: 100,
+					});
+					if (result.success) {
+						setUploadState("done");
+						toast.success("Thumbnail uploaded successfully", {
+							position: "top-center",
+						});
+						success(result.data.data.url);
+						exit();
+					} else {
+						setUploadState("idle");
+						console.error(result);
+						toast.error("Failed to upload image", {
+							position: "top-center",
+						});
+					}
+				} catch (error) {
+					setUploadState("idle");
+					console.error(error);
+				}
+			},
+			"image/jpeg",
+			0.95
+		); // 0.95 is the JPEG quality (0-1 range)
+	};
 
 	return (
 		<>
@@ -33,76 +112,11 @@ const SelectThumbnailModal = (props: {
 							controls
 						></video>
 						<button
-							className="w-full py-3 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 font-semibold"
-							onClick={(e: any) => {
-								e.target.innerHTML = "Uploading...";
-
-								// get the video element
-								const video = document.getElementById(
-									"thumbnail-selector"
-								)! as HTMLVideoElement;
-
-								// create a canvas element
-								const canvas = document.createElement("canvas");
-								canvas.width = video.videoWidth;
-								canvas.height = video.videoHeight;
-
-								// get the current frame
-								const context = canvas.getContext("2d")!;
-								context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-								let filename = "thumbnail.jpg";
-
-								canvas.toBlob(
-									async (blob) => {
-										// convert blob to file
-										const file = new File([blob!], filename, {
-											type: "image/jpeg",
-											lastModified: Date.now(),
-										});
-
-										const url = URL.createObjectURL(blob as Blob);
-
-										const options = {
-											maxSizeMB: 1,
-											maxWidthOrHeight: 1920,
-											useWebWorker: true,
-										};
-										try {
-											const compressedFile = await imageCompression(
-												file,
-												options
-											);
-
-											let result = await UploadImage({
-												image: file,
-												route: "thumbnails/",
-												id: 100,
-											});
-											if (result.success) {
-												e.target.innerHTML = "Done";
-												toast.success("Thumbnail uploaded successfully", {
-													position: "top-center",
-												});
-												success(result.data.data.url);
-												exit();
-											} else {
-												e.target.innerHTML = "Select";
-												console.error(result);
-												toast.error("Failed to upload image", {
-													position: "top-center",
-												});
-											}
-										} catch (error) {
-											console.error(error);
-										}
-									},
-									"image/jpeg",
-									0.95
-								); // 0.95 is the JPEG quality (0-1 range)
-							}}
+							className="w-full py-3 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 font-semibold disabled:opacity-50"
+							disabled={uploadState === "uploading"}
+							onClick={handleSelect}
 						>
-							Select
+							{buttonText}
 						</button>
 					</div>
 				</div>

@@ -108,9 +108,9 @@ function VideoRow({
 				<span
 					className={
 						"sm:px-3 sm:py-1.5 sm:text-sm sm:rounded-md px-2 py-1 rounded text-xs " +
-						(video.status.short_name == "public"
+						(video.status.short_name === "public"
 							? "text-white bg-green-500"
-							: video.status.short_name == "unlisted"
+							: video.status.short_name === "unlisted"
 							? "text-white bg-green-700"
 							: "text-white bg-slate-500")
 					}
@@ -129,7 +129,7 @@ function VideoRow({
 				>
 					Inspect
 				</Button>
-				{video.status.short_name != "draft" && (
+				{video.status.short_name !== "draft" && (
 					<Link
 						href={"https://hillview.tv/watch?v=" + video.uuid}
 						target="_blank"
@@ -140,7 +140,7 @@ function VideoRow({
 						<Button variant="secondary">Watch</Button>
 					</Link>
 				)}
-				{video.status.short_name != "public" && (
+				{video.status.short_name !== "public" && (
 					<Button
 						onClick={(e) => {
 							e.stopPropagation();

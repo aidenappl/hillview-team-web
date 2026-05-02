@@ -17,6 +17,7 @@ import SelectThumbnailModal from "../../../components/pages/team/video/SelectThu
 import { UpdateVideo } from "../../../hooks/UpdateVideo";
 import { QueryVideos } from "../../../hooks/QueryVideos";
 import { Video } from "../../../types";
+import { removeChange, applyChange } from "../../../utils/changeTracking";
 
 const VideosPage = () => {
 	const router = useRouter();
@@ -87,26 +88,12 @@ const VideosPage = () => {
 		setSaving(false);
 	};
 
-	const inputChange = async (modifier: Object) => {
-		setChanges({ ...changes, ...modifier });
+	const inputChange = (modifier: Record<string, any>) => {
+		setChanges((prev: any) => applyChange(prev, modifier));
 	};
 
-	const deleteChange = async (key: string, forcedArr?: any) => {
-		let splitKey = key.split(".");
-		let newChanges;
-		if (forcedArr) {
-			newChanges = { ...forcedArr };
-		} else {
-			newChanges = { ...changes };
-		}
-		for (var k in newChanges) {
-			if (k == key) {
-				delete newChanges[key];
-				setChanges(newChanges);
-			} else if (typeof newChanges[k] === "object" && splitKey[0] == k) {
-				deleteChange(splitKey[1], newChanges[k]);
-			}
-		}
+	const deleteChange = (key: string) => {
+		setChanges((prev: any) => removeChange(prev, key));
 	};
 
 	const saveVideoInspection = async () => {
@@ -167,7 +154,7 @@ const VideosPage = () => {
 						placeholder="Video Title"
 						value={selectedVideo.title}
 						setValue={(value: string) => {
-							if (value != selectedVideo.title) {
+							if (value !== selectedVideo.title) {
 								inputChange({ title: value });
 							} else {
 								deleteChange("title");
@@ -180,7 +167,7 @@ const VideosPage = () => {
 						value={selectedVideo.description}
 						className="h-[150px]"
 						setValue={(value: string) => {
-							if (value != selectedVideo.description) {
+							if (value !== selectedVideo.description) {
 								inputChange({ description: value });
 							} else {
 								deleteChange("description");
@@ -194,7 +181,7 @@ const VideosPage = () => {
 						actionButtonText="Grab"
 						value={changes?.thumbnail || selectedVideo.thumbnail}
 						setValue={(value: string) => {
-							if (value != selectedVideo.thumbnail) {
+							if (value !== selectedVideo.thumbnail) {
 								inputChange({ thumbnail: value });
 							} else {
 								deleteChange("thumbnail");
@@ -207,7 +194,7 @@ const VideosPage = () => {
 						showImageLoader={showImageLoader}
 						onChange={async (e: any): Promise<void> => {
 							if (e.target.files && e.target.files.length > 0) {
-								if (e.target.files.length != 1) {
+								if (e.target.files.length !== 1) {
 									toast.error("Please only upload one image");
 									return;
 								}
@@ -309,9 +296,9 @@ const VideosPage = () => {
 											<a
 												className={
 													"px-3 py-1.5 text-sm rounded-md " +
-													(video.status.short_name == "public"
+													(video.status.short_name === "public"
 														? "text-white bg-green-500"
-														: video.status.short_name == "unlisted"
+														: video.status.short_name === "unlisted"
 														? "text-white bg-green-700"
 														: "text-white bg-slate-500")
 												}
@@ -328,7 +315,7 @@ const VideosPage = () => {
 											>
 												Inspect
 											</button>
-											{video.status.short_name != "draft" ? (
+											{video.status.short_name !== "draft" ? (
 												<Link
 													href={"https://hillview.tv/watch?v=" + video.uuid}
 													target="_blank"

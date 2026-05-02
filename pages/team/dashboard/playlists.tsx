@@ -166,14 +166,14 @@ const PlaylistsPage = () => {
 						activeTab={activePlaylistInspectorTab}
 						setActiveTab={setActivePlaylistInspectorTab}
 					/>
-					{activePlaylistInspectorTab == PlaylistInspectorTabs[0] ? (
+					{activePlaylistInspectorTab === PlaylistInspectorTabs[0] ? (
 						<div className="flex flex-col gap-6">
 							<TeamModalInput
 								title="Title"
 								placeholder="Playlist Title"
 								value={selectedPlaylist.name}
 								setValue={(value: string) => {
-									if (value != selectedPlaylist.name) {
+									if (value !== selectedPlaylist.name) {
 										inputChange({ name: value });
 									} else {
 										deleteChange("name");
@@ -186,7 +186,7 @@ const PlaylistsPage = () => {
 								value={selectedPlaylist.description}
 								className="h-[150px]"
 								setValue={(value: string) => {
-									if (value != selectedPlaylist.description) {
+									if (value !== selectedPlaylist.description) {
 										inputChange({ description: value });
 									} else {
 										deleteChange("description");
@@ -198,7 +198,7 @@ const PlaylistsPage = () => {
 								placeholder="Playlist Source Route"
 								value={selectedPlaylist.route}
 								setValue={(value: string) => {
-									if (value != selectedPlaylist.route) {
+									if (value !== selectedPlaylist.route) {
 										inputChange({ route: value });
 									} else {
 										deleteChange("route");
@@ -210,7 +210,7 @@ const PlaylistsPage = () => {
 								values={PlaylistStatuses}
 								value={selectedPlaylist.status}
 								setValue={(value) => {
-									if (value.id != selectedPlaylist.status.id) {
+									if (value.id !== selectedPlaylist.status.id) {
 										inputChange({ status: value.id });
 									} else {
 										deleteChange("status");
@@ -222,7 +222,7 @@ const PlaylistsPage = () => {
 								placeholder="Playlist Banner Image URL"
 								value={changes?.banner_image || selectedPlaylist.banner_image}
 								setValue={(value: string) => {
-									if (value != selectedPlaylist.banner_image) {
+									if (value !== selectedPlaylist.banner_image) {
 										inputChange({ banner_image: value });
 									} else {
 										deleteChange("banner_image");
@@ -261,7 +261,7 @@ const PlaylistsPage = () => {
 							/>
 						</div>
 					) : null}
-					{activePlaylistInspectorTab == PlaylistInspectorTabs[1] ? (
+					{activePlaylistInspectorTab === PlaylistInspectorTabs[1] ? (
 						<div className="flex flex-col gap-6">
 							<TeamModalInput
 								title="Lookup Video"
@@ -272,7 +272,7 @@ const PlaylistsPage = () => {
 									if (
 										selectedPlaylist?.videos &&
 										selectedPlaylist?.videos!.find(
-											(v: Video) => v.id == item.id
+											(v: Video) => v.id === item.id
 										)
 									) {
 										toast.error("Video already added");
@@ -308,7 +308,7 @@ const PlaylistsPage = () => {
 											return !(
 												selectedPlaylist.videos &&
 												selectedPlaylist.videos.find(
-													(v: Video) => v.id == video.id
+													(v: Video) => v.id === video.id
 												)
 											);
 										});
@@ -319,7 +319,7 @@ const PlaylistsPage = () => {
 									}
 								}}
 								setValue={(value: string) => {
-									if (value.length == 0) {
+									if (value.length === 0) {
 										setSearchResults(null);
 									}
 								}}
@@ -333,7 +333,7 @@ const PlaylistsPage = () => {
 										if (changes?.add_videos?.indexOf(item.id) > -1) {
 											// remove from add_videos
 											let arrChanges = changes?.add_videos;
-											if (arrChanges.length == 1) {
+											if (arrChanges.length === 1) {
 												deleteChange("add_videos");
 											} else {
 												if (!arrChanges) {
@@ -346,7 +346,7 @@ const PlaylistsPage = () => {
 											}
 										} else {
 											// add to remove_videos
-											if (changes?.remove_videos?.length == 1) {
+											if (changes?.remove_videos?.length === 1) {
 												deleteChange("remove_videos");
 											} else {
 												let arr = [];
@@ -362,7 +362,7 @@ const PlaylistsPage = () => {
 										setSelectedPlaylist({
 											...selectedPlaylist,
 											videos: selectedPlaylist.videos!.filter(
-												(video: Video) => video.id != item.id
+												(video: Video) => video.id !== item.id
 											),
 										});
 									}}

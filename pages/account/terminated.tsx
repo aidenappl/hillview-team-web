@@ -36,7 +36,7 @@ export const getStaticProps = () => {
 		props: {
 			requireAuth: true,
 			requireAccountStatus: "deleted",
-			title: "Hillview Team - Pending",
+			title: "Hillview Team - Terminated",
 		},
 	};
 };

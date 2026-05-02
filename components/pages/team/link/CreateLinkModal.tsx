@@ -7,6 +7,7 @@ import TeamModalTextarea from "../TeamModalTextarea";
 import toast from "react-hot-toast";
 import ValidLink from "../../../../validators/link.validator";
 import { CreateLink } from "../../../../hooks/CreateLink";
+import { removeChange, applyChange } from "../../../../utils/changeTracking";
 
 interface Props {
 	cancelHit?: () => void;
@@ -25,26 +26,12 @@ const CreateLinkModal = (props: Props) => {
 		saveDone = () => {},
 	} = props;
 
-	const inputChange = async (modifier: Object) => {
-		setLink({ ...link, ...modifier });
+	const inputChange = (modifier: Record<string, any>) => {
+		setLink((prev: any) => applyChange(prev, modifier));
 	};
 
-	const deleteChange = async (key: string, forcedArr?: any) => {
-		let splitKey = key.split(".");
-		let newChanges;
-		if (forcedArr) {
-			newChanges = { ...forcedArr };
-		} else {
-			newChanges = { ...link };
-		}
-		for (var k in newChanges) {
-			if (k == key) {
-				delete newChanges[key];
-				setLink(newChanges);
-			} else if (typeof newChanges[k] === "object" && splitKey[0] == k) {
-				deleteChange(splitKey[1], newChanges[k]);
-			}
-		}
+	const deleteChange = (key: string) => {
+		setLink((prev: any) => removeChange(prev, key) ?? {});
 	};
 
 	const runCreateLink = async () => {

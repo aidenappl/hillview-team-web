@@ -78,7 +78,7 @@ const TeamNavbar = (props: Props) => {
 					<h4 className="text-[#9fa9d3] tracking-tight text-sm lg:text-base pb-3 hidden md:block">
 						SYSTEM
 					</h4>
-					{user && user.authentication.short_name == "admin" ? (
+					{user && user.authentication.short_name === "admin" ? (
 						<div className="flex flex-col gap-0.5">
 							<Option
 								icon={faTag}
@@ -107,7 +107,7 @@ const TeamNavbar = (props: Props) => {
 							/>
 						</div>
 					) : null}
-					{user && user.authentication.short_name == "student" ? (
+					{user && user.authentication.short_name === "student" ? (
 						<div className="flex flex-col gap-0.5">
 							<Option
 								icon={faFilm}
@@ -124,7 +124,7 @@ const TeamNavbar = (props: Props) => {
 						</div>
 					) : null}
 				</div>
-				{user && user.authentication.short_name == "admin" ? (
+				{user && user.authentication.short_name === "admin" ? (
 					<div>
 						<h4 className="text-[#9fa9d3] tracking-tight text-sm lg:text-base pb-3 hidden md:block">
 							CUSTOMIZATION

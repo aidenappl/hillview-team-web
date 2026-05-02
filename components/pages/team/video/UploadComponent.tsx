@@ -226,16 +226,16 @@ const UploadComponent = (props: PageProps) => {
 			{uppyState === "status-checks" && <div>Checking status...</div>}
 			{uppyState === "status-rolling" &&
 				statusBody &&
-				statusBody.result.status.state == "queued" && (
+				statusBody.result.status.state === "queued" && (
 					<div>Queued for Encoding...</div>
 				)}
 			{uppyState === "done" ||
-				(uppyState == "status-rolling" &&
+				(uppyState === "status-rolling" &&
 					statusBody &&
 					statusBody.result.readyToStream && <div>Ready to Stream!</div>)}
 			{uppyState === "status-rolling" &&
 				statusBody &&
-				statusBody.result.status.state != "queued" && (
+				statusBody.result.status.state !== "queued" && (
 					<div>
 						Encoding:{" "}
 						{Math.round(parseInt(statusBody.result.status.pctComplete || "0"))}%

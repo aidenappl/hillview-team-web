@@ -5,6 +5,7 @@ import TeamModalInput from "../TeamModalInput";
 import toast from "react-hot-toast";
 import ValidMobileUser from "../../../../validators/mobileUser.validator";
 import { CreateMobileUser } from "../../../../hooks/CreateMobileUser";
+import { removeChange, applyChange } from "../../../../utils/changeTracking";
 
 interface Props {
 	cancelHit?: () => void;
@@ -22,26 +23,12 @@ const CreatePlatformUserModal = (props: Props) => {
 		saveDone = () => {},
 	} = props;
 
-	const inputChange = async (modifier: Object) => {
-		setUser({ ...user, ...modifier });
+	const inputChange = (modifier: Record<string, any>) => {
+		setUser((prev: any) => applyChange(prev, modifier));
 	};
 
-	const deleteChange = async (key: string, forcedArr?: any) => {
-		let splitKey = key.split(".");
-		let newChanges;
-		if (forcedArr) {
-			newChanges = { ...forcedArr };
-		} else {
-			newChanges = { ...user };
-		}
-		for (var k in newChanges) {
-			if (k == key) {
-				delete newChanges[key];
-				setUser(newChanges);
-			} else if (typeof newChanges[k] === "object" && splitKey[0] == k) {
-				deleteChange(splitKey[1], newChanges[k]);
-			}
-		}
+	const deleteChange = (key: string) => {
+		setUser((prev: any) => removeChange(prev, key) ?? {});
 	};
 
 	const runCreateUser = async () => {

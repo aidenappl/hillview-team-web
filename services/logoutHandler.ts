@@ -18,7 +18,6 @@ const Logout = async (req: RequestLogout): Promise<GeneralResponse> => {
 			success: true,
 		};
 	} catch (error: any) {
-		console.error(error);
 		req.router.replace("/");
 		return {
 			status: 200,

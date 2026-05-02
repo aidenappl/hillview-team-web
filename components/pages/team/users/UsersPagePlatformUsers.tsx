@@ -12,6 +12,7 @@ import CreatePlatformUserModal from "./CreatePlatformUserModal";
 
 import { UpdateMobileUser } from "../../../../hooks/UpdateMobileUser";
 import { QueryMobileUsers } from "../../../../hooks/QueryMobileUsers";
+import { removeChange, applyChange } from "../../../../utils/changeTracking";
 
 export type MobileUser = {
 	id: number;
@@ -67,16 +68,12 @@ const UsersPagePlatformUsers = (props: Props) => {
 		setPageLoading(false);
 	};
 
-	const inputChange = (modifier: Object) => {
-		setChanges((prev: any) => ({ ...(prev ?? {}), ...modifier }));
+	const inputChange = (modifier: Record<string, any>) => {
+		setChanges((prev: any) => applyChange(prev, modifier));
 	};
 
 	const deleteChange = (key: string) => {
-		setChanges((prev: any) => {
-			const next = { ...(prev ?? {}) };
-			delete next[key];
-			return next;
-		});
+		setChanges((prev: any) => removeChange(prev, key));
 	};
 
 	const triggerSave = async () => {

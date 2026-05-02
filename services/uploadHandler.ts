@@ -31,7 +31,6 @@ const UploadImage = async (req: UploadImageReq): Promise<GeneralResponse> => {
 			data: response.data,
 		};
 	} catch (error: any) {
-		console.error(error);
 		return {
 			status: 500,
 			message: error.message,

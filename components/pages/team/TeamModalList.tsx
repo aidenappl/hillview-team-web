@@ -21,7 +21,7 @@ const TeamModalList = (props: Props) => {
 			<div
 				className={
 					"flex flex-col gap-1 w-full h-fit max-h-[300px] flex-shrink-0 " +
-					(props.list.length == 0
+					(props.list.length === 0
 						? "overflow-y-none"
 						: "overflow-y-scroll")
 				}

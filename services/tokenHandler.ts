@@ -11,7 +11,6 @@ const ParseToken = async (token: string): Promise<JwtPayload | null> => {
 		const parsedToken = jwtDecode(token);
 		return parsedToken as JwtPayload;
 	} catch (error) {
-		console.error(error);
 		return null;
 	}
 };

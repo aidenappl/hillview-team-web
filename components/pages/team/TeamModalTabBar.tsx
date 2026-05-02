@@ -25,7 +25,7 @@ const TeamModalTabBar = (props: Props) => {
 						key={index}
 						className={
 							"flex items-center justify-center px-4 h-full cursor-pointer relative select-none " +
-							(locActiveTab == tab
+							(locActiveTab === tab
 								? "text-blue-800"
 								: "text-black")
 						}
@@ -35,7 +35,7 @@ const TeamModalTabBar = (props: Props) => {
 						}}
 					>
 						<p className="font-semibold text-sm">{tab.name}</p>
-                        <div className={"w-full bg-blue-700 absolute bottom-0 left-0 transition " + (locActiveTab == tab ? "h-[2px]" : "h-[0px]")}/>
+                        <div className={"w-full bg-blue-700 absolute bottom-0 left-0 transition " + (locActiveTab === tab ? "h-[2px]" : "h-[0px]")}/>
 					</div>
 				);
 			})}

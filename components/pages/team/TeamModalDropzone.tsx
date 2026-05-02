@@ -42,10 +42,10 @@ const TeamModalDropzone = (props: Props) => {
 			<div
 				className="cursor-pointer w-full h-[150px] flex items-center justify-center rounded-lg border border-dashed border-gray-900/25 hover:border-gray-900/50"
 				onClick={() => {
-					if (state == "none") onClick();
+					if (state === "none") onClick();
 				}}
 			>
-				{state == "none" && (
+				{state === "none" && (
 					<div className="text-center">
 						<FontAwesomeIcon
 							icon={faPhotoFilm}
@@ -65,39 +65,39 @@ const TeamModalDropzone = (props: Props) => {
 						</p>
 					</div>
 				)}
-				{state == "dna" && (
+				{state === "dna" && (
 					<div className="text-center flex flex-col justify-center items-center gap-3">
 						<Spinner />
 						<p>Initializing...</p>
 					</div>
 				)}
-				{state == "in-progress" && (
+				{state === "in-progress" && (
 					<div className="text-center flex flex-col justify-center items-center gap-3">
 						<Spinner />
 						<p>{progress}% Complete</p>
 						<p>Uploading...</p>
 					</div>
 				)}
-				{state == "finishing-up" && (
+				{state === "finishing-up" && (
 					<div className="text-center flex flex-col justify-center items-center gap-3">
 						<Spinner />
 						<p>Finishing Up</p>
 					</div>
 				)}
-				{state == "status-checks" && (
+				{state === "status-checks" && (
 					<div className="text-center flex flex-col justify-center items-center gap-3">
 						<Spinner />
 						<p>Checking status...</p>
 					</div>
 				)}
-				{state == "status-rolling" && (
+				{state === "status-rolling" && (
 					<div className="text-center flex flex-col justify-center items-center gap-3">
 						<Spinner />
 						<p>{encodingProgress}% Complete</p>
 						<p>Encoding...</p>
 					</div>
 				)}
-				{state == "done" && (
+				{state === "done" && (
 					<div className="text-center flex flex-col justify-center items-center gap-3">
 						<FontAwesomeIcon
 							icon={faCircleCheck}
@@ -106,7 +106,7 @@ const TeamModalDropzone = (props: Props) => {
 						<p>Done</p>
 					</div>
 				)}
-				{state == "failed" && (
+				{state === "failed" && (
 					<div className="text-center flex flex-col justify-center items-center gap-3">
 						<FontAwesomeIcon
 							icon={faCircleExclamation}

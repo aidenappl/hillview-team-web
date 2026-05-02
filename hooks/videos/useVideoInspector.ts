@@ -64,7 +64,6 @@ export function useVideoInspector({ onSaved }: Params) {
 				cancelVideoInspection();
 				onSaved();
 			} else {
-				console.error(response);
 				setSaving(false);
 				toast.error("Failed to save changes", { position: "top-center" });
 			}
@@ -98,7 +97,6 @@ export function useVideoInspector({ onSaved }: Params) {
 			await inputChange({ download_url: url });
 			setDownloadButtonParams({ loading: false, text: "Done", disabled: true });
 		} else {
-			console.error(response);
 			toast.error(response.error_message);
 			setDownloadButtonParams({
 				loading: false,

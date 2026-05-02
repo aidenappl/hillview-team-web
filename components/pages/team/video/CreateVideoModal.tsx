@@ -252,7 +252,7 @@ const CreateVideoModal = (props: Props) => {
 					// 	setShowThumbnailSelector(true);
 					// }}
 					setValue={(value: string) => {
-						if (value != video.thumbnail) {
+						if (value !== video.thumbnail) {
 							inputChange({ thumbnail: value });
 						} else {
 							deleteChange("thumbnail");
@@ -265,7 +265,7 @@ const CreateVideoModal = (props: Props) => {
 					showImageLoader={showImageLoader}
 					onChange={async (e: any): Promise<void> => {
 						if (e.target.files && e.target.files.length > 0) {
-							if (e.target.files.length != 1) {
+							if (e.target.files.length !== 1) {
 								toast.error("Please only upload one image");
 								return;
 							}
