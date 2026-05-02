@@ -30,6 +30,7 @@ import { UpdatePlaylist } from "../../../hooks/UpdatePlaylist";
 import { QueryVideos } from "../../../hooks/QueryVideos";
 import { QueryPlaylists } from "../../../hooks/QueryPlaylists";
 import { Video } from "../../../types";
+import { removeChange, applyChange } from "../../../utils/changeTracking";
 
 const PlaylistInspectorTabs = GenerateGeneralNSM(["General", "Videos"]);
 
@@ -66,26 +67,12 @@ const PlaylistsPage = () => {
 		}
 	};
 
-	const inputChange = async (modifier: Object) => {
-		setChanges({ ...changes, ...modifier });
+	const inputChange = (modifier: Record<string, any>) => {
+		setChanges((prev: any) => applyChange(prev, modifier));
 	};
 
-	const deleteChange = async (key: string, forcedArr?: any) => {
-		let splitKey = key.split(".");
-		let newChanges;
-		if (forcedArr) {
-			newChanges = { ...forcedArr };
-		} else {
-			newChanges = { ...changes };
-		}
-		for (var k in newChanges) {
-			if (k == key) {
-				delete newChanges[key];
-				setChanges(newChanges);
-			} else if (typeof newChanges[k] === "object" && splitKey[0] == k) {
-				deleteChange(splitKey[1], newChanges[k]);
-			}
-		}
+	const deleteChange = (key: string) => {
+		setChanges((prev: any) => removeChange(prev, key));
 	};
 
 	const cancelPlaylistInspection = async () => {
@@ -417,7 +404,11 @@ const PlaylistsPage = () => {
 			{/* Body */}
 			<div className="w-full h-[calc(100%-170px)] overflow-y-scroll overflow-x-auto">
 				<div className="w-full h-[calc(100%-70px)]">
-					{playlists && playlists.length > 0 ? (
+					{playlists === null ? (
+						<div className="w-full h-[100px] flex items-center justify-center">
+							<Spinner />
+						</div>
+					) : playlists.length > 0 ? (
 						playlists.map((playlist) => (
 							<div
 								key={playlist.id}
@@ -476,7 +467,7 @@ const PlaylistsPage = () => {
 						))
 					) : (
 						<div className="w-full h-[100px] flex items-center justify-center">
-							<Spinner />
+							<p className="text-sm text-slate-500">No playlists found</p>
 						</div>
 					)}
 				</div>

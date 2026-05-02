@@ -15,7 +15,7 @@ const UploadImage = async (req: UploadImageReq): Promise<GeneralResponse> => {
 		formData.append("id", req.id.toString());
 		formData.append("route", req.route);
 		let response = await axios.post(
-			"https://api.hillview.tv/core/v1.1/admin/upload",
+			`${process.env.NEXT_PUBLIC_API_URL}/core/v1.1/admin/upload`,
 			formData,
 			{
 				headers: {

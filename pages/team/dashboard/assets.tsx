@@ -19,6 +19,7 @@ import CreateAssetModal from "../../../components/pages/team/asset/CreateAssetMo
 
 import { UpdateAsset } from "../../../hooks/UpdateAsset";
 import { QueryAssets } from "../../../hooks/QueryAssets";
+import { removeChange, applyChange } from "../../../utils/changeTracking";
 const GRID_TEMPLATE = "grid-cols-[110px_1fr_1fr_1fr_1fr_200px]";
 
 const AssetsPage = () => {
@@ -100,22 +101,12 @@ const AssetsPage = () => {
 		setSaving(false);
 	};
 
-	const inputChange = async (modifier: Object) => {
-		setChanges((prev: any) => ({ ...(prev ?? {}), ...modifier }));
+	const inputChange = (modifier: Record<string, any>) => {
+		setChanges((prev: any) => applyChange(prev, modifier));
 	};
 
-	const deleteChange = async (key: string, forcedObj?: any) => {
-		const obj = forcedObj ? { ...forcedObj } : { ...(changes ?? {}) };
-		if (key in obj) {
-			delete obj[key];
-			setChanges(obj);
-			return;
-		}
-		const [head, ...rest] = key.split(".");
-		if (typeof obj[head] === "object" && obj[head] !== null) {
-			await deleteChange(rest.join("."), obj[head]);
-			setChanges({ ...obj, [head]: obj[head] });
-		}
+	const deleteChange = (key: string) => {
+		setChanges((prev: any) => removeChange(prev, key));
 	};
 
 	return (
@@ -265,7 +256,11 @@ const AssetsPage = () => {
 			{/* Body */}
 			<div className="w-full h-[calc(100%-160px)] overflow-y-auto overflow-x-auto">
 				<div className="w-full h-[calc(100%-60px)]">
-					{assets && assets.length > 0 ? (
+					{assets === null ? (
+						<div className="w-full h-[100px] flex items-center justify-center">
+							<Spinner />
+						</div>
+					) : assets.length > 0 ? (
 						assets.map((asset) => (
 							<div
 								key={asset.id}
@@ -309,7 +304,7 @@ const AssetsPage = () => {
 						))
 					) : (
 						<div className="w-full h-[100px] flex items-center justify-center">
-							<Spinner />
+							<p className="text-sm text-slate-500">No assets found</p>
 						</div>
 					)}
 				</div>

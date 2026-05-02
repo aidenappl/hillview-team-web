@@ -55,7 +55,11 @@ const CheckoutsPage = () => {
 			{/* Body (GRID rows) */}
 			<div className="w-full h-[calc(100%-170px)] overflow-y-auto overflow-x-auto">
 				<div className="w-full h-[calc(100%-70px)]">
-					{checkouts && checkouts.length > 0 ? (
+					{checkouts === null ? (
+						<div className="w-full h-[100px] flex items-center justify-center">
+							<Spinner />
+						</div>
+					) : checkouts.length > 0 ? (
 						checkouts.map((checkout) => {
 							const timeOut = dayjs(checkout.time_out)
 								.locale("en")
@@ -129,7 +133,7 @@ const CheckoutsPage = () => {
 						})
 					) : (
 						<div className="w-full h-[100px] flex items-center justify-center">
-							<Spinner />
+							<p className="text-sm text-slate-500">No checkouts found</p>
 						</div>
 					)}
 				</div>

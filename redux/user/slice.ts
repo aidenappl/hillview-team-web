@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { HYDRATE } from "next-redux-wrapper";
 import { User } from '../../types';
-
 
 interface UserState {
 	data: User | null;
@@ -33,14 +31,6 @@ const user = createSlice({
 			state.loggedIn = false;
 		}
 	},
-	extraReducers: (builder) => {
-		builder.addCase(HYDRATE, (state, action: any) => {
-			return {
-				...state,
-				...action.payload.user,
-			};
-		});
-	}
 });
 
 export const { loginSuccess, logoutSuccess, updateUser } = user.actions;

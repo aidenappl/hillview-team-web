@@ -1,11 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPhotoFilm } from "@fortawesome/pro-duotone-svg-icons";
-import Spinner from "../../general/Spinner";
 import {
-	faCheck,
-	faCheckCircle,
-	faExclamationCircle,
-} from "@fortawesome/pro-solid-svg-icons";
+	faPhotoFilm,
+	faCircleCheck,
+	faCircleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
+import Spinner from "../../general/Spinner";
 
 interface Props {
 	onClick?: () => void;
@@ -101,7 +100,7 @@ const TeamModalDropzone = (props: Props) => {
 				{state == "done" && (
 					<div className="text-center flex flex-col justify-center items-center gap-3">
 						<FontAwesomeIcon
-							icon={faCheckCircle}
+							icon={faCircleCheck}
 							className="text-blue-600 text-xl"
 						/>
 						<p>Done</p>
@@ -110,7 +109,7 @@ const TeamModalDropzone = (props: Props) => {
 				{state == "failed" && (
 					<div className="text-center flex flex-col justify-center items-center gap-3">
 						<FontAwesomeIcon
-							icon={faExclamationCircle}
+							icon={faCircleExclamation}
 							className="text-red-600 text-xl"
 						/>
 						<p>Failed</p>

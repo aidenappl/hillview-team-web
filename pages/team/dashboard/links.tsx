@@ -12,6 +12,7 @@ import CreateLinkModal from "../../../components/pages/team/link/CreateLinkModal
 
 import { UpdateLink } from "../../../hooks/UpdateLink";
 import { QueryLinks } from "../../../hooks/QueryLinks";
+import { removeChange, applyChange } from "../../../utils/changeTracking";
 const GRID_TEMPLATE = "grid-cols-[20%_30%_20%_10%_20%]";
 
 const LinksPage = () => {
@@ -55,22 +56,12 @@ const LinksPage = () => {
 		setSaving(false);
 	};
 
-	const inputChange = async (modifier: Object) => {
-		setChanges((prev: any) => ({ ...(prev ?? {}), ...modifier }));
+	const inputChange = (modifier: Record<string, any>) => {
+		setChanges((prev: any) => applyChange(prev, modifier));
 	};
 
-	const deleteChange = async (key: string, forcedObj?: any) => {
-		const obj = forcedObj ? { ...forcedObj } : { ...(changes ?? {}) };
-		if (key in obj) {
-			delete obj[key];
-			setChanges(obj);
-			return;
-		}
-		const [head, ...rest] = key.split(".");
-		if (typeof obj[head] === "object" && obj[head] !== null) {
-			await deleteChange(rest.join("."), obj[head]);
-			setChanges({ ...obj, [head]: obj[head] });
-		}
+	const deleteChange = (key: string) => {
+		setChanges((prev: any) => removeChange(prev, key));
 	};
 
 	const saveLinkInspection = async () => {
@@ -188,7 +179,11 @@ const LinksPage = () => {
 			{/* Body */}
 			<div className="w-full h-[calc(100%-170px)] overflow-y-auto overflow-x-auto">
 				<div className="w-full h-[calc(100%-70px)]">
-					{links && links.length > 0 ? (
+					{links === null ? (
+						<div className="w-full h-[100px] flex items-center justify-center">
+							<Spinner />
+						</div>
+					) : links.length > 0 ? (
 						<>
 							{links.map((link) => (
 								<div
@@ -255,7 +250,7 @@ const LinksPage = () => {
 						</>
 					) : (
 						<div className="w-full h-[100px] flex items-center justify-center">
-							<Spinner />
+							<p className="text-sm text-slate-500">No links found</p>
 						</div>
 					)}
 				</div>

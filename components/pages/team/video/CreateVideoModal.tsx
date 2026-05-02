@@ -13,6 +13,7 @@ import UploadComponent from "./UploadComponent";
 
 import { CreateVideo } from "../../../../hooks/CreateVideo";
 import { CreateDownloadUrl } from "../../../../hooks/CreateDownloadUrl";
+import { removeChange, applyChange } from "../../../../utils/changeTracking";
 
 interface Props {
 	cancelHit?: () => void;
@@ -43,26 +44,12 @@ const CreateVideoModal = (props: Props) => {
 		saveDone = () => {},
 	} = props;
 
-	const inputChange = async (modifier: Object) => {
-		setVideo({ ...video, ...modifier });
+	const inputChange = (modifier: Record<string, any>) => {
+		setVideo((prev: any) => applyChange(prev, modifier));
 	};
 
-	const deleteChange = async (key: string, forcedArr?: any) => {
-		let splitKey = key.split(".");
-		let newChanges;
-		if (forcedArr) {
-			newChanges = { ...forcedArr };
-		} else {
-			newChanges = { ...video };
-		}
-		for (var k in newChanges) {
-			if (k == key) {
-				delete newChanges[key];
-				setVideo(newChanges);
-			} else if (typeof newChanges[k] === "object" && splitKey[0] == k) {
-				deleteChange(splitKey[1], newChanges[k]);
-			}
-		}
+	const deleteChange = (key: string) => {
+		setVideo((prev: any) => removeChange(prev, key) ?? {});
 	};
 
 	const generateCloudflareDownload = async () => {

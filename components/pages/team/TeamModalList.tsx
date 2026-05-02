@@ -1,4 +1,4 @@
-import { faMinusCircle } from "@fortawesome/pro-duotone-svg-icons";
+import { faCircleMinus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { GeneralNSM } from "../../../models/generalNSM.model";
 
@@ -44,7 +44,7 @@ const TeamModalList = (props: Props) => {
 								<div className="flex gap-2">
 									<FontAwesomeIcon
 										onClick={() => destructiveClick(item)}
-										icon={faMinusCircle}
+										icon={faCircleMinus}
 										className="text-slate-500 text-xl cursor-pointer hover:text-slate-700"
 									/>
 								</div>

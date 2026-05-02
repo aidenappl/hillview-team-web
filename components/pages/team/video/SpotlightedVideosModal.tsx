@@ -4,7 +4,6 @@ import Button from "../../../general/Button";
 import Image from "next/image";
 import { Spotlight, Video } from "../../../../types";
 import TeamModalInput from "../TeamModalInput";
-import { on } from "events";
 import { GenerateGeneralNSM } from "../../../../models/generalNSM.model";
 import { useSpotlight } from "../../../../hooks/videos/useSpotlight";
 import Spinner from "../../../general/Spinner";
@@ -125,9 +124,7 @@ const SpotlightedVideosModal = (props: Props) => {
 	const runUpdateSpotlight = async () => {
 		if (changes.length > 0) {
 			setSaving(true);
-			changes.forEach(async (change) => {
-				await updateSpotlight(change);
-			});
+			await Promise.all(changes.map((change) => updateSpotlight(change)));
 			setSaving(false);
 			saveDone();
 		} else {

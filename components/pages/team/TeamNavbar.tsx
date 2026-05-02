@@ -2,12 +2,12 @@ import { IconProp, SizeProp } from "@fortawesome/fontawesome-svg-core";
 import {
 	faArrowRightToBracket,
 	faBoxArchive,
-	faCheckSquare,
+	faSquareCheck,
 	faFilm,
 	faLink,
 	faTag,
 	faUserGroup,
-} from "@fortawesome/pro-regular-svg-icons";
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { NextRouter } from "next/router";
@@ -88,7 +88,7 @@ const TeamNavbar = (props: Props) => {
 								href="/team/dashboard/assets"
 							/>
 							<Option
-								icon={faCheckSquare}
+								icon={faSquareCheck}
 								text="Checkouts"
 								selected={pathname === "/team/dashboard/checkouts"}
 								href="/team/dashboard/checkouts"
