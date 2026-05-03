@@ -87,8 +87,8 @@ function UserRow({
 			{/* Email — sm+ */}
 			<p className="hidden truncate text-xs text-slate-500 sm:block">{user.email}</p>
 
-			{/* Identifier — lg+ */}
-			<p className="hidden truncate font-mono text-xs text-slate-500 lg:block">{user.identifier}</p>
+			{/* NFC Identifier — lg+ */}
+			<p className="hidden truncate font-mono text-xs text-slate-500 lg:block">{user.nfc_identifier}</p>
 
 			{/* Status badge — sm+ */}
 			<div className="hidden sm:flex items-center">

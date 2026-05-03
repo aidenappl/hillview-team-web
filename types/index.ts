@@ -140,7 +140,7 @@ type VideoQueryParams = {
 // =============================================================================
 
 type Spotlight = {
-	rank: number;
+	position: number;
 	video_id: number;
 	inserted_at: Date;
 	updated_at: Date;
@@ -149,7 +149,7 @@ type Spotlight = {
 
 type SpotlightChanges = {
 	video_id: number;
-	rank: number;
+	position: number;
 };
 
 type SpotlightQueryParams = {
@@ -242,7 +242,7 @@ type CheckoutUser = {
 	id: number;
 	name: string;
 	email: string;
-	identifier: string;
+	nfc_identifier: string;
 	status: GeneralNSM;
 	profile_image_url: string;
 	inserted_at: string;
@@ -367,7 +367,7 @@ type MobileUser = {
 	id: number;
 	name: string;
 	email: string;
-	identifier: string;
+	nfc_identifier: string;
 	profile_image_url: string;
 	status: GeneralNSM;
 	inserted_at: string;
@@ -377,14 +377,14 @@ type MobileUserInput = {
 	email: string;
 	name: string;
 	profile_image_url: string;
-	identifier: string;
+	nfc_identifier: string;
 };
 
 type MobileUserChanges = Partial<{
 	email: string;
 	name: string;
 	profile_image_url: string;
-	identifier: string;
+	nfc_identifier: string;
 	status: number;
 }>;
 

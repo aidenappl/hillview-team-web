@@ -100,14 +100,14 @@ const SpotlightedVideosModal = ({
 	spotlightedVideos,
 	onSearchVideos,
 }: Props) => {
-	// Current visual order of slots (originalRank is the stable identifier)
+	// Current visual order of slots (originalPosition is the stable identifier)
 	const [items, setItems] = useState<Spotlight[]>([]);
-	// Per-originalRank pending video replacements
+	// Per-originalPosition pending video replacements
 	const [videoChanges, setVideoChanges] = useState<Map<number, Video>>(
 		new Map(),
 	);
-	// Which rank has search expanded
-	const [expandedRank, setExpandedRank] = useState<number | null>(null);
+	// Which position has search expanded
+	const [expandedPosition, setExpandedPosition] = useState<number | null>(null);
 	const [searchValue, setSearchValue] = useState("");
 	const [searchResults, setSearchResults] = useState<Video[]>([]);
 	const [searchLoading, setSearchLoading] = useState(false);
@@ -120,44 +120,44 @@ const SpotlightedVideosModal = ({
 	// Initialise items once data loads
 	useEffect(() => {
 		if (spotlightedVideos && items.length === 0) {
-			setItems([...spotlightedVideos].sort((a, b) => a.rank - b.rank));
+			setItems([...spotlightedVideos].sort((a, b) => a.position - b.position));
 		}
 	}, [spotlightedVideos, items.length]);
 
 	// ── Dirty tracking ──────────────────────────────────────────────────────
 
-	const hasPositionChange = items.some((item, i) => item.rank !== i + 1);
+	const hasPositionChange = items.some((item, i) => item.position !== i + 1);
 	const isDirty = videoChanges.size > 0 || hasPositionChange;
 
 	// Count of visually modified slots (for the Save badge)
-	const modifiedRanks = new Set<number>();
+	const modifiedPositions = new Set<number>();
 	items.forEach((item, i) => {
-		if (item.rank !== i + 1) modifiedRanks.add(item.rank);
-		if (videoChanges.has(item.rank)) modifiedRanks.add(item.rank);
+		if (item.position !== i + 1) modifiedPositions.add(item.position);
+		if (videoChanges.has(item.position)) modifiedPositions.add(item.position);
 	});
-	const changeCount = modifiedRanks.size;
+	const changeCount = modifiedPositions.size;
 
 	// ── Helpers ─────────────────────────────────────────────────────────────
 
 	const effectiveVideoId = (item: Spotlight) =>
-		videoChanges.get(item.rank)?.id ?? item.video_id;
+		videoChanges.get(item.position)?.id ?? item.video_id;
 
 	const effectiveVideo = (item: Spotlight): Video | undefined =>
-		videoChanges.get(item.rank) ?? item.video ?? undefined;
+		videoChanges.get(item.position) ?? item.video ?? undefined;
 
 	// ── Handlers ────────────────────────────────────────────────────────────
 
-	const handleVideoSelect = (originalRank: number, video: Video) => {
+	const handleVideoSelect = (originalPosition: number, video: Video) => {
 		const conflict = items.find(
-			(s) => s.rank !== originalRank && effectiveVideoId(s) === video.id,
+			(s) => s.position !== originalPosition && effectiveVideoId(s) === video.id,
 		);
 		if (conflict) {
-			const conflictPos = items.findIndex((s) => s.rank === conflict.rank) + 1;
+			const conflictPos = items.findIndex((s) => s.position === conflict.position) + 1;
 			toast.error(`Already assigned to slot ${conflictPos}.`);
 			return;
 		}
-		setVideoChanges((prev) => new Map(prev).set(originalRank, video));
-		setExpandedRank(null);
+		setVideoChanges((prev) => new Map(prev).set(originalPosition, video));
+		setExpandedPosition(null);
 		setSearchValue("");
 		setSearchResults([]);
 		setSearchLoading(false);
@@ -188,8 +188,8 @@ const SpotlightedVideosModal = ({
 		}
 		setSaving(true);
 		const payload: SpotlightChanges[] = items.map((item, i) => ({
-			rank: i + 1,
-			video_id: videoChanges.get(item.rank)?.id ?? item.video_id,
+			position: i + 1,
+			video_id: videoChanges.get(item.position)?.id ?? item.video_id,
 		}));
 		const response = await reqReorderSpotlight(payload);
 		setSaving(false);
@@ -203,12 +203,12 @@ const SpotlightedVideosModal = ({
 	// Scroll expanded slot into view so its dropdown fits below it
 	const expandedItemRef = useRef<HTMLDivElement | null>(null);
 	useEffect(() => {
-		if (expandedRank === null) return;
+		if (expandedPosition === null) return;
 		const timer = setTimeout(() => {
 			expandedItemRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 		}, 50);
 		return () => clearTimeout(timer);
-	}, [expandedRank]);
+	}, [expandedPosition]);
 
 	// ── Render ──────────────────────────────────────────────────────────────
 
@@ -253,7 +253,7 @@ const SpotlightedVideosModal = ({
 
 				{/* Scrollable content — overflow lives here, not on the outer modal */}
 				{/* min-h-0 lets the flex child respect the parent max-height constraint */}
-				<div className={`min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 sm:px-4 sm:py-4 ${expandedRank !== null ? "pb-72" : ""}`}>
+				<div className={`min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 sm:px-4 sm:py-4 ${expandedPosition !== null ? "pb-72" : ""}`}>
 					{items.length === 0 ? (
 						<div className="flex justify-center py-14">
 							<Spinner />
@@ -262,7 +262,7 @@ const SpotlightedVideosModal = ({
 						<div className="flex flex-col gap-1">
 							{items.map((item, index) => {
 								const video = effectiveVideo(item);
-								const isModified = modifiedRanks.has(item.rank);
+								const isModified = modifiedPositions.has(item.position);
 								const isDragging = dragIndex === index;
 								const showDropAbove =
 									dragIndex !== null &&
@@ -272,10 +272,10 @@ const SpotlightedVideosModal = ({
 									dragIndex !== null &&
 									dragOverIndex === index &&
 									dragIndex < index;
-								const isExpanded = expandedRank === item.rank;
+								const isExpanded = expandedPosition === item.position;
 
 								return (
-									<div key={item.rank} ref={isExpanded ? expandedItemRef : null}>
+									<div key={item.position} ref={isExpanded ? expandedItemRef : null}>
 										{/* Drop indicator — above */}
 										{showDropAbove && (
 											<div className="mx-3 mb-1 h-0.5 rounded-full bg-blue-500" />
@@ -349,7 +349,7 @@ const SpotlightedVideosModal = ({
 													</button>
 												</div>
 
-												{/* Rank badge */}
+												{/* Position badge */}
 												<span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500">
 													{index + 1}
 												</span>
@@ -394,12 +394,12 @@ const SpotlightedVideosModal = ({
 													onClick={(e) => {
 														e.stopPropagation();
 														if (isExpanded) {
-															setExpandedRank(null);
+															setExpandedPosition(null);
 															setSearchValue("");
 															setSearchResults([]);
 															setSearchLoading(false);
 														} else {
-															setExpandedRank(item.rank);
+															setExpandedPosition(item.position);
 															setSearchValue("");
 															setSearchResults([]);
 															setSearchLoading(false);
@@ -450,7 +450,7 @@ const SpotlightedVideosModal = ({
 															const found = searchResults.find(
 																(v) => v.id === dropItem.id,
 															);
-															if (found) handleVideoSelect(item.rank, found);
+															if (found) handleVideoSelect(item.position, found);
 														}}
 														dropdown={GenerateGeneralNSM(searchResults)}
 													/>
