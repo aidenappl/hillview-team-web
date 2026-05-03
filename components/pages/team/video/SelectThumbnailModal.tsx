@@ -79,14 +79,13 @@ const SelectThumbnailModal = (props: {
 						exit();
 					} else {
 						setUploadState("idle");
-						console.error(result);
 						toast.error("Failed to upload image", {
 							position: "top-center",
 						});
 					}
-				} catch (error) {
+				} catch {
 					setUploadState("idle");
-					console.error(error);
+					toast.error("An unexpected error occurred while uploading the image", { position: "top-center" });
 				}
 			},
 			"image/jpeg",

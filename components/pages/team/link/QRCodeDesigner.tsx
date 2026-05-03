@@ -61,7 +61,7 @@ const buildConfig = (data: string, d: QRDesign) => ({
 	data: data || "https://hillview.tv",
 	dotsOptions: { type: d.dotType, color: d.fgColor },
 	cornersSquareOptions: { type: d.cornerType, color: d.fgColor },
-	cornersDotOptions: { type: d.cornerType === "dot" ? "dot" : undefined, color: d.fgColor },
+	cornersDotOptions: { type: d.cornerType === "dot" ? ("dot" as const) : undefined, color: d.fgColor },
 	backgroundOptions: { color: d.bgColor },
 	...(d.logo
 		? { image: d.logo, imageOptions: { crossOrigin: "anonymous", margin: 4, imageSize: 0.45, hideBackgroundDots: true } }

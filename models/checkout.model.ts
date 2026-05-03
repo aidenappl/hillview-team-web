@@ -19,7 +19,7 @@ export interface AssetUser {
 	id: number;
 	name: string;
 	email: string;
-	identifier: string;
+	nfc_identifier: string;
 	status: GeneralNSM;
 	profile_image_url: string;
 	inserted_at: string;

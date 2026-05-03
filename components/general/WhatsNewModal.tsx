@@ -148,8 +148,8 @@ const WhatsNewModal = ({ onAcknowledge, acknowledging }: Props) => {
 						</svg>
 						Dashboard Update
 					</div>
-					<h2 className="text-xl font-bold text-slate-900 sm:text-2xl">What's New</h2>
-					<p className="mt-1 text-sm text-slate-500">Here's what's new.</p>
+					<h2 className="text-xl font-bold text-slate-900 sm:text-2xl">What&apos;s New</h2>
+					<p className="mt-1 text-sm text-slate-500">Here&apos;s what&apos;s new.</p>
 				</div>
 
 				<div className="shrink-0 border-t border-slate-100" />

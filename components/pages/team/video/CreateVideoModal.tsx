@@ -170,10 +170,8 @@ const CreateVideoModal = ({
 				setField("thumbnail", result.data.data.url);
 			} else {
 				toast.error("Failed to upload thumbnail");
-				console.error("[CreateVideoModal] thumbnail upload failed:", result);
 			}
 		} catch (err) {
-			console.error("[CreateVideoModal] thumbnail upload error:", err);
 			toast.error("An unexpected error occurred while uploading the thumbnail");
 		} finally {
 			setShowImageLoader(false);
@@ -198,13 +196,8 @@ const CreateVideoModal = ({
 				toast.error(
 					response.error_message || "Failed to generate download link",
 				);
-				console.error(
-					"[CreateVideoModal] generateDownload API error:",
-					response,
-				);
 			}
 		} catch (err) {
-			console.error("[CreateVideoModal] generateDownload error:", err);
 			toast.error(
 				"An unexpected error occurred while generating the download link",
 			);
@@ -234,10 +227,8 @@ const CreateVideoModal = ({
 				saveDone();
 			} else {
 				toast.error(response.error_message || "Failed to create video");
-				console.error("[CreateVideoModal] createVideo API error:", response);
 			}
 		} catch (err) {
-			console.error("[CreateVideoModal] createVideo error:", err);
 			toast.error("An unexpected error occurred");
 		} finally {
 			setSaving(false);

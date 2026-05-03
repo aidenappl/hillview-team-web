@@ -143,7 +143,6 @@ const VideosPage = () => {
 			cancelVideoInspection();
 			initialize();
 		} else {
-			console.error(response);
 			toast.error("Failed to save changes", { position: "top-center" });
 		}
 	};
@@ -239,7 +238,6 @@ const VideosPage = () => {
 					const res = await reqUpdateVideo(v.id, { status: VideoStatus.Public });
 					if (res.success) initialize();
 					else {
-						console.error(res);
 						toast.error("Failed to save changes", { position: "top-center" });
 					}
 				}}

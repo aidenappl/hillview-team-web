@@ -27,7 +27,7 @@ export default function NotFound() {
 					404
 				</span>
 				<p className="text-sm text-gray-400 font-medium">
-					This page doesn't exist.
+					This page doesn&apos;t exist.
 				</p>
 			</div>
 

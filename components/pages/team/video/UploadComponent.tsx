@@ -94,9 +94,6 @@ const UploadComponent = (props: PageProps) => {
 					await new Promise((resolve) => setTimeout(resolve, delay));
 					return waitForVideoAvailable();
 				} else {
-					console.error(
-						"Max retries reached waiting for video to be available"
-					);
 					setUppyState("failed");
 					return false;
 				}

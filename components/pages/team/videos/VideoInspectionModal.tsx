@@ -85,7 +85,6 @@ const VideoInspectionModal = ({
 						useWebWorker: true,
 					});
 				} catch (compressErr) {
-					console.error("[VideoInspectionModal] compression error:", compressErr);
 					toast.error("Failed to compress image — try a smaller file");
 					return;
 				}
@@ -101,10 +100,8 @@ const VideoInspectionModal = ({
 				inputChange({ thumbnail: result.data.data.url });
 			} else {
 				toast.error("Failed to upload thumbnail");
-				console.error("[VideoInspectionModal] thumbnail upload failed:", result);
 			}
 		} catch (err) {
-			console.error("[VideoInspectionModal] thumbnail upload error:", err);
 			toast.error("An unexpected error occurred while uploading the thumbnail");
 		} finally {
 			setShowImageLoader(false);

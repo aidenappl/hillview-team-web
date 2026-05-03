@@ -18,11 +18,11 @@ export const useSpotlight = () => {
 	}, []);
 
 	const updateSpotlight = useCallback(async (spotlight: Spotlight) => {
-		const response = await reqUpdateSpotlight(spotlight.rank, spotlight.video_id);
+		const response = await reqUpdateSpotlight(spotlight.position, spotlight.video_id);
 		if (response.success) {
 			setSpotlightedVideos(
 				(prev) =>
-					prev?.map((s) => (s.rank === spotlight.rank ? response.data : s)) || null
+					prev?.map((s) => (s.position === spotlight.position ? response.data : s)) || null
 			);
 		} else {
 			toast.error("Failed to update spotlight");

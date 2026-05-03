@@ -360,7 +360,7 @@ const PlaylistInspectionModal = ({
 							) : !showSearch ? (
 								<div className="mt-1 rounded-xl border border-dashed border-slate-200 py-10 text-center">
 									<p className="text-sm font-medium text-slate-400">No videos in this playlist</p>
-									<p className="mt-1 text-xs text-slate-300">Use "Add Video" above to add videos</p>
+									<p className="mt-1 text-xs text-slate-300">Use &quot;Add Video&quot; above to add videos</p>
 								</div>
 							) : null}
 						</div>
