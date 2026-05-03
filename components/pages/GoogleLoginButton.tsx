@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Spinner from "../general/Spinner";
 
 interface Props {
@@ -44,7 +43,7 @@ const GoogleLoginButton = (props: Props) => {
               />
             </g>
           </svg>
-          <a>Sign in with Google</a>
+          <span>Sign in with Google</span>
         </div>
       )}
     </button>

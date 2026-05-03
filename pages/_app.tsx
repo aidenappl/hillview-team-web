@@ -15,6 +15,7 @@ import { useRouter } from "next/router";
 import { GetAccountLander } from "../services/accountLander";
 import { selectUser } from "../redux/user/slice";
 import PageHead from "../components/PageHead";
+import ErrorBoundary from "../components/general/ErrorBoundary";
 import { User } from "../types";
 config.autoAddCss = false;
 
@@ -146,7 +147,9 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
 				/>
 				{!loading ? (
 					<GlobalAuth componentProps={pageProps}>
-						<Component {...pageProps} />{" "}
+						<ErrorBoundary>
+							<Component {...pageProps} />
+						</ErrorBoundary>
 					</GlobalAuth>
 				) : null}
 			</GoogleOAuthProvider>

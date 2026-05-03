@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 
 interface Props {
 	title?: string;
@@ -11,13 +11,14 @@ const TeamModalCheckbox = (props: Props) => {
 	const { title, runner, value = false, setValue = () => {} } = props;
 
 	const [internalValue, setInternalValue] = useState<boolean>(value);
+	const id = useId();
 
 	return (
 		<div className="relative flex gap-x-3">
 			<div className="flex h-6 items-center">
 				<input
-					id="comments"
-					name="comments"
+					id={id}
+					name={id}
 					type="checkbox"
 					className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
 					checked={internalValue}
@@ -29,7 +30,7 @@ const TeamModalCheckbox = (props: Props) => {
 			</div>
 			<div className="text-sm leading-6">
 				<label
-					htmlFor="comments"
+					htmlFor={id}
 					className="font-medium text-gray-900 cursor-pointer"
 				>
 					{title}
