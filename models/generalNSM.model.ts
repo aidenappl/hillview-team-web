@@ -3,6 +3,7 @@ export interface GeneralNSM {
 	name: string;
 	short_name: string;
 	hidden?: boolean;
+	thumbnail?: string;
 }
 
 export const GenerateGeneralNSM = (
@@ -31,6 +32,7 @@ export const GenerateGeneralNSM = (
 				name: label,
 				short_name:
 					name.short_name || label.toLocaleLowerCase().replace(" ", "_"),
+				thumbnail: name.thumbnail || undefined,
 			};
 		});
 	}

@@ -1,55 +1,168 @@
 import toast from "react-hot-toast";
-
 import { useEffect, useState } from "react";
-import Spinner from "../../../general/Spinner";
 import Image from "next/image";
-import { UserType, UserTypes } from "../../../../models/user.model";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import TeamModal from "../TeamModal";
-import TeamModalInput from "../TeamModalInput";
-import TeamModalSelect from "../TeamModalSelect";
 import PageModal from "../../../general/PageModal";
+import TeamUserInspectionModal from "./TeamUserInspectionModal";
 import ValidUser from "../../../../validators/user.validator";
-
+import { UserType, UserTypes } from "../../../../models/user.model";
 import { User, UserChanges } from "../../../../types";
-import { reqUpdateUser } from "../../../../services/api/user.service";
-import { reqGetUsers } from "../../../../services/api/user.service";
+import { reqUpdateUser, reqGetUsers } from "../../../../services/api/user.service";
 import { removeChange, applyChange } from "../../../../utils/changeTracking";
+
 dayjs.extend(relativeTime);
 
-const GRID_COLS =
-	"grid grid-cols-[100px_1fr_15%_20%_1fr_1fr_150px] items-center";
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const AUTH_BADGE: Record<number, { label: string; cls: string }> = {
+	1: { label: "Unauthorized", cls: "bg-amber-100 text-amber-700" },
+	2: { label: "Student", cls: "bg-emerald-100 text-emerald-700" },
+	3: { label: "Admin", cls: "bg-blue-100 text-blue-700" },
+	9: { label: "Deleted", cls: "bg-red-100 text-red-600" },
+};
+
+// ─── Grid ─────────────────────────────────────────────────────────────────────
+
+const GRID = "grid gap-x-4 items-center px-4";
+const COLS = "grid-cols-[36px_1fr_auto] sm:grid-cols-[36px_1fr_1fr_96px_auto] lg:grid-cols-[36px_1fr_120px_1fr_96px_100px_auto]";
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+function SkeletonRow() {
+	return (
+		<div className={`${GRID} ${COLS} border-b border-slate-50 py-3 last:border-b-0`}>
+			<div className="h-7 w-7 animate-pulse rounded-full bg-slate-100" />
+			<div className="h-3.5 w-28 animate-pulse rounded-md bg-slate-100" />
+			<div className="hidden h-3.5 w-32 animate-pulse rounded-md bg-slate-100 sm:block" />
+			<div className="hidden h-5 w-16 animate-pulse rounded-full bg-slate-100 sm:block" />
+			<div className="h-7 w-14 animate-pulse rounded-lg bg-slate-100" />
+		</div>
+	);
+}
+
+// ─── Empty state ──────────────────────────────────────────────────────────────
+
+function EmptyState() {
+	return (
+		<div className="flex flex-col items-center justify-center py-20 text-center">
+			<div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100">
+				<svg className="h-7 w-7 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+					<path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+				</svg>
+			</div>
+			<p className="text-sm font-medium text-slate-700">No team users</p>
+			<p className="mt-1 text-xs text-slate-400">Team members will appear here</p>
+		</div>
+	);
+}
+
+// ─── User row ─────────────────────────────────────────────────────────────────
+
+function UserRow({
+	user,
+	onEdit,
+}: {
+	user: User;
+	onEdit: () => void;
+}) {
+	const badge = AUTH_BADGE[user.authentication.id] ?? { label: user.authentication.name, cls: "bg-slate-100 text-slate-600" };
+
+	return (
+		<div
+			className={`${GRID} ${COLS} cursor-pointer border-b border-slate-50 py-3 transition-colors last:border-b-0 hover:bg-slate-50/60`}
+			onClick={onEdit}
+		>
+			{/* Avatar */}
+			<div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full">
+				<Image
+					src={user.profile_image_url}
+					alt={user.name}
+					fill
+					sizes="28px"
+					style={{ objectFit: "cover" }}
+				/>
+			</div>
+
+			{/* Name */}
+			<p className="truncate text-sm font-medium text-slate-800">{user.name}</p>
+
+			{/* Email — sm+ */}
+			<p className="hidden truncate text-xs text-slate-500 sm:block">{user.email}</p>
+
+			{/* Username — lg+ (col 3) */}
+			<p className="hidden truncate font-mono text-xs text-slate-500 lg:block">
+				{user.username ? `@${user.username}` : "—"}
+			</p>
+
+			{/* Auth badge — sm+ */}
+			<div className="hidden sm:flex items-center">
+				<span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${badge.cls}`}>
+					{badge.label}
+				</span>
+			</div>
+
+			{/* Last active — lg+ */}
+			<p className="hidden truncate text-xs text-slate-400 lg:block">
+				{user.last_active ? dayjs(user.last_active).fromNow() : "Never"}
+			</p>
+
+			{/* Actions */}
+			<div onClick={(e) => e.stopPropagation()}>
+				<button
+					onClick={(e) => { e.stopPropagation(); onEdit(); }}
+					className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700"
+				>
+					Edit
+				</button>
+			</div>
+		</div>
+	);
+}
+
+// ─── Component ───────────────────────────────────────────────────────────────
 
 const UsersPageTeamUsers = () => {
-	const [pageLoading, setPageLoading] = useState<boolean>(true);
 	const [users, setUsers] = useState<User[] | null>(null);
+	const [offset, setOffset] = useState(0);
+	const [loadingMore, setLoadingMore] = useState(false);
 
-	// Inspect User Modal
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
 	const [changes, setChanges] = useState<UserChanges | null>(null);
-	const [saveLoading, setSaveLoading] = useState<boolean>(false);
-	const [showDeleteUser, setShowDeleteUser] = useState<boolean>(false);
+	const [saving, setSaving] = useState(false);
+	const [showDeleteUser, setShowDeleteUser] = useState(false);
 
-	useEffect(() => {
-		initialize();
-	}, []);
+	// ── Data ─────────────────────────────────────────────────────────────────
 
 	const initialize = async () => {
 		setUsers(null);
-		setPageLoading(true);
-		const response = await reqGetUsers({
-			limit: 25,
-			offset: 0,
-		});
-
-		if (response.success) {
-			setUsers(response.data);
-		} else {
-			toast.error("Failed to load users");
-		}
-		setPageLoading(false);
+		setOffset(0);
+		const response = await reqGetUsers({ limit: 25, offset: 0 });
+		if (response.success) setUsers(response.data);
+		else toast.error("Failed to load users");
 	};
+
+	const loadMore = async () => {
+		setLoadingMore(true);
+		const newOffset = offset + 25;
+		try {
+			const response = await reqGetUsers({ limit: 25, offset: newOffset });
+			if (response.success) {
+				setUsers((prev) => [...(prev ?? []), ...response.data]);
+				setOffset(newOffset);
+			} else {
+				toast.error("Failed to load more users");
+			}
+		} finally {
+			setLoadingMore(false);
+		}
+	};
+
+	useEffect(() => {
+		initialize();
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+	// ── Change tracking ──────────────────────────────────────────────────────
 
 	const inputChange = (modifier: Record<string, any>) => {
 		setChanges((prev) => applyChange(prev, modifier) as UserChanges);
@@ -59,41 +172,79 @@ const UsersPageTeamUsers = () => {
 		setChanges((prev) => removeChange(prev, key) as UserChanges | null);
 	};
 
-	const triggerSave = async () => {
-		if (changes ? Object.keys(changes).length === 0 : true) {
+	const saveActive = !!(
+		changes &&
+		Object.keys(changes).length > 0 &&
+		!ValidUser(changes, true).error
+	);
+
+	// ── Inspector actions ────────────────────────────────────────────────────
+
+	const cancelInspection = () => {
+		setSelectedUser(null);
+		setChanges(null);
+		setSaving(false);
+	};
+
+	const saveInspection = async () => {
+		if (!changes || Object.keys(changes).length === 0 || !selectedUser) {
 			setSelectedUser(null);
+			return;
+		}
+		const { error, value } = ValidUser(changes, true);
+		if (error) {
+			toast.error(error.message);
+			return;
+		}
+		setSaving(true);
+		const response = await reqUpdateUser(selectedUser.id, value);
+		if (response.success) {
+			// In-place update — no list flash
+			setUsers((prev) =>
+				prev?.map((u) => {
+					if (u.id !== selectedUser.id) return u;
+					return {
+						...u,
+						...(value.name !== undefined && { name: value.name }),
+						...(value.email !== undefined && { email: value.email }),
+						...(value.username !== undefined && { username: value.username }),
+						...(value.profile_image_url !== undefined && { profile_image_url: value.profile_image_url }),
+						...(value.authentication !== undefined && {
+							authentication: UserTypes.find((t) => t.id === value.authentication) ?? u.authentication,
+						}),
+					};
+				}) ?? null
+			);
+			toast.success("User updated");
+			setSelectedUser(null);
+			setChanges(null);
+			setSaving(false);
 		} else {
-			const validator = ValidUser(changes, true);
-			if (validator.error) {
-				toast.error(validator.error!.message);
-				return;
-			}
-			setSaveLoading(true);
-			const response = await reqUpdateUser(selectedUser!.id, validator.value);
-			if (response.success) {
-				toast.success("User updated");
-				setChanges(null);
-				setSelectedUser(null);
-				initialize();
-			} else {
-					toast.error("Failed to update user");
-			}
-			setSaveLoading(false);
+			setSaving(false);
+			toast.error("Failed to update user");
 		}
 	};
 
-	const archiveUser = async () => {
-		const response = await reqUpdateUser(selectedUser!.id, {
-			authentication: UserType.Deleted,
-		});
+	const deleteUser = async () => {
+		if (!selectedUser) return;
+		const response = await reqUpdateUser(selectedUser.id, { authentication: UserType.Deleted });
 		if (response.success) {
+			setUsers((prev) =>
+				prev?.map((u) =>
+					u.id === selectedUser.id
+						? { ...u, authentication: UserTypes.find((t) => t.id === UserType.Deleted) ?? u.authentication }
+						: u
+				) ?? null
+			);
 			toast.success("User deleted");
 			setSelectedUser(null);
-			initialize();
+			setChanges(null);
 		} else {
 			toast.error("Failed to delete user");
 		}
 	};
+
+	// ── Render ───────────────────────────────────────────────────────────────
 
 	return (
 		<>
@@ -102,178 +253,67 @@ const UsersPageTeamUsers = () => {
 				bodyText="Are you sure you want to delete this user? This action is irreversible."
 				primaryText="Delete"
 				secondaryText="Cancel"
-				cancelHit={() => {
-					// do nothing
-				}}
-				actionHit={() => {
-					archiveUser();
-				}}
+				cancelHit={() => {}}
+				actionHit={deleteUser}
 				setShow={setShowDeleteUser}
 				show={showDeleteUser}
 			/>
-			{selectedUser ? (
-				<TeamModal
-					className="gap-4"
-					loader={saveLoading}
-					saveActive={
-						changes
-							? Object.keys(changes).length > 0 &&
-							  !ValidUser(changes, true).error
-							: false
-					}
-					cancelHit={(): void => {
-						setSelectedUser(null);
-						setChanges(null);
-					}}
-					deleteHit={(): void => {
-						setShowDeleteUser(true);
-					}}
-					saveHit={(): void => {
-						triggerSave();
-					}}
-				>
-					<TeamModalInput
-						title="Name"
-						placeholder="Enter the user's name..."
-						value={selectedUser.name}
-						setValue={(value) => {
-							if (selectedUser.name === value) {
-								deleteChange("name");
-							} else {
-								inputChange({ name: value });
-							}
-						}}
-					/>
-					<TeamModalInput
-						title="Email"
-						placeholder="Enter the user's email..."
-						value={selectedUser.email}
-						setValue={(value) => {
-							if (selectedUser.email === value) {
-								deleteChange("email");
-							} else {
-								inputChange({ email: value });
-							}
-						}}
-					/>
-					<TeamModalInput
-						title="Username"
-						placeholder="Enter the user's username..."
-						value={changes?.username || selectedUser.username}
-						setValue={(value) => {
-							if (selectedUser.username === value) {
-								deleteChange("username");
-							} else {
-								value = value.replaceAll(" ", "-");
-								inputChange({ username: value });
-							}
-						}}
-					/>
-					<TeamModalSelect
-						values={UserTypes}
-						title="Account Type"
-						value={selectedUser.authentication}
-						setValue={(value): void => {
-							if (selectedUser.authentication.id === value.id) {
-								deleteChange("authentication");
-							} else {
-								inputChange({ authentication: value.id });
-							}
-						}}
-					/>
-					<TeamModalInput
-						title="Profile Image URL"
-						placeholder="Enter the user's profile image url..."
-						value={selectedUser.profile_image_url}
-						setValue={(value) => {
-							if (selectedUser.profile_image_url === value) {
-								deleteChange("profile_image_url");
-							} else {
-								inputChange({ profile_image_url: value });
-							}
-						}}
-					/>
-				</TeamModal>
-			) : null}
-			<div className="w-full h-[calc(100%-100px)] flex flex-col">
-				{/* List Header */}
-				<div className={`${GRID_COLS} h-[60px] pr-[15px] relative font-medium`}>
-					<div /> {/* Profile image column */}
-					<p className="truncate">Name</p>
-					<p className="truncate">Username</p>
-					<p className="truncate">Email</p>
-					<p className="truncate">Status</p>
-					<p className="truncate">Last Active</p>
-					<div /> {/* Actions column */}
-					<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
-				</div>
 
-				{/* List Body */}
-				<div className="w-full h-[calc(100%-60px)] overflow-y-scroll overflow-x-hidden">
-					{pageLoading && !users ? (
-						<div className="w-full h-fit flex items-center justify-center mt-10">
-							<Spinner />
-						</div>
+			{selectedUser && (
+				<TeamUserInspectionModal
+					user={selectedUser}
+					changes={changes}
+					saving={saving}
+					saveActive={saveActive}
+					inputChange={inputChange}
+					deleteChange={deleteChange}
+					onCancel={cancelInspection}
+					onSave={saveInspection}
+					onDelete={() => setShowDeleteUser(true)}
+				/>
+			)}
+
+			<div className="pb-8 pt-2">
+				<div className="overflow-hidden rounded-xl border border-slate-100">
+					{/* Column headers */}
+					<div className={`${GRID} ${COLS} border-b border-slate-100 bg-slate-50/80 py-2 text-xs font-semibold text-slate-500`}>
+						<div /> {/* avatar spacer */}
+						<p>Name</p>
+						<p className="hidden sm:block">Email</p>
+						<p className="hidden lg:block">Username</p>
+						<p className="hidden sm:block">Role</p>
+						<p className="hidden lg:block">Last Active</p>
+						<div className="min-w-[52px]" /> {/* actions spacer */}
+					</div>
+
+					{/* Body */}
+					{users === null ? (
+						Array.from({ length: 8 }).map((_, i) => <SkeletonRow key={i} />)
+					) : users.length === 0 ? (
+						<EmptyState />
 					) : (
-						users?.map((user, index) => (
-							<div
-								key={index}
-								className={`${GRID_COLS} h-[55px] hover:bg-slate-50`}
-							>
-								{/* Profile Image */}
-								<div className="flex items-center justify-center">
-									<div className="relative w-[38px] h-[38px] rounded-full overflow-hidden shadow-md border-2">
-										<Image
-											src={user.profile_image_url}
-											alt={`${user.name}'s profile image`}
-											fill
-											style={{ objectFit: "cover" }}
-										/>
-									</div>
-								</div>
-
-								{/* Name */}
-								<p className="truncate">{user.name}</p>
-
-								{/* Username */}
-								{user.username ? (
-									<a className="truncate text-blue-600 font-medium">
-										@{user.username}
-									</a>
-								) : (
-									<a className="truncate text-blue-950 font-medium cursor-pointer">
-										Claim
-									</a>
-								)}
-
-								{/* Email */}
-								<p className="truncate">{user.email}</p>
-
-								{/* Status */}
-								<p className="truncate">{user.authentication.name}</p>
-
-								{/* Last Active */}
-								{user.last_active ? (
-									<p className="truncate">
-										{dayjs(user.last_active).fromNow()}
-									</p>
-								) : (
-									<p className="truncate">No Activity</p>
-								)}
-
-								{/* Actions */}
-								<div className="flex items-center justify-start">
-									<button
-										className="px-4 text-sm py-1.5 bg-blue-600 hover:bg-blue-800 transition text-white rounded-md"
-										onClick={() => setSelectedUser(user)}
-									>
-										Inspect
-									</button>
-								</div>
-							</div>
+						users.map((user) => (
+							<UserRow
+								key={user.id}
+								user={user}
+								onEdit={() => setSelectedUser(user)}
+							/>
 						))
 					)}
 				</div>
+
+				{/* Load more */}
+				{users && users.length > 0 && users.length % 25 === 0 && (
+					<div className="flex justify-center pt-4">
+						<button
+							onClick={loadMore}
+							disabled={loadingMore}
+							className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+						>
+							{loadingMore ? "Loading…" : "Load more"}
+						</button>
+					</div>
+				)}
 			</div>
 		</>
 	);

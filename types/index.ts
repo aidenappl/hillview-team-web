@@ -45,6 +45,7 @@ type User = {
 	inserted_at: string;
 	last_active: string;
 	strategies: Strategies;
+	shown_changes_popup: boolean;
 };
 
 type UserInput = {
@@ -61,6 +62,7 @@ type UserChanges = Partial<{
 	name: string;
 	profile_image_url: string;
 	authentication: number;
+	shown_changes_popup: boolean;
 }>;
 
 type UserQueryParams = {
@@ -82,6 +84,13 @@ type GoogleAuthResponse = {
 // Video
 // =============================================================================
 
+interface VideoCreator {
+	id: number;
+	name: string;
+	email: string;
+	profile_image_url: string;
+}
+
 interface Video {
 	id: number;
 	uuid: string;
@@ -94,6 +103,7 @@ interface Video {
 	views: number;
 	downloads: number;
 	status: GeneralNSM;
+	creator?: VideoCreator;
 	inserted_at: string;
 }
 
@@ -119,6 +129,10 @@ type VideoQueryParams = {
 	search?: string;
 	limit: number;
 	offset: number;
+	sort_by?: "date" | "views" | "downloads";
+	sort?: "asc" | "desc";
+	status?: string; // comma-separated status IDs, e.g. "1,2,3"
+	user_id?: number;
 };
 
 // =============================================================================
@@ -296,6 +310,10 @@ type LinkChanges = Partial<{
 type LinkQueryParams = {
 	limit: number;
 	offset: number;
+	search?: string;
+	sort?: "asc" | "desc";
+	sort_by?: "date" | "clicks";
+	active?: boolean; // undefined = all, true = active only, false = archived only
 };
 
 // =============================================================================
@@ -333,8 +351,12 @@ type PlaylistChanges = Partial<{
 }>;
 
 type PlaylistQueryParams = {
+	search?: string;
 	limit: number;
 	offset: number;
+	sort_by?: "date";
+	sort?: "asc" | "desc";
+	status?: string; // comma-separated status IDs, e.g. "1,3"
 };
 
 // =============================================================================

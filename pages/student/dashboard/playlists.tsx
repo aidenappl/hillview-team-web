@@ -361,7 +361,7 @@ const PlaylistsPage = () => {
 				</TeamModal>
 			) : null}
 			{/* Team Heading */}
-			<TeamHeader title="System Playlists">
+			<TeamHeader title="Platform Playlists">
 				<button
 					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
 					onClick={() => {

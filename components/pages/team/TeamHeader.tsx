@@ -5,13 +5,13 @@ interface Props {
 	children?: React.ReactNode;
 }
 
-const TeamHeader = (props: Props) => {
+const TeamHeader = ({ title, children }: Props) => {
 	return (
-		<div className="w-full h-[100px] justify-between items-center hidden sm:flex">
-			<h2 className="font-semibold text-[15px] lg:text-[17px]">
-				{props.title}
-			</h2>
-			<div className="flex gap-3">{props.children}</div>
+		<div className="flex w-full flex-col gap-3 py-3 sm:h-[72px] sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:py-0">
+			<h2 className="font-semibold text-[15px] lg:text-[17px]">{title}</h2>
+			{children && (
+				<div className="flex shrink-0 flex-wrap gap-2">{children}</div>
+			)}
 		</div>
 	);
 };

@@ -25,43 +25,41 @@ const TeamModal = (props: Props) => {
 		<>
 			<div
 				className={
-					"w-full sm:w-[650px] h-full sm:h-fit px-2 sm:px-8 pt-8 bg-white border rounded-md absolute full-center flex flex-col z-20 "
+					"w-full sm:w-[650px] h-full sm:h-fit px-2 sm:px-8 pt-8 bg-white border rounded-xl absolute full-center flex flex-col z-20 "
 				}
 			>
 				<div className={"flex flex-col w-full h-fit " + props.className}>
 					{props.children}
 				</div>
 				<div className="mt-8 w-full h-[75px] flex justify-between items-center relative">
-					<div className="w-[calc(100%+64px)] h-[1px] bg-[#d4d8dc] absolute top-0 left-[-32px]" />
-					<div className="flex gap-1">
+					<div className="w-[calc(100%+64px)] h-[1px] bg-slate-100 absolute top-0 left-[-32px]" />
+					<div className="flex gap-2">
 						{showDestructive ? (
 							<button
-								className={
-									"w-[70px] h-[36px] flex items-center justify-center text-white font-medium rounded-md text-sm bg-red-600 hover:bg-red-700"
-								}
+								className="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
 								onClick={() => deleteHit()}
 							>
-								<span>{destructiveText}</span>
+								{destructiveText}
 							</button>
 						) : null}
 					</div>
-					<div className="flex gap-1 py-4 sm:py-0">
+					<div className="flex gap-2 py-4 sm:py-0">
 						<button
-							className="py-2 px-3.5 text-[#101827] hover:text-black font-semibold rounded-md text-sm"
+							className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100"
 							onClick={() => props.cancelHit()}
 						>
 							Cancel
 						</button>
 						<button
-							className={
-								"w-[60px] h-[36px] flex items-center justify-center text-white font-medium rounded-md text-sm " +
-								(props.saveActive
+							className={[
+								"flex items-center justify-center rounded-lg px-5 py-2 text-sm font-semibold text-white shadow-sm transition-all",
+								props.saveActive
 									? "bg-blue-600 hover:bg-blue-700"
-									: "bg-slate-600 hover:bg-slate-700")
-							}
+									: "cursor-not-allowed bg-slate-300",
+							].join(" ")}
 							onClick={() => props.saveHit()}
 						>
-							{loader ? <Spinner style="light" size={20} /> : <span>Save</span>}
+							{loader ? <Spinner style="light" size={16} /> : <span>Save</span>}
 						</button>
 					</div>
 				</div>

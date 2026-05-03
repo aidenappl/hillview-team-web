@@ -97,7 +97,7 @@ export function useVideoInspector({ onSaved }: Params) {
 			await inputChange({ download_url: url });
 			setDownloadButtonParams({ loading: false, text: "Done", disabled: true });
 		} else {
-			toast.error(response.error_message);
+			toast.error(response.error_message || "Failed to generate download URL");
 			setDownloadButtonParams({
 				loading: false,
 				text: "Failed",

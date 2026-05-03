@@ -7,6 +7,9 @@ export const reqGetUsers = (params: UserQueryParams) =>
 export const reqGetSelf = (token?: string) =>
     FetchAPI<User>({ url: "/auth/v1.1/self", method: "GET" }, { auth: true, authToken: token });
 
+export const reqUpdateSelf = (changes: UserChanges) =>
+    FetchAPI<User>({ url: "/auth/v1.1/self", method: "PUT", data: { changes } }, { auth: true });
+
 export const reqUpdateUser = (userId: number, changes: UserChanges) =>
     FetchAPI<User>({ url: `/core/v1.1/admin/user/${userId}`, method: "PUT", data: { changes } }, { auth: true });
 

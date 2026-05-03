@@ -236,7 +236,7 @@ const VideosPage = () => {
 				</TeamModal>
 			) : null}
 			{/* Team Heading */}
-			<TeamHeader title="System Videos">
+			<TeamHeader title="Platform Videos">
 				<button
 					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
 					onClick={() => {
@@ -297,8 +297,8 @@ const VideosPage = () => {
 													(video.status.short_name === "public"
 														? "text-white bg-green-500"
 														: video.status.short_name === "unlisted"
-														? "text-white bg-green-700"
-														: "text-white bg-slate-500")
+															? "text-white bg-green-700"
+															: "text-white bg-slate-500")
 												}
 											>
 												{video.status.name}

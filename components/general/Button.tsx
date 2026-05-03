@@ -1,27 +1,34 @@
 type ButtonProps = {
 	onClick?: (e: any) => void;
 	variant?: "primary" | "secondary";
-	size?: "xsmall" | "small" | "medium" | "large";
+	size?: "sm" | "md";
 	children?: React.ReactNode;
 	className?: string;
 	disabled?: boolean;
 };
 
 const Button = ({
-	onClick = (e) => {},
+	onClick = () => {},
 	children,
 	variant = "primary",
-	className,
+	size = "md",
+	className = "",
 	disabled = false,
 }: ButtonProps) => {
+	const sizeClasses =
+		size === "sm"
+			? "px-3 py-1.5 text-xs"
+			: "px-4 py-2 text-sm";
+
+	const variantClasses =
+		variant === "primary"
+			? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+			: "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50";
+
 	return (
 		<button
 			disabled={disabled}
-			className={`${className} px-3 py-1.5 text-sm text-white rounded-md ${
-				variant === "primary"
-					? "bg-blue-600 hover:bg-blue-800"
-					: "bg-slate-500 hover:bg-slate-700"
-			}`}
+			className={`inline-flex items-center rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${sizeClasses} ${variantClasses} ${className}`}
 			onClick={onClick}
 		>
 			{children}
