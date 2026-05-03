@@ -34,7 +34,7 @@ const CreatePlatformUserModal = (props: Props) => {
 
 	const runCreateUser = async () => {
 		if (saving) return;
-		let validator = ValidMobileUser(user);
+		const validator = ValidMobileUser(user);
 		if (validator.error) {
 			toast.error(validator.error!.message);
 			return;

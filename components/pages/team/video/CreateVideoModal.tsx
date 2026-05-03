@@ -65,7 +65,7 @@ const CreateVideoModal = (props: Props) => {
 				text: "Generating...",
 				disabled: false,
 			});
-			let id = video.url!.match(
+			const id = video.url!.match(
 				`cloudflarestream\.com\/([a-zA-Z0-9]+)\/manifest`
 			)?.[1];
 			if (id && id.length > 0) {
@@ -97,7 +97,7 @@ const CreateVideoModal = (props: Props) => {
 
 	const runCreateVideo = async () => {
 		if (saving) return;
-		let validator = ValidVideo(video);
+		const validator = ValidVideo(video);
 		if (validator.error) {
 			toast.error(validator.error!.message);
 			return;
@@ -121,7 +121,7 @@ const CreateVideoModal = (props: Props) => {
 	}, []);
 
 	useEffect(() => {
-		let validator = ValidVideo(video);
+		const validator = ValidVideo(video);
 		if (validator.error) {
 			setSaveActive(false);
 		} else {
@@ -285,7 +285,7 @@ const CreateVideoModal = (props: Props) => {
 							setShowImageLoader(true);
 
 							// upload image
-							let result = await UploadImage({
+							const result = await UploadImage({
 								image: file,
 								route: "thumbnails/",
 								id: 100,

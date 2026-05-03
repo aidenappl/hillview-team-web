@@ -110,11 +110,11 @@ const VideoInspectionModal = ({
 				}}
 				onSelectFrame={(timestamp: number) => {
 					setShowThumbnailSelector(false);
-					let baseURL = selectedVideo.download_url.replaceAll(
+					const baseURL = selectedVideo.download_url.replaceAll(
 						"/downloads/default.mp4",
 						""
 					);
-					let newURL =
+					const newURL =
 						baseURL +
 						"/thumbnails/thumbnail.jpg?time=" +
 						timestamp +
@@ -160,7 +160,7 @@ const VideoInspectionModal = ({
 						// check max size 1mb
 						if (file.size > 1000000) {
 							// alert and ask if they want to compress
-							let response = window.confirm(
+							const response = window.confirm(
 								"Image is larger than 1MB. Would you like to compress it?"
 							);
 							if (response) {
@@ -175,7 +175,7 @@ const VideoInspectionModal = ({
 								const compressedFile = await imageCompression(file, options);
 
 								// upload image
-								let result = await UploadImage({
+								const result = await UploadImage({
 									image: compressedFile,
 									route: "thumbnails/",
 									id: selectedVideo.id,
@@ -206,7 +206,7 @@ const VideoInspectionModal = ({
 							setShowImageLoader(true);
 
 							// upload image
-							let result = await UploadImage({
+							const result = await UploadImage({
 								image: file,
 								route: "thumbnails/",
 								id: selectedVideo.id,

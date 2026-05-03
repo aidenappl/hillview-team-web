@@ -71,7 +71,7 @@ const LoginPage = () => {
 			});
 
 			if (response.success) {
-				let data = response.data;
+				const data = response.data;
 				const initializerResp = await InitializeSession({
 					accessToken: data.access_token,
 					refreshToken: data.refresh_token,
@@ -110,7 +110,7 @@ const LoginPage = () => {
 			});
 
 			if (response.success) {
-				let data = response.data;
+				const data = response.data;
 				const initializerResp = await InitializeSession({
 					accessToken: data.accessToken,
 					refreshToken: data.refreshToken,

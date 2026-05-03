@@ -63,7 +63,7 @@ const UsersPageTeamUsers = () => {
 		if (changes ? Object.keys(changes).length === 0 : true) {
 			setSelectedUser(null);
 		} else {
-			let validator = ValidUser(changes, true);
+			const validator = ValidUser(changes, true);
 			if (validator.error) {
 				toast.error(validator.error!.message);
 				return;

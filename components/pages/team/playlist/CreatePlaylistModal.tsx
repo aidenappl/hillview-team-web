@@ -43,8 +43,8 @@ const CreatePlaylistModal = (props: Props) => {
 
 	const runCreatePlaylist = async () => {
 		if (saving) return;
-		let parsedPlaylist = ParsePlaylist({ ...playlist });
-		let validator = ValidPlaylist(parsedPlaylist);
+		const parsedPlaylist = ParsePlaylist({ ...playlist });
+		const validator = ValidPlaylist(parsedPlaylist);
 		if (validator.error) {
 			toast.error(validator.error!.message);
 			return;
@@ -76,8 +76,8 @@ const CreatePlaylistModal = (props: Props) => {
 	}, []);
 
 	useEffect(() => {
-		let parsedPlaylist = ParsePlaylist({ ...playlist });
-		let validator = ValidPlaylist(parsedPlaylist);
+		const parsedPlaylist = ParsePlaylist({ ...playlist });
+		const validator = ValidPlaylist(parsedPlaylist);
 		if (validator.error) {
 			setSaveActive(false);
 		} else {
@@ -167,9 +167,9 @@ const CreatePlaylistModal = (props: Props) => {
 					showImageLoader={showImageLoader}
 					onChange={async (e: any) => {
 						if (e.target.files && e.target.files[0]) {
-							let files = e.target.files;
+							const files = e.target.files;
 							setShowImageLoader(true);
-							let result = await UploadImage({
+							const result = await UploadImage({
 								image: files[0],
 								route: "thumbnails/",
 								id: 0,
@@ -195,7 +195,7 @@ const CreatePlaylistModal = (props: Props) => {
 				value={""}
 				dropdownClick={(item) => {
 					if (playlist.videos) {
-						let videos = playlist.videos;
+						const videos = playlist.videos;
 						videos.push(item as any);
 						setPlaylist({
 							...playlist,
@@ -217,7 +217,7 @@ const CreatePlaylistModal = (props: Props) => {
 						offset: 0,
 					});
 					if (response.success) {
-						let data = response.data;
+						const data = response.data;
 						setSearchResults(data);
 					} else {
 						setSearchResults(null);
@@ -234,7 +234,7 @@ const CreatePlaylistModal = (props: Props) => {
 				title={"Playlist Videos"}
 				list={GenerateGeneralNSM(playlist.videos ?? [])}
 				destructiveClick={(item) => {
-					let index = playlist.videos!.map((e: any) => e.id).indexOf(item.id);
+					const index = playlist.videos!.map((e: any) => e.id).indexOf(item.id);
 					if (index > -1) {
 						playlist.videos!.splice(index, 1);
 						setPlaylist({

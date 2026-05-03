@@ -29,7 +29,7 @@ const CheckoutsPage = () => {
 			offset: 0,
 		});
 		if (response.success) {
-			let data = response.data;
+			const data = response.data;
 			setCheckouts(data);
 		}
 	};

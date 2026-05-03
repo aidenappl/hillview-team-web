@@ -64,20 +64,20 @@ const VideosPage = () => {
 			offset: 0,
 		});
 		if (response.success) {
-			let data = response.data;
+			const data = response.data;
 			setVideos(data);
 		}
 	};
 
 	const loadMore = async () => {
-		let newOffset = offset + 20;
+		const newOffset = offset + 20;
 		setOffset(newOffset);
 		const response = await reqGetVideos({
 			limit: 20,
 			offset: newOffset,
 		});
 		if (response.success) {
-			let data = response.data;
+			const data = response.data;
 			setVideos([...videos!, ...data]);
 		}
 	};
@@ -214,7 +214,7 @@ const VideosPage = () => {
 								setShowImageLoader(true);
 
 								// upload image
-								let result = await UploadImage({
+								const result = await UploadImage({
 									image: file,
 									route: "thumbnails/",
 									id: selectedVideo.id,

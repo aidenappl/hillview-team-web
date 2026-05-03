@@ -109,7 +109,7 @@ const UploadComponent = (props: PageProps) => {
 		if (!isAvailable) return;
 
 		// Now start regular polling
-		let poller = setInterval(async () => {
+		const poller = setInterval(async () => {
 			const response = await reqGetCloudflareStatus(videoID);
 			if (!response) {
 				clearInterval(poller);
@@ -121,10 +121,10 @@ const UploadComponent = (props: PageProps) => {
 				return;
 			}
 			setUppyState("status-rolling");
-			let data = response.data;
+			const data = response.data;
 			setStatusBody(data);
 			if (data.success) {
-				let status = data.result.status;
+				const status = data.result.status;
 				if (
 					status.state === "ready" &&
 					status.pctComplete &&
@@ -167,7 +167,7 @@ const UploadComponent = (props: PageProps) => {
 		});
 
 		uppyInstance.on("upload-progress", (file, progress) => {
-			let precProgress = Math.round(
+			const precProgress = Math.round(
 				((progress.bytesUploaded ?? 0) / (progress.bytesTotal ?? 1)) * 100
 			);
 			if (precProgress === 100) {

@@ -205,9 +205,9 @@ const AssetsPage = () => {
 						showImageLoader={showImageLoader}
 						onChange={async (e: any) => {
 							if (e.target.files && e.target.files[0]) {
-								let files = e.target.files;
+								const files = e.target.files;
 								setShowImageLoader(true);
-								let result = await UploadImage({
+								const result = await UploadImage({
 									image: files[0],
 									route: "images/assets/",
 									id: selectedAsset.id,

@@ -38,7 +38,7 @@ const CreateAssetModal = (props: Props) => {
 
 	const runCreateAsset = async () => {
 		if (saving) return;
-		let validator = ValidAsset(asset);
+		const validator = ValidAsset(asset);
 		if (validator.error) {
 			toast.error(validator.error!.message);
 			return;
@@ -61,7 +61,7 @@ const CreateAssetModal = (props: Props) => {
 	}, []);
 
 	useEffect(() => {
-		let validator = ValidAsset(asset);
+		const validator = ValidAsset(asset);
 		if (validator.error) {
 			setSaveActive(false);
 		} else {

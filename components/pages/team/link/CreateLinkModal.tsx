@@ -37,7 +37,7 @@ const CreateLinkModal = (props: Props) => {
 
 	const runCreateLink = async () => {
 		if (saving) return;
-		let validator = ValidLink(link);
+		const validator = ValidLink(link);
 		if (validator.error) {
 			toast.error(validator.error!.message);
 			return;
@@ -58,7 +58,7 @@ const CreateLinkModal = (props: Props) => {
 	}, []);
 
 	useEffect(() => {
-		let validator = ValidLink(link);
+		const validator = ValidLink(link);
 		if (validator.error) {
 			setSaveActive(false);
 		} else {

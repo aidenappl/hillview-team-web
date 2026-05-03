@@ -59,7 +59,7 @@ const PlaylistsPage = () => {
 			offset: 0,
 		});
 		if (response.success) {
-			let data = response.data;
+			const data = response.data;
 			setPlaylists(data);
 		}
 	};
@@ -232,9 +232,9 @@ const PlaylistsPage = () => {
 								showImageLoader={showImageLoader}
 								onChange={async (e: any) => {
 									if (e.target.files && e.target.files[0]) {
-										let files = e.target.files;
+										const files = e.target.files;
 										setShowImageLoader(true);
-										let result = await UploadImage({
+										const result = await UploadImage({
 											image: files[0],
 											route: "thumbnails/",
 											id: selectedPlaylist.id,
@@ -296,7 +296,7 @@ const PlaylistsPage = () => {
 										offset: 0,
 									});
 									if (response.success) {
-										let data = response.data;
+										const data = response.data;
 										setSearchResults(data);
 									} else {
 										setSearchResults(null);
@@ -317,7 +317,7 @@ const PlaylistsPage = () => {
 										// add to remove_videos
 										if ((changes?.add_videos?.indexOf(item.id) ?? -1) > -1) {
 											// remove from add_videos
-											let arrChanges = changes?.add_videos ?? [];
+											const arrChanges = changes?.add_videos ?? [];
 											if (arrChanges.length === 1) {
 												deleteChange("add_videos");
 											} else {
