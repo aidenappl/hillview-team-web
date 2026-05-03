@@ -12,102 +12,81 @@ import { User } from "../types";
 
 var sessionActive = false;
 var sessionAccessToken: string | null = null;
-var hasLoadedSession = false;
 
-// Launch session from cookies
+// Launch session from stored cookies.
+// Checks the access token, refreshes it if expired, then fetches the current user.
+// Returns null only if there are no tokens at all (unauthenticated state).
 type LoadSessionRequest = {
 	dispatch: any;
 };
+
 const LoadSessionFromStore = async (
 	req: LoadSessionRequest
 ): Promise<GeneralResponse | null> => {
 	try {
-		if (hasLoadedSession) {
-			return null;
-		}
-		hasLoadedSession = true;
+		const access = RetrieveToken("access");
+		const refresh = RetrieveToken("refresh");
 
-		const access = await RetrieveToken("access");
-		const refresh = await RetrieveToken("refresh");
-
-		if (access && refresh) {
-			const token: any = await ParseToken(String(access));
-			if (token && typeof token !== undefined) {
-				let tokenExpiresIn = token.exp - Math.floor(Date.now() / 1000);
-				if (tokenExpiresIn < 0) {
-					// Need new AT
-					const tokenResp = await RefreshSession();
-					if (tokenResp.success) {
-						sessionActive = true;
-						sessionAccessToken = tokenResp.data!.access_token;
-						const user = await GetTeamUser({});
-						if (user == null) {
-							return {
-								status: 400,
-								message: "Failed to retrieve user",
-								data: null,
-								success: false,
-							};
-						}
-						await UpdateStoreUser(user!, req.dispatch);
-						return {
-							status: 200,
-							message: "Successfully launched session",
-							data: user,
-							success: true,
-						};
-					} else {
-						return {
-							status: 400,
-							message: "Failed to retrieve new session",
-							data: null,
-							success: false,
-						};
-					}
-				} else {
-					// Use existing AT
-					sessionActive = true;
-					sessionAccessToken = access;
-					const user = await GetTeamUser({});
-					if (user == null) {
-						return {
-							status: 400,
-							message: "Failed to retrieve user",
-							data: null,
-							success: false,
-						};
-					}
-					await UpdateStoreUser(user!, req.dispatch);
-					return {
-						status: 200,
-						message: "Successfully launched session",
-						data: user,
-						success: true,
-					};
-				}
-			} else {
-				return {
-					status: 400,
-					message: "Failed to parse access token",
-					data: null,
-					success: false,
-				};
-			}
-		} else {
+		if (!access || !refresh) {
 			return {
 				status: 401,
-				message: "Failed to launch session, missing tokens",
+				message: "No session tokens found",
 				data: null,
 				success: false,
 			};
 		}
-	} catch (error: any) {
-		hasLoadedSession = false;
-		KillSession({
-			dispatch: req.dispatch,
-		});
+
+		const token: any = await ParseToken(String(access));
+		if (!token) {
+			return {
+				status: 400,
+				message: "Failed to parse access token",
+				data: null,
+				success: false,
+			};
+		}
+
+		const tokenExpiresIn = token.exp - Math.floor(Date.now() / 1000);
+		if (tokenExpiresIn < 0) {
+			// Access token expired — use the refresh token to get a new one
+			const tokenResp = await RefreshSession();
+			if (!tokenResp.success) {
+				return {
+					status: 401,
+					message: "Failed to refresh session",
+					data: null,
+					success: false,
+				};
+			}
+			sessionActive = true;
+			sessionAccessToken = tokenResp.data!.access_token;
+		} else {
+			// Access token still valid
+			sessionActive = true;
+			sessionAccessToken = access;
+		}
+
+		const user = await GetTeamUser({});
+		if (!user) {
+			return {
+				status: 400,
+				message: "Failed to retrieve user",
+				data: null,
+				success: false,
+			};
+		}
+
+		await UpdateStoreUser(user, req.dispatch);
 		return {
-			status: error.code,
+			status: 200,
+			message: "Successfully launched session",
+			data: user,
+			success: true,
+		};
+	} catch (error: any) {
+		await KillSession({ dispatch: req.dispatch });
+		return {
+			status: error.code ?? 500,
 			message: "Failed to launch session: " + error.message,
 			data: error,
 			success: false,
@@ -115,13 +94,14 @@ const LoadSessionFromStore = async (
 	}
 };
 
-// Start Session
+// Start a new session after login
 type RequestInitializeSession = {
 	accessToken: string;
 	refreshToken: string;
 	user: User;
 	dispatch: any;
 };
+
 const InitializeSession = async (
 	req: RequestInitializeSession
 ): Promise<GeneralResponse> => {
@@ -138,10 +118,7 @@ const InitializeSession = async (
 			success: true,
 		};
 	} catch (error: any) {
-		// Kill session and roll back changes if it fails to initialize
-		await KillSession({
-			dispatch: req.dispatch,
-		});
+		await KillSession({ dispatch: req.dispatch });
 		return {
 			status: error.code,
 			message: "Failed to initialize session: " + error.message,
@@ -151,12 +128,13 @@ const InitializeSession = async (
 	}
 };
 
-// End Session
+// Clear session state and cookies
 type RequestEndSession = {
 	dispatch: any;
 	router?: any;
 	navigate?: boolean;
 };
+
 const KillSession = async (
 	req: RequestEndSession
 ): Promise<GeneralResponse> => {
@@ -186,89 +164,61 @@ const KillSession = async (
 };
 
 type TokenResponse = {
-	access_token: string
-}
+	access_token: string;
+};
 
-// Refresh Session
+// Exchange the stored refresh token for a new access token
 const RefreshSession = async (): Promise<GeneralResponse> => {
-	const refresh = await RetrieveToken("refresh");
-	if (refresh) {
-		const tokenRequest = await FetchAPI<TokenResponse>({
-			method: "POST",
-			url: "/auth/v1.1/token",
-			data: {
-				refreshToken: refresh,
-			},
-		});
-		if (tokenRequest.success) {
-			const tokenResponse = tokenRequest.data;
-			if (tokenResponse) {
-				await StoreToken(
-					"access",
-					tokenResponse.access_token,
-					AccessTokenExpiration
-				);
-				sessionActive = true;
-				sessionAccessToken = tokenResponse.access_token;
-				return {
-					status: 200,
-					message: "Successfully refreshed session",
-					data: tokenResponse,
-					success: true,
-				};
-			} else {
-				// Failed to refresh, kill session
-				await RemoveToken("access");
-				await RemoveToken("refresh");
-				sessionActive = false;
-				sessionAccessToken = null;
-				return {
-					status: 401,
-					message: "Failed to refresh session, missing token",
-					data: null,
-					success: false,
-				};
-			}
-		} else {
-			// Failed to refresh, kill session
-			await RemoveToken("access");
-			await RemoveToken("refresh");
-			sessionActive = false;
-			sessionAccessToken = null;
-			return {
-				status: 401,
-				message: "Failed to refresh session, missing refresh token",
-				data: null,
-				success: false,
-			};
-		}
-	} else {
-		// No refresh token, kill session
+	const refresh = RetrieveToken("refresh");
+	if (!refresh) {
 		await RemoveToken("access");
-		await RemoveToken("refresh");
 		sessionActive = false;
 		sessionAccessToken = null;
 		return {
 			status: 401,
-			message: "Failed to refresh session, missing refresh token",
+			message: "No refresh token found",
 			data: null,
 			success: false,
 		};
 	}
-};
 
-// Check session state
-const SessionInService = async (): Promise<boolean> => {
-	const access = await RetrieveToken("access");
-	const refresh = await RetrieveToken("refresh");
-	if (access && refresh) {
-		return sessionActive;
-	} else {
-		return false;
+	const tokenRequest = await FetchAPI<TokenResponse>({
+		method: "POST",
+		url: "/auth/v1.1/token",
+		data: { refreshToken: refresh },
+	});
+
+	if (tokenRequest.success && tokenRequest.data?.access_token) {
+		await StoreToken("access", tokenRequest.data.access_token, AccessTokenExpiration);
+		sessionActive = true;
+		sessionAccessToken = tokenRequest.data.access_token;
+		return {
+			status: 200,
+			message: "Successfully refreshed session",
+			data: tokenRequest.data,
+			success: true,
+		};
 	}
+
+	// Refresh failed — clear both tokens
+	await RemoveToken("access");
+	await RemoveToken("refresh");
+	sessionActive = false;
+	sessionAccessToken = null;
+	return {
+		status: 401,
+		message: "Failed to refresh session",
+		data: null,
+		success: false,
+	};
 };
 
-// Get session access token
+// Returns true if there is an active in-memory session
+const SessionInService = (): boolean => {
+	return sessionActive && RetrieveToken("access") !== null;
+};
+
+// Returns the current access token (reads from cookie as source of truth)
 const GetSessionAccessToken = (): string | null => {
 	return RetrieveToken("access");
 };

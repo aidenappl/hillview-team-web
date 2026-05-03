@@ -3,170 +3,102 @@ import type { AppProps } from "next/app";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector, Provider } from "react-redux";
-import {
-	LoadSessionFromStore,
-	SessionInService,
-} from "../services/sessionHandler";
-import { makeStore, AppStore } from "../redux/store";
+import { useMemo, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { Toaster } from "react-hot-toast";
 import { useRouter } from "next/router";
 import { GetAccountLander } from "../services/accountLander";
-import { selectUser } from "../redux/user/slice";
+import { selectUser, selectLoggedIn } from "../redux/user/slice";
 import PageHead from "../components/PageHead";
 import ErrorBoundary from "../components/general/ErrorBoundary";
+import StoreProvider from "../components/StoreProvider";
 import { User } from "../types";
 config.autoAddCss = false;
 
-interface RouteGuardParams {
-	children: any;
-	componentProps: any;
-}
-
-interface GlobalAuthProps {
-	user: User | null;
+interface PageProps {
 	protected?: boolean;
 	allowAuthenticatedUsers?: boolean;
 	requireAccountStatus?: string;
-	requireAccountGrant?: string;
+	title?: string;
+	[key: string]: any;
 }
 
-const AuthCheck = async (opts: GlobalAuthProps) => {
-	let session = await SessionInService();
-	let { user } = opts;
-	if (opts.protected) {
-		// is there a session?
-		if (session && user) {
-			// Continue - Check if required account status & grants are met
-			if (
-				opts.requireAccountStatus &&
-				opts.requireAccountStatus !== user.authentication.short_name
-			) {
-				return false;
-			}
-			if (
-				opts.requireAccountGrant &&
-				opts.requireAccountGrant !== user.authentication.short_name
-			) {
-				return false;
-			}
+interface GlobalAuthProps {
+	children: any;
+	pageProps: PageProps;
+}
+
+// GlobalAuth checks authorization synchronously from Redux state.
+// StoreProvider guarantees auth has been resolved before this ever renders,
+// so loggedIn/user are already correct on first render — no async needed.
+const GlobalAuth = ({ children, pageProps }: GlobalAuthProps) => {
+	const user = useSelector(selectUser);
+	const loggedIn = useSelector(selectLoggedIn);
+	const router = useRouter();
+
+	const isProtected = pageProps.protected !== false; // default: true
+	const allowAuthUsers = pageProps.allowAuthenticatedUsers !== false; // default: true
+	const requireStatus = pageProps.requireAccountStatus ?? null;
+
+	const isAuthorized = useMemo<boolean>(() => {
+		if (!isProtected) {
+			// Unprotected page (e.g. login, status pages)
+			// Redirect logged-in users away only if the page explicitly disallows them
+			if (loggedIn && !allowAuthUsers) return false;
 			return true;
-		} else {
-			// Redirect to login
-			return false;
 		}
-	} else {
-		if (session && !opts.allowAuthenticatedUsers) {
-			// Page is not protected but does not allow authenticated users
+		// Protected page — must be logged in
+		if (!loggedIn || !user) return false;
+		// Optional: restrict to a specific account status
+		if (requireStatus && requireStatus !== user.authentication.short_name) {
 			return false;
 		}
 		return true;
-	}
-};
-
-const GlobalAuth = (props: RouteGuardParams) => {
-	const { children, componentProps } = props;
-	const [authorized, setAuthorized] = useState(false);
-
-	const user = useSelector(selectUser);
-	const router = useRouter();
-
-	let opts: GlobalAuthProps = {
-		allowAuthenticatedUsers:
-			typeof componentProps.allowAuthenticatedUsers !== "undefined"
-				? componentProps.allowAuthenticatedUsers
-				: true,
-		protected:
-			typeof componentProps.protected !== "undefined"
-				? componentProps.protected
-				: true,
-		requireAccountStatus: componentProps.requireAccountStatus || null,
-		requireAccountGrant: componentProps.requireAccountGrant || null,
-		user: user,
-	};
+	}, [loggedIn, user, isProtected, allowAuthUsers, requireStatus]);
 
 	useEffect(() => {
-		AuthCheck(opts).then((result) => {
-			setAuthorized(result);
-			if (result === false) {
-				let query = {} as any;
-				let lander = GetAccountLander(user);
-				if (lander === "/") {
-					query.redirect = router.asPath;
-				}
-				router.replace({
-					pathname: lander,
-					query: query,
-				});
+		if (!isAuthorized) {
+			const lander = GetAccountLander(user);
+			const query: Record<string, string> = {};
+			if (lander === "/") {
+				query.redirect = router.asPath;
 			}
-		});
+			router.replace({ pathname: lander, query });
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [router, user]);
+	}, [isAuthorized]);
 
-	return authorized && children;
+	if (!isAuthorized) return null;
+	return children;
 };
 
 const AppContent = ({ Component, pageProps }: AppProps) => {
-	const [loading, setLoading] = useState(true);
-	const [hasInitialized, setInitialization] = useState(false);
-	const dispatch = useDispatch();
-
-	useEffect(() => {
-		init(dispatch);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dispatch]);
-
-	const init = async (dispatch: any) => {
-		try {
-			if (hasInitialized) return true;
-			const response = await LoadSessionFromStore({ dispatch });
-			if (response) {
-				setLoading(false);
-				setInitialization(true);
-			}
-			return true;
-		} catch (error) {
-			throw error;
-		}
-	};
-
 	return (
-		<>
-			<GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
-				<PageHead title={pageProps.title} />
-				<Toaster
-					position="bottom-left"
-					toastOptions={{
-						className: "",
-						style: {
-							maxWidth: "40%",
-							width: "fit-content",
-						},
-					}}
-				/>
-				{!loading ? (
-					<GlobalAuth componentProps={pageProps}>
-						<ErrorBoundary>
-							<Component {...pageProps} />
-						</ErrorBoundary>
-					</GlobalAuth>
-				) : null}
-			</GoogleOAuthProvider>
-		</>
+		<GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
+			<PageHead title={pageProps.title} />
+			<Toaster
+				position="bottom-left"
+				toastOptions={{
+					style: {
+						maxWidth: "40%",
+						width: "fit-content",
+					},
+				}}
+			/>
+			<GlobalAuth pageProps={pageProps}>
+				<ErrorBoundary>
+					<Component {...pageProps} />
+				</ErrorBoundary>
+			</GlobalAuth>
+		</GoogleOAuthProvider>
 	);
 };
 
 const App = (props: AppProps) => {
-	const storeRef = useRef<AppStore | null>(null);
-	if (!storeRef.current) {
-		storeRef.current = makeStore();
-	}
-
 	return (
-		<Provider store={storeRef.current}>
+		<StoreProvider>
 			<AppContent {...props} />
-		</Provider>
+		</StoreProvider>
 	);
 };
 

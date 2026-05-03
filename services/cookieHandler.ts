@@ -1,11 +1,17 @@
-import {
-	getCookie,
-	setCookie,
-	deleteCookie,
-} from "cookies-next";
+import { getCookie, setCookie, deleteCookie } from "cookies-next";
 
 import { TokenTypes } from "./tokenHandler";
 import { GeneralResponse } from "../models/generalResponse.model";
+
+// Use strict cookie security only in production (HTTPS).
+// In development (HTTP localhost), secure:true + sameSite:"none" prevents cookies from being set.
+const isProduction = process.env.NODE_ENV === "production";
+
+const cookieOptions = {
+	secure: isProduction,
+	sameSite: (isProduction ? "none" : "lax") as "none" | "lax",
+	path: "/",
+};
 
 // Storing token in cookies
 const StoreToken = async (
@@ -14,11 +20,7 @@ const StoreToken = async (
 	maxAge: number
 ): Promise<GeneralResponse> => {
 	try {
-		await setCookie(type, token, {
-			maxAge,
-			secure: true,
-			sameSite: "none",
-		});
+		setCookie(type, token, { ...cookieOptions, maxAge });
 		return {
 			status: 200,
 			message: "Successfully stored token",
@@ -38,9 +40,9 @@ const StoreToken = async (
 // Retrieving token from cookies
 const RetrieveToken = (type: TokenTypes): string | null => {
 	try {
-		const token = getCookie(type, { secure: true, sameSite: "none" });
-		return token as string | null;
-	} catch (error: any) {
+		const token = getCookie(type);
+		return (token as string) ?? null;
+	} catch {
 		return null;
 	}
 };
@@ -48,7 +50,7 @@ const RetrieveToken = (type: TokenTypes): string | null => {
 // Removing token from cookies
 const RemoveToken = async (type: TokenTypes): Promise<GeneralResponse> => {
 	try {
-		deleteCookie(type, { secure: true, sameSite: "none" });
+		deleteCookie(type, cookieOptions);
 		return {
 			status: 200,
 			message: "Successfully removed token",
