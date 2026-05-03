@@ -1,4 +1,4 @@
-import { IconProp, SizeProp } from "@fortawesome/fontawesome-svg-core";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import {
 	faArrowRightToBracket,
 	faBoxArchive,
@@ -9,9 +9,10 @@ import {
 	faUserGroup,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Image from "next/image";
 import Link from "next/link";
 import { NextRouter } from "next/router";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { selectUser } from "../../../redux/user/slice";
 import { User } from "../../../types";
 
@@ -19,149 +20,162 @@ interface Props {
 	router: NextRouter;
 }
 
-const TeamNavbar = (props: Props) => {
-	const dispatch = useDispatch();
+const TeamNavbar = ({ router }: Props) => {
 	const user: User | null = useSelector(selectUser);
-	const Option = (props: {
-		icon: IconProp;
-		text: string;
-		selected: boolean;
-		href: string;
-		iconClassName?: string;
-		iconSize?: SizeProp;
-	}) => {
-		const { iconSize = "lg" } = props;
-		return (
-			<Link href={props.href}>
-				<div className="flex items-center justify-between md:justify-normal w-full h-[50px] lg:h-[55px] relative hover:bg-[#f7f9ff] md:pl-[15px] md:left-[-15px] rounded-2xl cursor-pointer group">
-					<div
-						className={
-							"flex items-center justify-center w-full md:w-fit " +
-							props.iconClassName
-						}
-					>
-						<FontAwesomeIcon
-							icon={props.icon}
-							fixedWidth
-							className={props.selected ? "text-[#3067f6]" : "text-[#6b76ab]"}
-							size={iconSize}
-						/>
-					</div>
-					<p
-						className={
-							"hidden md:block font-medium pl-2 lg:pl-4 text-sm lg:text-base " +
-							(props.selected ? "text-[#3067f6]" : "text-[#6b76ab]")
-						}
-					>
-						{props.text}
-					</p>
-					<div
-						className={
-							"h-full bg-blue-600 rounded-s-md transition-all right-[-45px] absolute top-0 hidden md:block " +
-							(props.selected ? "w-[9px]" : "w-0")
-						}
-					/>
-				</div>
-			</Link>
-		);
-	};
+	const pathname = router.pathname;
 
-	let pathname = props.router.pathname;
+	const NavItem = ({
+		icon,
+		label,
+		href,
+		active,
+	}: {
+		icon: IconProp;
+		label: string;
+		href: string;
+		active: boolean;
+	}) => (
+		<Link href={href}>
+			<div
+				className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors duration-150 cursor-pointer group ${
+					active
+						? "bg-blue-50 text-blue-600"
+						: "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+				}`}
+			>
+				<FontAwesomeIcon icon={icon} fixedWidth className="w-[15px] h-[15px] flex-shrink-0" />
+				<span className="hidden md:block font-medium text-sm leading-none">
+					{label}
+				</span>
+				{/* Tooltip — visible only when sidebar is collapsed (< md) */}
+				<span className="md:hidden absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap bg-slate-800 text-white pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50">
+					{label}
+				</span>
+			</div>
+		</Link>
+	);
+
+	const SectionLabel = ({ label }: { label: string }) => (
+		<p className="hidden md:block text-[10px] font-semibold text-slate-400 uppercase tracking-widest px-3 mb-1.5">
+			{label}
+		</p>
+	);
 
 	return (
-		<div className="w-[50px] md:w-[200px] text-sm lg:text-base lg:w-[290px] xl:w-[325px] 2xl:w-[350px] h-full p-[5px] md:p-[30px] lg:p-[40px] relative flex flex-col gap-8 md:gap-12 pt-10">
+		<aside className="w-[60px] md:w-[220px] h-full flex-shrink-0 flex flex-col border-r border-slate-100 py-5 px-2 md:px-3">
 			{/* Logo */}
-			<div className="w-[40px] h-[40px] md:w-[60px] md:h-[60px] bg-blue-600 rounded-xl bg-[length:28px] md:bg-[length:40px] bg-center bg-no-repeat bg-[url('/logos/hillviewTVSun.png')]" />
-			{/* Navigation */}
-			<div className="flex flex-col md:gap-8">
-				<div>
-					<h4 className="text-[#9fa9d3] tracking-tight text-sm lg:text-base pb-3 hidden md:block">
-						SYSTEM
-					</h4>
-					{user && user.authentication.short_name === "admin" ? (
-						<div className="flex flex-col gap-0.5">
-							<Option
-								icon={faTag}
-								text="Assets"
-								iconClassName="scale-110"
-								selected={pathname === "/team/dashboard/assets"}
-								href="/team/dashboard/assets"
-							/>
-							<Option
-								icon={faSquareCheck}
-								text="Checkouts"
-								selected={pathname === "/team/dashboard/checkouts"}
-								href="/team/dashboard/checkouts"
-							/>
-							<Option
-								icon={faFilm}
-								text="Videos"
-								selected={pathname === "/team/dashboard/videos"}
-								href="/team/dashboard/videos"
-							/>
-							<Option
-								icon={faBoxArchive}
-								text="Playlists"
-								selected={pathname === "/team/dashboard/playlists"}
-								href="/team/dashboard/playlists"
-							/>
-						</div>
-					) : null}
-					{user && user.authentication.short_name === "student" ? (
-						<div className="flex flex-col gap-0.5">
-							<Option
-								icon={faFilm}
-								text="Videos"
-								selected={pathname === "/student/dashboard/videos"}
-								href="/student/dashboard/videos"
-							/>
-							<Option
-								icon={faBoxArchive}
-								text="Playlists"
-								selected={pathname === "/student/dashboard/playlists"}
-								href="/student/dashboard/playlists"
-							/>
-						</div>
-					) : null}
-				</div>
-				{user && user.authentication.short_name === "admin" ? (
-					<div>
-						<h4 className="text-[#9fa9d3] tracking-tight text-sm lg:text-base pb-3 hidden md:block">
-							CUSTOMIZATION
-						</h4>
-						<div className="flex flex-col gap-0.5">
-							<Option
-								icon={faLink}
-								text="Links"
-								iconClassName="scale-95"
-								selected={pathname === "/team/dashboard/links"}
-								href="/team/dashboard/links"
-							/>
-							<Option
-								icon={faUserGroup}
-								text="Users"
-								selected={pathname === "/team/dashboard/users"}
-								iconClassName="scale-90"
-								href="/team/dashboard/users"
-							/>
-						</div>
-					</div>
-				) : null}
-			</div>
-			<div className="absolute bottom-[40px] left-0 md:left-auto md:w-[calc(100%-80px)] w-full">
-				<div className="flex flex-col gap-0.5">
-					<Option
-						icon={faArrowRightToBracket}
-						text="Logout"
-						iconClassName="scale-95"
-						selected={false}
-						href="/logout"
+			<div className="flex items-center gap-3 px-2 mb-7">
+				<div className="w-8 h-8 rounded-xl bg-blue-600 flex-shrink-0 flex items-center justify-center overflow-hidden">
+					<Image
+						src="/logos/hillviewTVSun.png"
+						alt="Hillview TV"
+						width={22}
+						height={22}
+						className="object-contain"
 					/>
 				</div>
+				<span className="hidden md:block font-semibold text-sm text-slate-800 tracking-tight">
+					Hillview TV
+				</span>
 			</div>
-			{/* Vl Breaker */}
-			<div className="w-[1px] h-screen absolute top-0 right-0 bg-[#ebf0f6]" />
-		</div>
+
+			{/* Navigation */}
+			<nav className="flex-1 flex flex-col gap-5 overflow-y-auto">
+				<div className="flex flex-col gap-0.5">
+					<SectionLabel label="System" />
+					{user?.authentication.short_name === "admin" && (
+						<>
+							<NavItem
+								icon={faTag}
+								label="Assets"
+								href="/team/dashboard/assets"
+								active={pathname === "/team/dashboard/assets"}
+							/>
+							<NavItem
+								icon={faSquareCheck}
+								label="Checkouts"
+								href="/team/dashboard/checkouts"
+								active={pathname === "/team/dashboard/checkouts"}
+							/>
+							<NavItem
+								icon={faFilm}
+								label="Videos"
+								href="/team/dashboard/videos"
+								active={pathname === "/team/dashboard/videos"}
+							/>
+							<NavItem
+								icon={faBoxArchive}
+								label="Playlists"
+								href="/team/dashboard/playlists"
+								active={pathname === "/team/dashboard/playlists"}
+							/>
+						</>
+					)}
+					{user?.authentication.short_name === "student" && (
+						<>
+							<NavItem
+								icon={faFilm}
+								label="Videos"
+								href="/student/dashboard/videos"
+								active={pathname === "/student/dashboard/videos"}
+							/>
+							<NavItem
+								icon={faBoxArchive}
+								label="Playlists"
+								href="/student/dashboard/playlists"
+								active={pathname === "/student/dashboard/playlists"}
+							/>
+						</>
+					)}
+				</div>
+
+				{user?.authentication.short_name === "admin" && (
+					<div className="flex flex-col gap-0.5">
+						<SectionLabel label="Manage" />
+						<NavItem
+							icon={faLink}
+							label="Links"
+							href="/team/dashboard/links"
+							active={pathname === "/team/dashboard/links"}
+						/>
+						<NavItem
+							icon={faUserGroup}
+							label="Users"
+							href="/team/dashboard/users"
+							active={pathname === "/team/dashboard/users"}
+						/>
+					</div>
+				)}
+			</nav>
+
+			{/* Bottom: user info + logout */}
+			<div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-0.5">
+				{user && (
+					<div className="flex items-center gap-3 px-3 py-2 mb-1">
+						<div className="w-6 h-6 rounded-full bg-slate-200 flex-shrink-0 overflow-hidden">
+							{user.profile_image_url && (
+								<Image
+									src={user.profile_image_url}
+									alt={user.name}
+									width={24}
+									height={24}
+									className="w-full h-full object-cover"
+								/>
+							)}
+						</div>
+						<span className="hidden md:block text-xs font-medium text-slate-600 truncate">
+							{user.name}
+						</span>
+					</div>
+				)}
+				<NavItem
+					icon={faArrowRightToBracket}
+					label="Logout"
+					href="/logout"
+					active={false}
+				/>
+			</div>
+		</aside>
 	);
 };
 

@@ -11,14 +11,13 @@ interface Props {
 
 const TeamContainer = (props: Props) => {
 	return (
-		<PageContainer className="flex">
-			{/* Left Navigation */}
+		<PageContainer className="flex overflow-hidden">
+			{/* Sidebar */}
 			<TeamNavbar router={props.router} />
-			{/* Top Navigation */}
-			<div className="w-[calc(100%-50px)] md:w-[calc(100%-200px)] lg:w-[calc(100%-290px)] xl:w-[calc(100%-325px)] 2xl:w-[calc(100%-350px)] h-full flex flex-col px-[20px] md:px-[40px]">
+			{/* Main content */}
+			<div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden px-5 md:px-10">
 				<TeamTopNav pageTitle={props.pageTitle} />
-				{/* Page Content */}
-				<div className="w-full h-[calc(100%-100px)] md:h-[calc(100%-160px)]">
+				<div className="flex-1 overflow-y-auto">
 					{props.children}
 				</div>
 			</div>
