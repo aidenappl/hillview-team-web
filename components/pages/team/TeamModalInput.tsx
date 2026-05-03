@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { GeneralNSM } from "../../../models/generalNSM.model";
 import Spinner from "../../general/Spinner";
@@ -46,6 +47,11 @@ const TeamModalInput = (props: Props) => {
 	} = props;
 
 	const [internalValue, setInternalValue] = useState(props.value || "");
+	const [mounted, setMounted] = useState(false);
+	const inputRowRef = useRef<HTMLDivElement>(null);
+	const [dropdownCoords, setDropdownCoords] = useState<{ top: number; left: number; width: number } | null>(null);
+
+	useEffect(() => { setMounted(true); }, []);
 
 	// Keep a stable ref to the latest callback so the debounce effect never
 	// needs to list it as a dependency — prevents re-triggering on every
@@ -69,8 +75,82 @@ const TeamModalInput = (props: Props) => {
 
 	const showDropdown = loading || (props.dropdown && props.dropdown.length > 0);
 
+	// Track input row position so the portal dropdown stays anchored
+	useEffect(() => {
+		if (!showDropdown) {
+			setDropdownCoords(null);
+			return;
+		}
+
+		const update = () => {
+			const rect = inputRowRef.current?.getBoundingClientRect();
+			if (rect) setDropdownCoords({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+		};
+
+		update();
+		window.addEventListener("scroll", update, true);
+		window.addEventListener("resize", update);
+		return () => {
+			window.removeEventListener("scroll", update, true);
+			window.removeEventListener("resize", update);
+		};
+	}, [showDropdown]);
+
+	const dropdownPortal =
+		showDropdown && mounted && dropdownCoords
+			? createPortal(
+					<div
+						style={{
+							position: "fixed",
+							top: dropdownCoords.top,
+							left: dropdownCoords.left,
+							width: dropdownCoords.width,
+							zIndex: 9999,
+						}}
+						className="bg-white rounded-xl overflow-hidden shadow-xl border border-slate-100"
+					>
+						<div className="max-h-64 w-full overflow-auto bg-white">
+							{loading && (!props.dropdown || props.dropdown.length === 0) ? (
+								<div className="flex items-center gap-2.5 px-3.5 py-3 text-sm text-slate-400">
+									<Spinner size={14} />
+									<span>Searching…</span>
+								</div>
+							) : (
+								props.dropdown?.map((item, index) => (
+									<div
+										onClick={() => {
+											setInternalValue("");
+											setValue("");
+											dropdownClick(item);
+										}}
+										key={index}
+										className="flex items-center gap-3 w-full cursor-pointer px-3.5 py-2.5 hover:bg-slate-50 transition-colors select-none"
+									>
+										{item.thumbnail ? (
+											<div className="relative h-9 w-14 shrink-0 overflow-hidden rounded-md bg-slate-100 border border-slate-200">
+												<Image
+													src={item.thumbnail}
+													alt=""
+													fill
+													sizes="56px"
+													style={{ objectFit: "cover" }}
+												/>
+											</div>
+										) : null}
+										<span className="truncate text-sm font-medium text-slate-800">
+											{item.name}
+										</span>
+									</div>
+								))
+							)}
+						</div>
+					</div>,
+					document.body
+			  )
+			: null;
+
 	return (
-		<div className={`flex flex-col gap-1 w-full relative ${className}`}>
+		<div className={`flex flex-col gap-1 w-full ${className}`}>
 			<label className="font-medium text-[#101827] flex gap-1">
 				{props.title}
 				{props.required ? <p className="text-red-700">*</p> : null}
@@ -78,7 +158,7 @@ const TeamModalInput = (props: Props) => {
 			{props.subTitle ? (
 				<p className="text-xs text-[#737984]">{props.subTitle}</p>
 			) : null}
-			<div className="flex gap-3">
+			<div ref={inputRowRef} className="flex gap-3">
 				<div className="relative flex-1">
 					<input
 						type="text"
@@ -106,45 +186,7 @@ const TeamModalInput = (props: Props) => {
 					</button>
 				) : null}
 			</div>
-			{showDropdown ? (
-				<div className="bg-white absolute top-[75px] z-[200] mt-1 w-full h-fit rounded-xl overflow-hidden shadow-xl border border-slate-100 focus:outline-none">
-					<div className="max-h-64 w-full overflow-auto bg-white">
-						{loading && (!props.dropdown || props.dropdown.length === 0) ? (
-							<div className="flex items-center gap-2.5 px-3.5 py-3 text-sm text-slate-400">
-								<Spinner size={14} />
-								<span>Searching…</span>
-							</div>
-						) : (
-							props.dropdown?.map((item, index) => (
-								<div
-									onClick={() => {
-										setInternalValue("");
-										setValue("");
-										dropdownClick(item);
-									}}
-									key={index}
-									className="flex items-center gap-3 w-full cursor-pointer px-3.5 py-2.5 hover:bg-slate-50 transition-colors select-none"
-								>
-									{item.thumbnail ? (
-										<div className="relative h-9 w-14 shrink-0 overflow-hidden rounded-md bg-slate-100 border border-slate-200">
-											<Image
-												src={item.thumbnail}
-												alt=""
-												fill
-												sizes="56px"
-												style={{ objectFit: "cover" }}
-											/>
-										</div>
-									) : null}
-									<span className="truncate text-sm font-medium text-slate-800">
-										{item.name}
-									</span>
-								</div>
-							))
-						)}
-					</div>
-				</div>
-			) : null}
+			{dropdownPortal}
 		</div>
 	);
 };
