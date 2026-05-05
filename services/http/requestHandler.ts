@@ -47,13 +47,16 @@ const axios_api = axios.create({
 	timeout: 10000,
 });
 
-// Response interceptor for handling expired token errors and token refresh
+// Response interceptor for handling 401 errors and automatic token refresh
 axios_api.interceptors.response.use(
 	(response) => {
-		const isTokenExpired = response.data?.error_message === "token is expired";
+		// Check for any 401 response, not just a specific error message.
+		// The server returns various 401 messages ("token is expired", "invalid token", etc.)
+		// and we should attempt a refresh for all of them.
+		const isUnauthorized = response.status === 401;
 
-		// If not expired token or request is already a retry, return as-is
-		if (!isTokenExpired || (response.config as any)._retry) {
+		// If not a 401 or request is already a retry, return as-is
+		if (!isUnauthorized || (response.config as any)._retry) {
 			return response;
 		}
 
