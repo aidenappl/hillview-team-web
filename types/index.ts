@@ -43,6 +43,7 @@ type User = {
 	profile_image_url: string;
 	authentication: GeneralNSM;
 	inserted_at: string;
+	updated_at: string;
 	last_active: string;
 	strategies: Strategies;
 	shown_changes_popup: boolean;
