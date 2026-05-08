@@ -136,14 +136,18 @@ const VideosPage = () => {
 
 	const archiveVideo = async () => {
 		if (!selectedVideo) return;
-		const response = await reqUpdateVideo(selectedVideo.id, {
-			status: VideoStatus.Archived,
-		});
-		if (response.success) {
-			cancelVideoInspection();
-			initialize();
-		} else {
-			toast.error("Failed to save changes", { position: "top-center" });
+		try {
+			const response = await reqUpdateVideo(selectedVideo.id, {
+				status: VideoStatus.Archived,
+			});
+			if (response.success) {
+				cancelVideoInspection();
+				initialize();
+			} else {
+				toast.error("Failed to save changes", { position: "top-center" });
+			}
+		} catch {
+			toast.error("An unexpected error occurred", { position: "top-center" });
 		}
 	};
 
@@ -235,10 +239,14 @@ const VideosPage = () => {
 					setSelectedVideo(v);
 				}}
 				onPublish={async (v: Video) => {
-					const res = await reqUpdateVideo(v.id, { status: VideoStatus.Public });
-					if (res.success) initialize();
-					else {
-						toast.error("Failed to save changes", { position: "top-center" });
+					try {
+						const res = await reqUpdateVideo(v.id, { status: VideoStatus.Public });
+						if (res.success) initialize();
+						else {
+							toast.error("Failed to save changes", { position: "top-center" });
+						}
+					} catch {
+						toast.error("An unexpected error occurred", { position: "top-center" });
 					}
 				}}
 				onLoadMore={loadMore}

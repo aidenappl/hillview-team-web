@@ -221,10 +221,14 @@ export const VideosTable = ({
 }: Props) => {
 	const [copiedId, setCopiedId] = useState<number | null>(null);
 
-	const handleCopy = (video: Video) => {
-		navigator.clipboard.writeText("https://hillview.tv/watch?v=" + video.uuid);
-		setCopiedId(video.id);
-		setTimeout(() => setCopiedId((prev) => (prev === video.id ? null : prev)), 2000);
+	const handleCopy = async (video: Video) => {
+		try {
+			await navigator.clipboard.writeText("https://hillview.tv/watch?v=" + video.uuid);
+			setCopiedId(video.id);
+			setTimeout(() => setCopiedId((prev) => (prev === video.id ? null : prev)), 2000);
+		} catch {
+			// Clipboard access denied — silently ignore
+		}
 	};
 
 	// Loading skeleton

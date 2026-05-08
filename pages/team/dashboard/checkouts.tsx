@@ -133,10 +133,15 @@ const CheckoutsPage = () => {
 	const initialize = async () => {
 		setCheckouts(null);
 		setOffset(0);
-		const response = await reqGetCheckouts({ limit: 25, offset: 0 });
-		if (response.success) {
-			setCheckouts(response.data);
-		} else {
+		try {
+			const response = await reqGetCheckouts({ limit: 25, offset: 0 });
+			if (response.success) {
+				setCheckouts(response.data);
+			} else {
+				setCheckouts([]);
+				toast.error("Failed to load checkouts");
+			}
+		} catch {
 			setCheckouts([]);
 			toast.error("Failed to load checkouts");
 		}
@@ -164,21 +169,26 @@ const CheckoutsPage = () => {
 
 	const handleCheckIn = async (checkout: Checkout) => {
 		setCheckingInId(checkout.id);
-		const response = await reqUpdateCheckout(checkout.id, { check_in: true });
-		if (response.success) {
-			toast.success("Checked in successfully");
-			// In-place update — mark as checked_in
-			setCheckouts((prev) =>
-				prev?.map((c) =>
-					c.id === checkout.id
-						? { ...c, checkout_status: { ...c.checkout_status, short_name: "checked_in", name: "Checked In" }, time_in: new Date().toISOString() }
-						: c
-				) ?? null
-			);
-		} else {
-			toast.error(response.error_message || "Failed to check in");
+		try {
+			const response = await reqUpdateCheckout(checkout.id, { check_in: true });
+			if (response.success) {
+				toast.success("Checked in successfully");
+				// In-place update — mark as checked_in
+				setCheckouts((prev) =>
+					prev?.map((c) =>
+						c.id === checkout.id
+							? { ...c, checkout_status: { ...c.checkout_status, short_name: "checked_in", name: "Checked In" }, time_in: new Date().toISOString() }
+							: c
+					) ?? null
+				);
+			} else {
+				toast.error(response.error_message || "Failed to check in");
+			}
+		} catch {
+			toast.error("An unexpected error occurred");
+		} finally {
+			setCheckingInId(null);
 		}
-		setCheckingInId(null);
 	};
 
 	return (

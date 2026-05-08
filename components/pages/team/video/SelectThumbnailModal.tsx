@@ -28,12 +28,16 @@ const SelectThumbnailModal = (props: {
 			: "Select";
 
 	const handleSelect = () => {
-		setUploadState("uploading");
-
 		// get the video element
 		const video = document.getElementById(
 			"thumbnail-selector"
-		)! as HTMLVideoElement;
+		) as HTMLVideoElement | null;
+		if (!video) {
+			toast.error("Video element not found");
+			return;
+		}
+
+		setUploadState("uploading");
 
 		// create a canvas element
 		const canvas = document.createElement("canvas");
@@ -41,7 +45,12 @@ const SelectThumbnailModal = (props: {
 		canvas.height = video.videoHeight;
 
 		// get the current frame
-		const context = canvas.getContext("2d")!;
+		const context = canvas.getContext("2d");
+		if (!context) {
+			toast.error("Failed to create canvas context");
+			setUploadState("idle");
+			return;
+		}
 		context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
 		const filename = "thumbnail.jpg";
@@ -49,7 +58,12 @@ const SelectThumbnailModal = (props: {
 		canvas.toBlob(
 			async (blob) => {
 				// convert blob to file
-				const file = new File([blob!], filename, {
+				if (!blob) {
+					setUploadState("idle");
+					toast.error("Failed to capture frame");
+					return;
+				}
+				const file = new File([blob], filename, {
 					type: "image/jpeg",
 					lastModified: Date.now(),
 				});

@@ -61,36 +61,42 @@ const LoginPage = () => {
 		>
 	): Promise<void> => {
 		if (tokenResponse.code && !loadingLocal) {
-			const response = await FetchAPI<GoogleAuthResponse>({
-				url: "/auth/v1.1/google",
-				method: "POST",
-				data: {
-					google_code: tokenResponse.code,
-					redirect_uri: process.env.NEXT_PUBLIC_BASE_URL,
-				},
-			});
-
-			if (response.success) {
-				const data = response.data;
-				const initializerResp = await InitializeSession({
-					accessToken: data.access_token,
-					refreshToken: data.refresh_token,
-					user: data.user,
-					dispatch,
+			try {
+				const response = await FetchAPI<GoogleAuthResponse>({
+					url: "/auth/v1.1/google",
+					method: "POST",
+					data: {
+						google_code: tokenResponse.code,
+						redirect_uri: process.env.NEXT_PUBLIC_BASE_URL,
+					},
 				});
-				if (initializerResp.success) {
-					if (router.query.redirect) {
-						router.push(router.query.redirect as string);
-						// setGoogleLoading(false);
+
+				if (response.success) {
+					const data = response.data;
+					const initializerResp = await InitializeSession({
+						accessToken: data.access_token,
+						refreshToken: data.refresh_token,
+						user: data.user,
+						dispatch,
+					});
+					if (initializerResp.success) {
+						if (router.query.redirect) {
+							router.push(router.query.redirect as string);
+						} else {
+							router.push(GetAccountLander(data.user));
+						}
 					} else {
-						router.push(GetAccountLander(data.user));
-						// setGoogleLoading(false);
+						toast.error("Login failed. Please try again.");
+						setGoogleLoading(false);
 					}
+				} else {
+					toast.error(
+						response.error_message || "An error occurred during Google login."
+					);
+					setGoogleLoading(false);
 				}
-			} else {
-				toast.error(
-					response.error_message || "An error occurred during Google login."
-				);
+			} catch {
+				toast.error("An unexpected error occurred. Please try again.");
 				setGoogleLoading(false);
 			}
 		}
@@ -100,35 +106,40 @@ const LoginPage = () => {
 	const localLogin = async (): Promise<void> => {
 		if (email && password && !loadingLocal && !loadingGoogle) {
 			setLoadingLocal(true);
-			const response = await FetchAPI<any>({
-				url: "/auth/v1.1/local",
-				method: "POST",
-				data: {
-					email,
-					password,
-				},
-			});
-
-			if (response.success) {
-				const data = response.data;
-				const initializerResp = await InitializeSession({
-					accessToken: data.accessToken,
-					refreshToken: data.refreshToken,
-					user: data.user,
-					dispatch,
+			try {
+				const response = await FetchAPI<any>({
+					url: "/auth/v1.1/local",
+					method: "POST",
+					data: {
+						email,
+						password,
+					},
 				});
-				if (initializerResp.success) {
-					if (router.query.redirect) {
-						router.push(router.query.redirect as string);
+
+				if (response.success) {
+					const data = response.data;
+					const initializerResp = await InitializeSession({
+						accessToken: data.accessToken,
+						refreshToken: data.refreshToken,
+						user: data.user,
+						dispatch,
+					});
+					if (initializerResp.success) {
+						if (router.query.redirect) {
+							router.push(router.query.redirect as string);
+						} else {
+							router.push(GetAccountLander(data.user));
+						}
 					} else {
-						router.push(GetAccountLander(data.user));
+						toast.error("Login failed. Please try again.");
+						setLoadingLocal(false);
 					}
 				} else {
 					toast.error("Login failed. Please try again.");
 					setLoadingLocal(false);
 				}
-			} else {
-				toast.error("Login failed. Please try again.");
+			} catch {
+				toast.error("An unexpected error occurred. Please try again.");
 				setLoadingLocal(false);
 			}
 		} else {

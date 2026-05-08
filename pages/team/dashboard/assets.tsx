@@ -150,10 +150,15 @@ const AssetsPage = () => {
 	const initialize = async () => {
 		setAssets(null);
 		setOffset(0);
-		const response = await reqGetAssets({ limit: 25, sort: "DESC", offset: 0 });
-		if (response.success) {
-			setAssets(response.data ?? []);
-		} else {
+		try {
+			const response = await reqGetAssets({ limit: 25, sort: "DESC", offset: 0 });
+			if (response.success) {
+				setAssets(response.data ?? []);
+			} else {
+				setAssets([]);
+				toast.error("Failed to load assets");
+			}
+		} catch {
 			setAssets([]);
 			toast.error("Failed to load assets");
 		}
@@ -203,47 +208,56 @@ const AssetsPage = () => {
 			return;
 		}
 		setSaving(true);
-		const response = await reqUpdateAsset(selectedAsset.id, changes);
-		if (response.success) {
-			// In-place update
-			setAssets((prev) =>
-				prev?.map((a) => {
-					if (a.id !== selectedAsset.id) return a;
-					return {
-						...a,
-						...(changes.name !== undefined && { name: changes.name }),
-						...(changes.identifier !== undefined && { identifier: changes.identifier }),
-						...(changes.image_url !== undefined && { image_url: changes.image_url }),
-						...(changes.status !== undefined && {
-							status: { ...a.status, id: changes.status },
-						}),
-						...(changes.category !== undefined && {
-							category: { ...a.category, id: changes.category },
-						}),
-						...(changes.metadata !== undefined && {
-							metadata: { ...a.metadata, ...changes.metadata },
-						}),
-					};
-				}) ?? null
-			);
-			setSelectedAsset(null);
-			setChanges(null);
+		try {
+			const response = await reqUpdateAsset(selectedAsset.id, changes);
+			if (response.success) {
+				// In-place update
+				setAssets((prev) =>
+					prev?.map((a) => {
+						if (a.id !== selectedAsset.id) return a;
+						return {
+							...a,
+							...(changes.name !== undefined && { name: changes.name }),
+							...(changes.identifier !== undefined && { identifier: changes.identifier }),
+							...(changes.image_url !== undefined && { image_url: changes.image_url }),
+							...(changes.status !== undefined && {
+								status: { ...a.status, id: changes.status },
+							}),
+							...(changes.category !== undefined && {
+								category: { ...a.category, id: changes.category },
+							}),
+							...(changes.metadata !== undefined && {
+								metadata: { ...a.metadata, ...changes.metadata },
+							}),
+						};
+					}) ?? null
+				);
+				setSelectedAsset(null);
+				setChanges(null);
+				setSaving(false);
+			} else {
+				setSaving(false);
+				toast.error("Failed to save changes", { position: "top-center" });
+			}
+		} catch {
 			setSaving(false);
-		} else {
-			setSaving(false);
-			toast.error("Failed to save changes", { position: "top-center" });
+			toast.error("An unexpected error occurred", { position: "top-center" });
 		}
 	};
 
 	const deleteAsset = async () => {
 		if (!selectedAsset) return;
-		const response = await reqUpdateAsset(selectedAsset.id, { status: AssetStatus.Deleted });
-		if (response.success) {
-			setAssets((prev) => prev?.filter((a) => a.id !== selectedAsset.id) ?? null);
-			setSelectedAsset(null);
-			setChanges(null);
-		} else {
-			toast.error("Failed to delete asset", { position: "top-center" });
+		try {
+			const response = await reqUpdateAsset(selectedAsset.id, { status: AssetStatus.Deleted });
+			if (response.success) {
+				setAssets((prev) => prev?.filter((a) => a.id !== selectedAsset.id) ?? null);
+				setSelectedAsset(null);
+				setChanges(null);
+			} else {
+				toast.error("Failed to delete asset", { position: "top-center" });
+			}
+		} catch {
+			toast.error("An unexpected error occurred", { position: "top-center" });
 		}
 	};
 

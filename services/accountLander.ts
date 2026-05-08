@@ -3,16 +3,16 @@ import { User } from "../types"
 
 
 const GetAccountLander = (user: User | null): string => {
-    if (!user) return '/'
+    if (!user?.authentication) return '/'
     if (user.authentication.short_name === 'admin' ) {
         return '/team/dashboard'
-    } 
+    }
     if (user.authentication.short_name === 'student') {
         return '/student/dashboard'
     }
     if (user.authentication.short_name === 'unauthorized') {
         return '/account/pending'
-    } 
+    }
     if (user.authentication.short_name === 'deleted') {
         return '/account/terminated'
     }

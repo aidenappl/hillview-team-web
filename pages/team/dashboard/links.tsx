@@ -214,19 +214,24 @@ const LinksPage = () => {
 	const initialize = useCallback(async () => {
 		setLinks(null);
 		setOffset(0);
-		const [sortBy, sort] = sortValue.split("_") as ["date" | "clicks", "asc" | "desc"];
-		const activeParam = getActiveParam(activeStatuses);
-		const response = await reqGetLinks({
-			limit: 20,
-			offset: 0,
-			...(search ? { search } : {}),
-			sort_by: sortBy,
-			sort,
-			...(activeParam !== undefined ? { active: activeParam } : {}),
-		});
-		if (response.success) {
-			setLinks(response.data ?? []);
-		} else {
+		try {
+			const [sortBy, sort] = sortValue.split("_") as ["date" | "clicks", "asc" | "desc"];
+			const activeParam = getActiveParam(activeStatuses);
+			const response = await reqGetLinks({
+				limit: 20,
+				offset: 0,
+				...(search ? { search } : {}),
+				sort_by: sortBy,
+				sort,
+				...(activeParam !== undefined ? { active: activeParam } : {}),
+			});
+			if (response.success) {
+				setLinks(response.data ?? []);
+			} else {
+				setLinks([]);
+				toast.error("Failed to load links");
+			}
+		} catch {
 			setLinks([]);
 			toast.error("Failed to load links");
 		}
@@ -291,41 +296,54 @@ const LinksPage = () => {
 			return;
 		}
 		setSaving(true);
-		const response = await reqUpdateLink(selectedLink.id, changes);
-		if (response.success) {
-			// Update in-place — no list flash
-			setLinks((prev) =>
-				prev?.map((l) => (l.id === selectedLink.id ? { ...l, ...changes } : l)) ?? null
-			);
-			setSelectedLink(null);
-			setChanges(null);
+		try {
+			const response = await reqUpdateLink(selectedLink.id, changes);
+			if (response.success) {
+				// Update in-place — no list flash
+				setLinks((prev) =>
+					prev?.map((l) => (l.id === selectedLink.id ? { ...l, ...changes } : l)) ?? null
+				);
+				setSelectedLink(null);
+				setChanges(null);
+				setSaving(false);
+			} else {
+				setSaving(false);
+				toast.error("Failed to save changes", { position: "top-center" });
+			}
+		} catch {
 			setSaving(false);
-		} else {
-			setSaving(false);
-			toast.error("Failed to save changes", { position: "top-center" });
+			toast.error("An unexpected error occurred", { position: "top-center" });
 		}
 	};
 
 	const archiveLink = async () => {
 		if (!selectedLink) return;
-		const response = await reqUpdateLink(selectedLink.id, { active: false });
-		if (response.success) {
-			setLinks((prev) =>
-				prev?.map((l) => (l.id === selectedLink.id ? { ...l, active: false } : l)) ?? null
-			);
-			setSelectedLink(null);
-			setChanges(null);
-			setSaving(false);
-		} else {
-			toast.error("Failed to archive link", { position: "top-center" });
+		try {
+			const response = await reqUpdateLink(selectedLink.id, { active: false });
+			if (response.success) {
+				setLinks((prev) =>
+					prev?.map((l) => (l.id === selectedLink.id ? { ...l, active: false } : l)) ?? null
+				);
+				setSelectedLink(null);
+				setChanges(null);
+				setSaving(false);
+			} else {
+				toast.error("Failed to archive link", { position: "top-center" });
+			}
+		} catch {
+			toast.error("An unexpected error occurred", { position: "top-center" });
 		}
 	};
 
-	const handleCopy = (e: React.MouseEvent, link: Link) => {
+	const handleCopy = async (e: React.MouseEvent, link: Link) => {
 		e.stopPropagation();
-		navigator.clipboard.writeText("https://hillview.tv/" + link.route);
-		setCopiedId(link.id);
-		setTimeout(() => setCopiedId((prev) => (prev === link.id ? null : prev)), 2000);
+		try {
+			await navigator.clipboard.writeText("https://hillview.tv/" + link.route);
+			setCopiedId(link.id);
+			setTimeout(() => setCopiedId((prev) => (prev === link.id ? null : prev)), 2000);
+		} catch {
+			toast.error("Failed to copy to clipboard");
+		}
 	};
 
 	// ── Render ───────────────────────────────────────────────────────────────

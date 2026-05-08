@@ -54,13 +54,21 @@ const PlaylistsPage = () => {
 	const initialize = async () => {
 		setPlaylists(null);
 		setActivePlaylistInspectorTab(PlaylistInspectorTabs[0]);
-		const response = await reqGetPlaylists({
-			limit: 50,
-			offset: 0,
-		});
-		if (response.success) {
-			const data = response.data;
-			setPlaylists(data);
+		try {
+			const response = await reqGetPlaylists({
+				limit: 50,
+				offset: 0,
+			});
+			if (response.success) {
+				const data = response.data;
+				setPlaylists(data);
+			} else {
+				setPlaylists([]);
+				toast.error("Failed to load playlists");
+			}
+		} catch {
+			setPlaylists([]);
+			toast.error("Failed to load playlists");
 		}
 	};
 
@@ -79,9 +87,38 @@ const PlaylistsPage = () => {
 	};
 
 	const savePlaylistInspection = async () => {
-		if (changes && Object.keys(changes).length > 0) {
+		if (changes && Object.keys(changes).length > 0 && selectedPlaylist) {
 			setSaving(true);
-			const response = await reqUpdatePlaylist(selectedPlaylist!.id, changes);
+			try {
+				const response = await reqUpdatePlaylist(selectedPlaylist.id, changes);
+				if (response.success) {
+					setSelectedPlaylist(null);
+					setChanges(null);
+					setSaving(false);
+					initialize();
+				} else {
+					setSaving(false);
+					toast.error("Failed to save changes", {
+						position: "top-center",
+					});
+				}
+			} catch {
+				setSaving(false);
+				toast.error("An unexpected error occurred", {
+					position: "top-center",
+				});
+			}
+		} else {
+			setSelectedPlaylist(null);
+		}
+	};
+
+	const archiveVideo = async () => {
+		if (!selectedPlaylist) return;
+		try {
+			const response = await reqUpdatePlaylist(selectedPlaylist.id, {
+				status: PlaylistStatus.Archived,
+			});
 			if (response.success) {
 				setSelectedPlaylist(null);
 				setChanges(null);
@@ -93,23 +130,9 @@ const PlaylistsPage = () => {
 					position: "top-center",
 				});
 			}
-		} else {
-			setSelectedPlaylist(null);
-		}
-	};
-
-	const archiveVideo = async () => {
-		const response = await reqUpdatePlaylist(selectedPlaylist!.id, {
-			status: PlaylistStatus.Archived,
-		});
-		if (response.success) {
-			setSelectedPlaylist(null);
-			setChanges(null);
+		} catch {
 			setSaving(false);
-			initialize();
-		} else {
-			setSaving(false);
-			toast.error("Failed to save changes", {
+			toast.error("An unexpected error occurred", {
 				position: "top-center",
 			});
 		}
@@ -234,20 +257,26 @@ const PlaylistsPage = () => {
 									if (e.target.files && e.target.files[0]) {
 										const files = e.target.files;
 										setShowImageLoader(true);
-										const result = await UploadImage({
-											image: files[0],
-											route: "thumbnails/",
-											id: selectedPlaylist.id,
-										});
-										if (result.success) {
-											setShowImageLoader(false);
-											inputChange({
-												banner_image: result.data.data.url,
+										try {
+											const result = await UploadImage({
+												image: files[0],
+												route: "thumbnails/",
+												id: selectedPlaylist.id,
 											});
-										} else {
-											toast.error("Failed to upload image", {
+											if (result.success) {
+												inputChange({
+													banner_image: result.data.data.url,
+												});
+											} else {
+												toast.error("Failed to upload image", {
+													position: "top-center",
+												});
+											}
+										} catch {
+											toast.error("An unexpected error occurred", {
 												position: "top-center",
 											});
+										} finally {
 											setShowImageLoader(false);
 										}
 									}
@@ -290,15 +319,20 @@ const PlaylistsPage = () => {
 								}
 								setDelayedValue={async (value: string): Promise<void> => {
 									if (value.length < 3) return;
-									const response = await reqGetVideos({
-										search: value,
-										limit: 5,
-										offset: 0,
-									});
-									if (response.success) {
-										const data = response.data;
-										setSearchResults(data);
-									} else {
+									try {
+										const response = await reqGetVideos({
+											search: value,
+											limit: 5,
+											offset: 0,
+										});
+										if (response.success) {
+											const data = response.data;
+											setSearchResults(data);
+										} else {
+											setSearchResults(null);
+											toast.error("Failed to search videos");
+										}
+									} catch {
 										setSearchResults(null);
 										toast.error("Failed to search videos");
 									}

@@ -14,6 +14,12 @@ interface Props {
 const TeamModalUploader = (props: Props) => {
 	const { showImageLoader = false } = props;
 
+	const triggerFileInput = () => {
+		if (!showImageLoader) {
+			document.getElementById("fileUploaderInput")?.click();
+		}
+	};
+
 	return (
 		<div className={"flex flex-col gap-2"}>
 			<label className="font-medium text-[#101827]">{props.title}</label>
@@ -23,12 +29,7 @@ const TeamModalUploader = (props: Props) => {
 						"w-[50px] h-[50px] relative rounded-md overflow-hidden border shadow-sm cursor-pointer flex items-center justify-center " +
 						props.imageClassName
 					}
-					onClick={() => {
-						if (!showImageLoader)
-							document
-								.getElementById("fileUploaderInput")!
-								.click();
-					}}
+					onClick={triggerFileInput}
 				>
 					{showImageLoader ? (
 						<Spinner />
@@ -52,12 +53,7 @@ const TeamModalUploader = (props: Props) => {
 				/>
 				<button
 					className="py-1.5 px-2.5 border font-medium rounded-md text-sm hover:bg-slate-50"
-					onClick={() => {
-						if (!showImageLoader)
-							document
-								.getElementById("fileUploaderInput")!
-								.click();
-					}}
+					onClick={triggerFileInput}
 				>
 					Change
 				</button>

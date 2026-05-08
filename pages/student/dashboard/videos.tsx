@@ -59,26 +59,40 @@ const VideosPage = () => {
 
 	const initialize = async () => {
 		setVideos(null);
-		const response = await reqGetVideos({
-			limit: 20,
-			offset: 0,
-		});
-		if (response.success) {
-			const data = response.data;
-			setVideos(data);
+		try {
+			const response = await reqGetVideos({
+				limit: 20,
+				offset: 0,
+			});
+			if (response.success) {
+				const data = response.data;
+				setVideos(data);
+			} else {
+				setVideos([]);
+				toast.error("Failed to load videos");
+			}
+		} catch {
+			setVideos([]);
+			toast.error("Failed to load videos");
 		}
 	};
 
 	const loadMore = async () => {
 		const newOffset = offset + 20;
 		setOffset(newOffset);
-		const response = await reqGetVideos({
-			limit: 20,
-			offset: newOffset,
-		});
-		if (response.success) {
-			const data = response.data;
-			setVideos([...videos!, ...data]);
+		try {
+			const response = await reqGetVideos({
+				limit: 20,
+				offset: newOffset,
+			});
+			if (response.success) {
+				const data = response.data;
+				setVideos([...(videos ?? []), ...data]);
+			} else {
+				toast.error("Failed to load more videos");
+			}
+		} catch {
+			toast.error("Failed to load more videos");
 		}
 	};
 
@@ -97,17 +111,24 @@ const VideosPage = () => {
 	};
 
 	const saveVideoInspection = async () => {
-		if (changes && Object.keys(changes).length > 0) {
+		if (changes && Object.keys(changes).length > 0 && selectedVideo) {
 			setSaving(true);
-			const response = await reqUpdateVideo(selectedVideo!.id, changes);
-			if (response.success) {
-				setSelectedVideo(null);
-				setChanges(null);
+			try {
+				const response = await reqUpdateVideo(selectedVideo.id, changes);
+				if (response.success) {
+					setSelectedVideo(null);
+					setChanges(null);
+					setSaving(false);
+					initialize();
+				} else {
+					setSaving(false);
+					toast.error("Failed to save changes", {
+						position: "top-center",
+					});
+				}
+			} catch {
 				setSaving(false);
-				initialize();
-			} else {
-				setSaving(false);
-				toast.error("Failed to save changes", {
+				toast.error("An unexpected error occurred", {
 					position: "top-center",
 				});
 			}
@@ -213,21 +234,27 @@ const VideosPage = () => {
 								// toggle loader
 								setShowImageLoader(true);
 
-								// upload image
-								const result = await UploadImage({
-									image: file,
-									route: "thumbnails/",
-									id: selectedVideo.id,
-								});
-								if (result.success) {
-									setShowImageLoader(false);
-									inputChange({
-										thumbnail: result.data.data.url,
+								try {
+									// upload image
+									const result = await UploadImage({
+										image: file,
+										route: "thumbnails/",
+										id: selectedVideo.id,
 									});
-								} else {
-									toast.error("Failed to upload image", {
+									if (result.success) {
+										inputChange({
+											thumbnail: result.data.data.url,
+										});
+									} else {
+										toast.error("Failed to upload image", {
+											position: "top-center",
+										});
+									}
+								} catch {
+									toast.error("An unexpected error occurred", {
 										position: "top-center",
 									});
+								} finally {
 									setShowImageLoader(false);
 								}
 							}

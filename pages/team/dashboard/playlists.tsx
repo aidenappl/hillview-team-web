@@ -233,18 +233,23 @@ const PlaylistsPage = () => {
 
 	const initialize = useCallback(async (background = false) => {
 		if (!background) setPlaylists(null);
-		const [col, dir] = sortValue.split("_") as ["date", "asc" | "desc"];
-		const response = await reqGetPlaylists({
-			limit: 50,
-			offset: 0,
-			...(search.trim() && { search: search.trim() }),
-			sort_by: col,
-			sort: dir,
-			...(activeStatuses.length > 0 && { status: activeStatuses.join(",") }),
-		});
-		if (response.success) {
-			setPlaylists(response.data ?? []);
-		} else {
+		try {
+			const [col, dir] = sortValue.split("_") as ["date", "asc" | "desc"];
+			const response = await reqGetPlaylists({
+				limit: 50,
+				offset: 0,
+				...(search.trim() && { search: search.trim() }),
+				sort_by: col,
+				sort: dir,
+				...(activeStatuses.length > 0 && { status: activeStatuses.join(",") }),
+			});
+			if (response.success) {
+				setPlaylists(response.data ?? []);
+			} else {
+				setPlaylists([]);
+				toast.error("Failed to load playlists");
+			}
+		} catch {
 			setPlaylists([]);
 			toast.error("Failed to load playlists");
 		}
@@ -273,41 +278,54 @@ const PlaylistsPage = () => {
 	};
 
 	const savePlaylistInspection = async () => {
-		if (changes && Object.keys(changes).length > 0) {
+		if (changes && Object.keys(changes).length > 0 && selectedPlaylist) {
 			setSaving(true);
-			const response = await reqUpdatePlaylist(selectedPlaylist!.id, changes);
-			if (response.success) {
-				setSelectedPlaylist(null);
-				setChanges(null);
+			try {
+				const response = await reqUpdatePlaylist(selectedPlaylist.id, changes);
+				if (response.success) {
+					setSelectedPlaylist(null);
+					setChanges(null);
+					setSaving(false);
+					initialize(true);
+				} else {
+					setSaving(false);
+					toast.error("Failed to save changes", { position: "top-center" });
+				}
+			} catch {
 				setSaving(false);
-				initialize(true);
-			} else {
-				setSaving(false);
-				toast.error("Failed to save changes", { position: "top-center" });
+				toast.error("An unexpected error occurred", { position: "top-center" });
 			}
 		} else {
 			setSelectedPlaylist(null);
 		}
 	};
 
-	const handleCopy = (playlist: Playlist) => {
-		navigator.clipboard.writeText("https://hillview.tv/playlist/" + playlist.route);
-		setCopiedId(playlist.id);
-		setTimeout(() => setCopiedId((prev) => (prev === playlist.id ? null : prev)), 2000);
+	const handleCopy = async (playlist: Playlist) => {
+		try {
+			await navigator.clipboard.writeText("https://hillview.tv/playlist/" + playlist.route);
+			setCopiedId(playlist.id);
+			setTimeout(() => setCopiedId((prev) => (prev === playlist.id ? null : prev)), 2000);
+		} catch {
+			toast.error("Failed to copy to clipboard");
+		}
 	};
 
 	const archivePlaylist = async () => {
 		if (!selectedPlaylist) return;
-		const response = await reqUpdatePlaylist(selectedPlaylist.id, {
-			status: PlaylistStatus.Archived,
-		});
-		if (response.success) {
-			setSelectedPlaylist(null);
-			setChanges(null);
-			setSaving(false);
-			initialize(true);
-		} else {
-			toast.error("Failed to archive playlist", { position: "top-center" });
+		try {
+			const response = await reqUpdatePlaylist(selectedPlaylist.id, {
+				status: PlaylistStatus.Archived,
+			});
+			if (response.success) {
+				setSelectedPlaylist(null);
+				setChanges(null);
+				setSaving(false);
+				initialize(true);
+			} else {
+				toast.error("Failed to archive playlist", { position: "top-center" });
+			}
+		} catch {
+			toast.error("An unexpected error occurred", { position: "top-center" });
 		}
 	};
 

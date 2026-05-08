@@ -9,30 +9,43 @@ export const useSpotlight = () => {
 	>(null);
 
 	const hydrateSpotlight = useCallback(async () => {
-		const response = await reqGetSpotlight({ limit: 20, offset: 0 });
-		if (response.success) {
-			setSpotlightedVideos(response.data);
-		} else {
+		try {
+			const response = await reqGetSpotlight({ limit: 20, offset: 0 });
+			if (response.success) {
+				setSpotlightedVideos(response.data);
+			} else {
+				toast.error("Failed to load spotlight videos");
+			}
+		} catch {
 			toast.error("Failed to load spotlight videos");
 		}
 	}, []);
 
 	const updateSpotlight = useCallback(async (spotlight: Spotlight) => {
-		const response = await reqUpdateSpotlight(spotlight.position, spotlight.video_id);
-		if (response.success) {
-			setSpotlightedVideos(
-				(prev) =>
-					prev?.map((s) => (s.position === spotlight.position ? response.data : s)) || null
-			);
-		} else {
+		try {
+			const response = await reqUpdateSpotlight(spotlight.position, spotlight.video_id);
+			if (response.success) {
+				setSpotlightedVideos(
+					(prev) =>
+						prev?.map((s) => (s.position === spotlight.position ? response.data : s)) || null
+				);
+			} else {
+				toast.error("Failed to update spotlight");
+			}
+		} catch {
 			toast.error("Failed to update spotlight");
 		}
 	}, []);
 
 	const reorderSpotlights = useCallback(async (items: SpotlightChanges[]) => {
-		const response = await reqReorderSpotlight(items);
-		if (response.success) setSpotlightedVideos(response.data);
-		return response;
+		try {
+			const response = await reqReorderSpotlight(items);
+			if (response.success) setSpotlightedVideos(response.data);
+			return response;
+		} catch {
+			toast.error("Failed to reorder spotlight");
+			return { success: false, error: "request_failed", error_message: "Unexpected error", error_code: -1 } as const;
+		}
 	}, []);
 
 	const clearSpotlight = useCallback(() => setSpotlightedVideos(null), []);

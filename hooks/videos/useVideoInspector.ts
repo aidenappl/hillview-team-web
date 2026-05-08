@@ -59,13 +59,18 @@ export function useVideoInspector({ onSaved }: Params) {
 	const saveVideoInspection = async () => {
 		if (changes && Object.keys(changes).length > 0 && selectedVideo) {
 			setSaving(true);
-			const response = await reqUpdateVideo(selectedVideo.id, changes);
-			if (response.success) {
-				cancelVideoInspection();
-				onSaved();
-			} else {
+			try {
+				const response = await reqUpdateVideo(selectedVideo.id, changes);
+				if (response.success) {
+					cancelVideoInspection();
+					onSaved();
+				} else {
+					setSaving(false);
+					toast.error("Failed to save changes", { position: "top-center" });
+				}
+			} catch {
 				setSaving(false);
-				toast.error("Failed to save changes", { position: "top-center" });
+				toast.error("An unexpected error occurred", { position: "top-center" });
 			}
 		} else {
 			setSelectedVideo(null);
@@ -91,13 +96,22 @@ export function useVideoInspector({ onSaved }: Params) {
 			text: "Generating...",
 			disabled: false,
 		});
-		const response = await reqCreateDownloadUrl(id);
-		if (response.success) {
-			const url = response.data.result?.default?.url;
-			await inputChange({ download_url: url });
-			setDownloadButtonParams({ loading: false, text: "Done", disabled: true });
-		} else {
-			toast.error(response.error_message || "Failed to generate download URL");
+		try {
+			const response = await reqCreateDownloadUrl(id);
+			if (response.success) {
+				const url = response.data?.result?.default?.url;
+				await inputChange({ download_url: url });
+				setDownloadButtonParams({ loading: false, text: "Done", disabled: true });
+			} else {
+				toast.error(response.error_message || "Failed to generate download URL");
+				setDownloadButtonParams({
+					loading: false,
+					text: "Failed",
+					disabled: false,
+				});
+			}
+		} catch {
+			toast.error("Failed to generate download URL");
 			setDownloadButtonParams({
 				loading: false,
 				text: "Failed",

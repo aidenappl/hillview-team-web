@@ -137,9 +137,17 @@ const UsersPagePlatformUsers = ({
 	const initialize = async () => {
 		setUsers(null);
 		setOffset(0);
-		const response = await reqGetMobileUsers({ limit: 25, offset: 0 });
-		if (response.success) setUsers(response.data);
-		else toast.error("Failed to load users");
+		try {
+			const response = await reqGetMobileUsers({ limit: 25, offset: 0 });
+			if (response.success) setUsers(response.data);
+			else {
+				setUsers([]);
+				toast.error("Failed to load users");
+			}
+		} catch {
+			setUsers([]);
+			toast.error("Failed to load users");
+		}
 	};
 
 	const loadMore = async () => {
@@ -197,36 +205,45 @@ const UsersPagePlatformUsers = ({
 			return;
 		}
 		setSaving(true);
-		const response = await reqUpdateMobileUser(selectedUser.id, value);
-		if (response.success) {
-			// In-place update — no list flash
-			setUsers((prev) =>
-				prev?.map((u) =>
-					u.id === selectedUser.id ? { ...u, ...value } : u
-				) ?? null
-			);
-			toast.success("User updated");
-			setSelectedUser(null);
-			setChanges(null);
+		try {
+			const response = await reqUpdateMobileUser(selectedUser.id, value);
+			if (response.success) {
+				// In-place update — no list flash
+				setUsers((prev) =>
+					prev?.map((u) =>
+						u.id === selectedUser.id ? { ...u, ...value } : u
+					) ?? null
+				);
+				toast.success("User updated");
+				setSelectedUser(null);
+				setChanges(null);
+				setSaving(false);
+			} else {
+				setSaving(false);
+				toast.error("Failed to update user");
+			}
+		} catch {
 			setSaving(false);
-		} else {
-			setSaving(false);
-			toast.error("Failed to update user");
+			toast.error("An unexpected error occurred");
 		}
 	};
 
 	const deleteUser = async () => {
 		if (!selectedUser) return;
-		const response = await reqUpdateMobileUser(selectedUser.id, {
-			status: MobileUserStatus.Deactivated,
-		});
-		if (response.success) {
-			setUsers((prev) => prev?.filter((u) => u.id !== selectedUser.id) ?? null);
-			toast.success("User deleted");
-			setSelectedUser(null);
-			setChanges(null);
-		} else {
-			toast.error("Failed to delete user");
+		try {
+			const response = await reqUpdateMobileUser(selectedUser.id, {
+				status: MobileUserStatus.Deactivated,
+			});
+			if (response.success) {
+				setUsers((prev) => prev?.filter((u) => u.id !== selectedUser.id) ?? null);
+				toast.success("User deleted");
+				setSelectedUser(null);
+				setChanges(null);
+			} else {
+				toast.error("Failed to delete user");
+			}
+		} catch {
+			toast.error("An unexpected error occurred");
 		}
 	};
 

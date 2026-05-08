@@ -187,16 +187,21 @@ const SpotlightedVideosModal = ({
 			return;
 		}
 		setSaving(true);
-		const payload: SpotlightChanges[] = items.map((item, i) => ({
-			position: i + 1,
-			video_id: videoChanges.get(item.position)?.id ?? item.video_id,
-		}));
-		const response = await reqReorderSpotlight(payload);
-		setSaving(false);
-		if (response.success) {
-			saveDone?.();
-		} else {
-			toast.error("Failed to save spotlight changes");
+		try {
+			const payload: SpotlightChanges[] = items.map((item, i) => ({
+				position: i + 1,
+				video_id: videoChanges.get(item.position)?.id ?? item.video_id,
+			}));
+			const response = await reqReorderSpotlight(payload);
+			if (response.success) {
+				saveDone?.();
+			} else {
+				toast.error("Failed to save spotlight changes");
+			}
+		} catch {
+			toast.error("An unexpected error occurred");
+		} finally {
+			setSaving(false);
 		}
 	};
 
@@ -441,9 +446,14 @@ const SpotlightedVideosModal = ({
 																return;
 															}
 															setSearchLoading(true);
-															const results = await onSearchVideos(v);
-															setSearchResults(results);
-															setSearchLoading(false);
+															try {
+																const results = await onSearchVideos(v);
+																setSearchResults(results);
+															} catch {
+																setSearchResults([]);
+															} finally {
+																setSearchLoading(false);
+															}
 														}}
 														loading={searchLoading}
 														dropdownClick={(dropItem) => {

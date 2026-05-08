@@ -137,9 +137,17 @@ const UsersPageTeamUsers = () => {
 	const initialize = async () => {
 		setUsers(null);
 		setOffset(0);
-		const response = await reqGetUsers({ limit: 25, offset: 0 });
-		if (response.success) setUsers(response.data);
-		else toast.error("Failed to load users");
+		try {
+			const response = await reqGetUsers({ limit: 25, offset: 0 });
+			if (response.success) setUsers(response.data);
+			else {
+				setUsers([]);
+				toast.error("Failed to load users");
+			}
+		} catch {
+			setUsers([]);
+			toast.error("Failed to load users");
+		}
 	};
 
 	const loadMore = async () => {
@@ -197,50 +205,59 @@ const UsersPageTeamUsers = () => {
 			return;
 		}
 		setSaving(true);
-		const response = await reqUpdateUser(selectedUser.id, value);
-		if (response.success) {
-			// In-place update — no list flash
-			setUsers((prev) =>
-				prev?.map((u) => {
-					if (u.id !== selectedUser.id) return u;
-					return {
-						...u,
-						...(value.name !== undefined && { name: value.name }),
-						...(value.email !== undefined && { email: value.email }),
-						...(value.username !== undefined && { username: value.username }),
-						...(value.profile_image_url !== undefined && { profile_image_url: value.profile_image_url }),
-						...(value.authentication !== undefined && {
-							authentication: UserTypes.find((t) => t.id === value.authentication) ?? u.authentication,
-						}),
-					};
-				}) ?? null
-			);
-			toast.success("User updated");
-			setSelectedUser(null);
-			setChanges(null);
+		try {
+			const response = await reqUpdateUser(selectedUser.id, value);
+			if (response.success) {
+				// In-place update — no list flash
+				setUsers((prev) =>
+					prev?.map((u) => {
+						if (u.id !== selectedUser.id) return u;
+						return {
+							...u,
+							...(value.name !== undefined && { name: value.name }),
+							...(value.email !== undefined && { email: value.email }),
+							...(value.username !== undefined && { username: value.username }),
+							...(value.profile_image_url !== undefined && { profile_image_url: value.profile_image_url }),
+							...(value.authentication !== undefined && {
+								authentication: UserTypes.find((t) => t.id === value.authentication) ?? u.authentication,
+							}),
+						};
+					}) ?? null
+				);
+				toast.success("User updated");
+				setSelectedUser(null);
+				setChanges(null);
+				setSaving(false);
+			} else {
+				setSaving(false);
+				toast.error("Failed to update user");
+			}
+		} catch {
 			setSaving(false);
-		} else {
-			setSaving(false);
-			toast.error("Failed to update user");
+			toast.error("An unexpected error occurred");
 		}
 	};
 
 	const deleteUser = async () => {
 		if (!selectedUser) return;
-		const response = await reqUpdateUser(selectedUser.id, { authentication: UserType.Deleted });
-		if (response.success) {
-			setUsers((prev) =>
-				prev?.map((u) =>
-					u.id === selectedUser.id
-						? { ...u, authentication: UserTypes.find((t) => t.id === UserType.Deleted) ?? u.authentication }
-						: u
-				) ?? null
-			);
-			toast.success("User deleted");
-			setSelectedUser(null);
-			setChanges(null);
-		} else {
-			toast.error("Failed to delete user");
+		try {
+			const response = await reqUpdateUser(selectedUser.id, { authentication: UserType.Deleted });
+			if (response.success) {
+				setUsers((prev) =>
+					prev?.map((u) =>
+						u.id === selectedUser.id
+							? { ...u, authentication: UserTypes.find((t) => t.id === UserType.Deleted) ?? u.authentication }
+							: u
+					) ?? null
+				);
+				toast.success("User deleted");
+				setSelectedUser(null);
+				setChanges(null);
+			} else {
+				toast.error("Failed to delete user");
+			}
+		} catch {
+			toast.error("An unexpected error occurred");
 		}
 	};
 
