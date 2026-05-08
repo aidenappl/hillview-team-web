@@ -80,8 +80,9 @@ const LoginPage = () => {
 						dispatch,
 					});
 					if (initializerResp.success) {
-						if (router.query.redirect) {
-							router.push(router.query.redirect as string);
+						const redirect = router.query.redirect as string | undefined;
+						if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+							router.push(redirect);
 						} else {
 							router.push(GetAccountLander(data.user));
 						}
@@ -125,8 +126,9 @@ const LoginPage = () => {
 						dispatch,
 					});
 					if (initializerResp.success) {
-						if (router.query.redirect) {
-							router.push(router.query.redirect as string);
+						const redirect = router.query.redirect as string | undefined;
+						if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+							router.push(redirect);
 						} else {
 							router.push(GetAccountLander(data.user));
 						}

@@ -8,6 +8,10 @@ import { GeneralResponse } from "../models/generalResponse.model";
 const isProduction = process.env.NODE_ENV === "production";
 
 const cookieOptions = {
+	// httpOnly is false because the frontend reads tokens from cookies to attach
+	// to API requests via Authorization header. To enable httpOnly, the backend
+	// would need to accept auth directly from cookies instead.
+	httpOnly: false,
 	secure: isProduction,
 	sameSite: (isProduction ? "none" : "lax") as "none" | "lax",
 	path: "/",
