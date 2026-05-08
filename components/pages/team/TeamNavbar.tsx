@@ -7,6 +7,7 @@ import {
 	faLink,
 	faTag,
 	faUserGroup,
+	faWrench,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
@@ -143,6 +144,12 @@ const TeamNavbar = ({ router }: Props) => {
 							label="Users"
 							href="/team/dashboard/users"
 							active={pathname === "/team/dashboard/users"}
+						/>
+						<NavItem
+							icon={faWrench}
+							label="Tools"
+							href="/team/r/tools"
+							active={pathname === "/team/r/tools"}
 						/>
 					</div>
 				)}
