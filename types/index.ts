@@ -101,6 +101,7 @@ interface Video {
 	url: string;
 	download_url: string;
 	allow_downloads: boolean;
+	duration?: number;
 	views: number;
 	downloads: number;
 	status: GeneralNSM;
