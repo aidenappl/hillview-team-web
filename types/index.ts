@@ -101,6 +101,7 @@ interface Video {
 	url: string;
 	download_url: string;
 	allow_downloads: boolean;
+	show_captions: boolean;
 	duration?: number;
 	views: number;
 	downloads: number;
@@ -118,6 +119,12 @@ type VideoInput = {
 	duration?: number;
 };
 
+type VideoCaption = {
+	language: string;
+	status: "ready" | "inprogress" | "error" | "none";
+	vtt?: string | null;
+};
+
 type VideoChanges = Partial<{
 	title: string;
 	description: string;
@@ -126,6 +133,7 @@ type VideoChanges = Partial<{
 	download_url: string;
 	status: number;
 	allow_downloads: boolean;
+	show_captions: boolean;
 }>;
 
 type VideoQueryParams = {
@@ -487,6 +495,7 @@ export type {
 	// Video
 	Video,
 	VideoInput,
+	VideoCaption,
 	VideoChanges,
 	VideoQueryParams,
 
