@@ -115,6 +115,7 @@ type VideoInput = {
 	thumbnail: string;
 	description: string;
 	download_url?: string;
+	duration?: number;
 };
 
 type VideoChanges = Partial<{

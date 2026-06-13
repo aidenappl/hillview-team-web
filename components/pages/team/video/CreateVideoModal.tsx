@@ -342,6 +342,18 @@ const CreateVideoModal = ({
 											"url",
 											status.result.playback?.hls ?? video.url ?? "",
 										);
+										// Cloudflare reports the real duration once the video
+										// is ready — capture it so it's persisted at create
+										// time (the videoAPI sync job is the fallback).
+										const dur = status.result.duration;
+										if (typeof dur === "number" && dur > 0) {
+											setVideo(
+												(prev) =>
+													applyChange(prev, {
+														duration: Math.round(dur),
+													}) as Partial<VideoInput>,
+											);
+										}
 										if (!video.title) {
 											const filename = status.result.meta?.filename ?? "";
 											const name =
