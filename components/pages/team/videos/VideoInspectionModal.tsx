@@ -17,6 +17,7 @@ import TeamModalUploader from "../TeamModalUploader";
 import { FrameGrabber } from "../video/FrameGrabber";
 import Spinner from "../../../general/Spinner";
 import formatDuration from "../../../../utils/formatDuration";
+import CaptionPreview from "./CaptionPreview";
 import { Video } from "../../../../types";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -72,6 +73,7 @@ const VideoInspectionModal = ({
 	// ── Captions ───────────────────────────────────────────────────────────────
 	const [captionStatus, setCaptionStatus] = useState<VideoCaption["status"]>("none");
 	const [captionVtt, setCaptionVtt] = useState("");
+	const [captionView, setCaptionView] = useState<"edit" | "preview">("edit");
 	const [captionLoading, setCaptionLoading] = useState(false);
 	const [captionSaving, setCaptionSaving] = useState(false);
 	const [captionRegenerating, setCaptionRegenerating] = useState(false);
@@ -283,6 +285,10 @@ const VideoInspectionModal = ({
 								<label className="text-sm font-medium text-[#101827]">
 									Captions (WebVTT)
 								</label>
+								<div className="flex rounded-md border border-slate-200 p-0.5 text-[0.65rem] font-semibold">
+									<button type="button" onClick={() => setCaptionView("edit")} className={"rounded px-2 py-0.5 " + (captionView === "edit" ? "bg-slate-100 text-slate-700" : "text-slate-400")}>Edit</button>
+									<button type="button" onClick={() => setCaptionView("preview")} className={"rounded px-2 py-0.5 " + (captionView === "preview" ? "bg-slate-100 text-slate-700" : "text-slate-400")}>Preview</button>
+								</div>
 								<span
 									className={
 										"rounded-full px-2 py-0.5 text-[0.65rem] font-semibold " +
@@ -298,6 +304,9 @@ const VideoInspectionModal = ({
 									{captionStatus === "inprogress" ? "generating…" : captionStatus}
 								</span>
 							</div>
+							{captionView === "preview" ? (
+								<CaptionPreview vtt={captionVtt} />
+							) : (
 							<textarea
 								value={captionVtt}
 								onChange={(e) => setCaptionVtt(e.target.value)}
@@ -311,6 +320,7 @@ const VideoInspectionModal = ({
 								}
 								className="h-48 w-full resize-y rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs leading-relaxed text-slate-700 focus:border-slate-300 focus:outline-none"
 							/>
+							)}
 							<div className="flex items-center gap-2">
 								<button
 									type="button"
