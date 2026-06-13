@@ -18,6 +18,7 @@ import { FrameGrabber } from "../video/FrameGrabber";
 import Spinner from "../../../general/Spinner";
 import formatDuration from "../../../../utils/formatDuration";
 import CaptionPreview from "./CaptionPreview";
+import CaptionEditor from "./CaptionEditor";
 import { Video } from "../../../../types";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -74,6 +75,8 @@ const VideoInspectionModal = ({
 	const [captionStatus, setCaptionStatus] = useState<VideoCaption["status"]>("none");
 	const [captionVtt, setCaptionVtt] = useState("");
 	const [captionView, setCaptionView] = useState<"edit" | "preview">("edit");
+	const [activeTab, setActiveTab] = useState<"video" | "captions">("video");
+	const [showEditor, setShowEditor] = useState(false);
 	const [captionLoading, setCaptionLoading] = useState(false);
 	const [captionSaving, setCaptionSaving] = useState(false);
 	const [captionRegenerating, setCaptionRegenerating] = useState(false);
@@ -195,6 +198,18 @@ const VideoInspectionModal = ({
 				}}
 			/>
 
+			{showEditor && (
+				<CaptionEditor
+					uuid={selectedVideo.uuid}
+					url={selectedVideo.url}
+					initialVtt={captionVtt}
+					onClose={() => setShowEditor(false)}
+					onSaved={(vtt) => {
+						setCaptionVtt(vtt);
+						setCaptionStatus("ready");
+					}}
+				/>
+			)}
 			{/* Backdrop */}
 			<div
 				className="fixed inset-0 z-20 bg-black/40 backdrop-blur-[1px]"
@@ -232,9 +247,32 @@ const VideoInspectionModal = ({
 					</div>
 				</div>
 
+				{/* Tabs */}
+				<div className="shrink-0 border-b border-slate-100 px-5 sm:px-6">
+					<div className="flex gap-4">
+						{(["video", "captions"] as const).map((tab) => (
+							<button
+								key={tab}
+								type="button"
+								onClick={() => setActiveTab(tab)}
+								className={
+									"-mb-px border-b-2 py-2.5 text-sm font-semibold transition-colors " +
+									(activeTab === tab
+										? "border-blue-600 text-blue-600"
+										: "border-transparent text-slate-400 hover:text-slate-600")
+								}
+							>
+								{tab === "video" ? "Video" : "Captions"}
+							</button>
+						))}
+					</div>
+				</div>
+
 				{/* Scrollable content */}
 				<div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-5 py-5 sm:px-6">
 					<div className="flex flex-col gap-5">
+						{activeTab === "video" && (
+						<>
 						{/* Title */}
 						<TeamModalInput
 							title="Title"
@@ -279,6 +317,10 @@ const VideoInspectionModal = ({
 							</div>
 						</div>
 
+						</>
+						)}
+						{activeTab === "captions" && (
+						<>
 						{/* Captions */}
 						<div className="flex flex-col gap-2">
 							<div className="flex items-center justify-between gap-2">
@@ -304,6 +346,13 @@ const VideoInspectionModal = ({
 									{captionStatus === "inprogress" ? "generating…" : captionStatus}
 								</span>
 							</div>
+							<button
+								type="button"
+								onClick={() => setShowEditor(true)}
+								className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow"
+							>
+								Open Caption Editor
+							</button>
 							{captionView === "preview" ? (
 								<CaptionPreview vtt={captionVtt} />
 							) : (
@@ -326,7 +375,7 @@ const VideoInspectionModal = ({
 									type="button"
 									onClick={saveCaption}
 									disabled={captionSaving || !captionVtt.trim()}
-									className="flex h-9 items-center justify-center rounded-md bg-primary-100 px-4 text-sm font-semibold text-white shadow disabled:opacity-50"
+									className="flex h-9 items-center justify-center rounded-md bg-blue-600 px-4 text-sm font-semibold text-white shadow disabled:opacity-50"
 								>
 									{captionSaving ? <Spinner style="light" size={16} /> : "Save captions"}
 								</button>
@@ -345,6 +394,10 @@ const VideoInspectionModal = ({
 							</p>
 						</div>
 
+						</>
+						)}
+						{activeTab === "video" && (
+						<>
 						{/* Source URL */}
 						<div className="flex flex-col gap-2">
 							<TeamModalInput
@@ -420,6 +473,10 @@ const VideoInspectionModal = ({
 							}}
 						/>
 
+						</>
+						)}
+						{activeTab === "captions" && (
+						<>
 						{/* Show Captions */}
 						<TeamModalCheckbox
 							title="Show Captions"
@@ -430,6 +487,8 @@ const VideoInspectionModal = ({
 								else deleteChange("show_captions");
 							}}
 						/>
+						</>
+						)}
 					</div>
 				</div>
 
