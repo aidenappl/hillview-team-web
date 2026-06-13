@@ -2,9 +2,15 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faDownload, faLock } from "@fortawesome/free-solid-svg-icons";
+import {
+	faEye,
+	faDownload,
+	faLock,
+	faClock,
+} from "@fortawesome/free-solid-svg-icons";
 import { Video } from "../../../../types";
 import Spinner from "../../../general/Spinner";
+import formatDuration from "../../../../utils/formatDuration";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -103,6 +109,12 @@ function VideoRow({
 					<StatusBadge status={video.status} />
 					{video.inserted_at && (
 						<span>{formatDate(video.inserted_at)}</span>
+					)}
+					{formatDuration(video.duration) && (
+						<span className="inline-flex items-center gap-1 tabular-nums">
+							<FontAwesomeIcon icon={faClock} className="h-3 w-3" />
+							{formatDuration(video.duration)}
+						</span>
 					)}
 					{video.creator && (
 						<span className="hidden sm:inline-flex items-center gap-1">

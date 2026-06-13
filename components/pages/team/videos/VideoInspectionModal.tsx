@@ -10,6 +10,7 @@ import TeamModalTextarea from "../TeamModalTextarea";
 import TeamModalUploader from "../TeamModalUploader";
 import { FrameGrabber } from "../video/FrameGrabber";
 import Spinner from "../../../general/Spinner";
+import formatDuration from "../../../../utils/formatDuration";
 import { Video } from "../../../../types";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -209,6 +210,16 @@ const VideoInspectionModal = ({
 								else deleteChange("status");
 							}}
 						/>
+
+						{/* Duration (read-only — managed from Cloudflare) */}
+						<div className="flex flex-col gap-2">
+							<label className="text-sm font-medium text-[#101827]">
+								Duration
+							</label>
+							<div className="flex h-[42px] items-center rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm tabular-nums text-slate-600">
+								{formatDuration(selectedVideo.duration) || "Not yet available"}
+							</div>
+						</div>
 
 						{/* Source URL */}
 						<div className="flex flex-col gap-2">
