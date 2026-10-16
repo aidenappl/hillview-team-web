@@ -1,5 +1,11 @@
-import axios, { AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
+import axios, {
+	AxiosError,
+	AxiosRequestConfig,
+	InternalAxiosRequestConfig,
+} from "axios";
 import { GetSessionAccessToken, RefreshSession } from "../sessionHandler";
+import { attachAxiosMonitor } from "@aidenappleby/monitor-js";
+import { monitor } from "../monitor.service";
 
 // Generic success response
 type ApiSuccess<T> = {
@@ -65,7 +71,9 @@ axios_api.interceptors.response.use(
 			return response;
 		}
 
-		const originalRequest = response.config as InternalAxiosRequestConfig & { _retry?: boolean };
+		const originalRequest = response.config as InternalAxiosRequestConfig & {
+			_retry?: boolean;
+		};
 
 		if (isRefreshing) {
 			// Queue this request until refresh completes
@@ -110,8 +118,14 @@ axios_api.interceptors.response.use(
 	},
 	(error) => {
 		return Promise.reject(error);
-	}
+	},
 );
+
+// Failed API calls go to Monitor with the API's X-Request-ID, so they join to
+// the API's own http.request.end event. Registered after the refresh
+// interceptor, so it sees the response after any token refresh and retry —
+// a 401 that refreshed successfully is not reported.
+if (monitor) attachAxiosMonitor(axios_api, monitor);
 
 // Basic fetch instance for non-API requests
 const fetch = axios.create({
@@ -125,13 +139,12 @@ const fetch = axios.create({
 // Fetch API instance for making API requests
 const FetchAPI = async <T>(
 	config: AxiosRequestConfig,
-	req: { auth?: boolean; authToken?: string } = {}
+	req: { auth?: boolean; authToken?: string } = {},
 ): Promise<ApiResponse<T>> => {
 	try {
 		if (req.auth) {
 			config.headers = config.headers || {};
-			config.headers["Authorization"] =
-				"Bearer " + GetSessionAccessToken();
+			config.headers["Authorization"] = "Bearer " + GetSessionAccessToken();
 		}
 
 		if (req.authToken) {

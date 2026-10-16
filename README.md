@@ -1,32 +1,57 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# hillview-team-web
 
-## Getting Started
+The HillviewTV team dashboard — videos, uploads, captions, playlists, assets, links and users.
 
-First, run the development server:
+> **Hillview platform** · Next.js app · team.hillview.tv (Lattice stack 38)
+
+---
+
+## Overview
+
+The staff and student dashboard at **team.hillview.tv**: video management and Cloudflare Stream uploads, caption/transcript editing, playlists, the homepage spotlight, equipment checkouts, short links and user administration. Google sign-in or local login through hillviewAuthAPI; students see a reduced dashboard.
+
+## Role in the Hillview ecosystem
+
+One of three Hillview web apps (hillview.tv, team.hillview.tv, watch.hillview.tv) in front of the five Hillview Go APIs at `api.hillview.tv`. Reports to Monitor zone **hillview** as `hillview-team-web`.
+
+## Tech stack
+
+Next.js 15.5 (**Pages Router**), React 19, Redux Toolkit, Tailwind CSS v3, TypeScript, axios with a refresh-token interceptor, `@react-oauth/google`, Headless UI (legacy — do not copy), `@aidenappleby/monitor-js` · Docker · Lattice
+
+## Getting started
+
+### Prerequisites
+
+Node 24, the `dev` CLI.
+
+### Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
+npm install
+cp .env.example .env.local   # where present; see AGENTS.md §4 for the variables
+dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Development
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+| Command         | What it does                    |
+| --------------- | ------------------------------- |
+| `dev`           | Start the dev server            |
+| `dev build`     | Production build                |
+| `dev lint`      | ESLint                          |
+| `dev format`    | Prettier                        |
+| `dev typecheck` | `tsc --noEmit`                  |
+| `dev check`     | lint + format check + typecheck |
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+## Project structure
 
-## Learn More
+See [AGENTS.md §3](AGENTS.md#3-project-structure).
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Push to `main` → GitHub Actions builds `registry.appleby.cloud/hillview-team-web:latest` → Lattice stack 38 redeploys the container (worker-5, port 3011).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Contributing & further reading
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- [AGENTS.md](AGENTS.md) — conventions, telemetry, operations
+- Related: hillview-tv-web, hillview-team-web, hillview-live-web, hillviewVideoAPI, hillviewCoreAPI, hillviewAuthAPI
