@@ -10,7 +10,7 @@ const GoogleLoginButton = (props: Props) => {
 
   return (
     <button
-      className="outline-none text-base font-medium cursor-pointer w-full h-[60px] border-2 border-[#a9b3f740] rounded-full mb-8 relative"
+      className="outline-hidden text-base font-medium cursor-pointer w-full h-[60px] border-2 border-[#a9b3f740] rounded-full mb-8 relative"
       onClick={onClick}
     >
       {loading ? (

@@ -22,7 +22,7 @@ const Button = ({
 
 	const variantClasses =
 		variant === "primary"
-			? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+			? "bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
 			: "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50";
 
 	return (

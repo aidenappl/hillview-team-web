@@ -339,7 +339,7 @@ const SpotlightedVideosModal = ({
 													<button
 														onClick={() => moveItem(index, "up")}
 														disabled={index === 0}
-														className="flex h-5 w-5 items-center justify-center rounded text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-25"
+														className="flex h-5 w-5 items-center justify-center rounded-sm text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-25"
 														aria-label="Move up"
 													>
 														<ChevronUpIcon />
@@ -347,7 +347,7 @@ const SpotlightedVideosModal = ({
 													<button
 														onClick={() => moveItem(index, "down")}
 														disabled={index === items.length - 1}
-														className="flex h-5 w-5 items-center justify-center rounded text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-25"
+														className="flex h-5 w-5 items-center justify-center rounded-sm text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-25"
 														aria-label="Move down"
 													>
 														<ChevronDownIcon />
@@ -492,7 +492,7 @@ const SpotlightedVideosModal = ({
 							onClick={runSave}
 							disabled={saving || !isDirty}
 							className={[
-								"flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-semibold text-white shadow-sm transition-all",
+								"flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-semibold text-white shadow-xs transition-all",
 								isDirty && !saving
 									? "bg-blue-600 shadow-blue-200/60 hover:bg-blue-700"
 									: "cursor-not-allowed bg-slate-300",

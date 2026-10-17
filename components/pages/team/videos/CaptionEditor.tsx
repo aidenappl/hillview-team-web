@@ -66,7 +66,7 @@ const TimeField = ({
 				if (e.key === "Enter") (e.target as HTMLInputElement).blur();
 			}}
 			onClick={(e) => e.stopPropagation()}
-			className="w-[92px] rounded border border-slate-200 px-1.5 py-0.5 text-center font-mono text-[0.7rem] tabular-nums text-slate-600 focus:border-blue-400 focus:outline-none"
+			className="w-[92px] rounded-sm border border-slate-200 px-1.5 py-0.5 text-center font-mono text-[0.7rem] tabular-nums text-slate-600 focus:border-blue-400 focus:outline-hidden"
 		/>
 	);
 };
@@ -310,7 +310,7 @@ const CaptionEditor = ({ uuid, url, initialVtt, onClose, onSaved }: Props) => {
 							onClick={save}
 							disabled={!dirty || saveState === "saving"}
 							className={
-								"flex h-9 min-w-[110px] items-center justify-center rounded-md px-4 text-sm font-semibold text-white shadow disabled:opacity-50 " +
+								"flex h-9 min-w-[110px] items-center justify-center rounded-md px-4 text-sm font-semibold text-white shadow-sm disabled:opacity-50 " +
 								(saveState === "saved"
 									? "bg-emerald-500"
 									: "bg-blue-600 hover:bg-blue-700")
@@ -398,7 +398,7 @@ const CaptionEditor = ({ uuid, url, initialVtt, onClose, onSaved }: Props) => {
 													setDragIndex(null);
 													setOverIndex(null);
 												}}
-												className="flex cursor-grab items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 text-[0.65rem] font-semibold text-slate-500 active:cursor-grabbing"
+												className="flex cursor-grab items-center gap-1 rounded-sm bg-slate-100 px-1.5 py-0.5 text-[0.65rem] font-semibold text-slate-500 active:cursor-grabbing"
 												title="Drag to reorder"
 											>
 												<span aria-hidden>⠿</span>
@@ -422,7 +422,7 @@ const CaptionEditor = ({ uuid, url, initialVtt, onClose, onSaved }: Props) => {
 													e.stopPropagation();
 													seekTo(cue.start);
 												}}
-												className="rounded px-1.5 py-0.5 text-[0.65rem] font-semibold text-blue-600 hover:bg-blue-600/10"
+												className="rounded-sm px-1.5 py-0.5 text-[0.65rem] font-semibold text-blue-600 hover:bg-blue-600/10"
 												title="Jump to this cue"
 											>
 												▸ play
@@ -437,7 +437,7 @@ const CaptionEditor = ({ uuid, url, initialVtt, onClose, onSaved }: Props) => {
 												}
 												list="caption-speakers"
 												placeholder="Speaker"
-												className="h-7 w-28 rounded border border-slate-200 px-2 text-xs text-slate-700 focus:border-blue-400 focus:outline-none"
+												className="h-7 w-28 rounded-sm border border-slate-200 px-2 text-xs text-slate-700 focus:border-blue-400 focus:outline-hidden"
 											/>
 
 											<button
@@ -446,7 +446,7 @@ const CaptionEditor = ({ uuid, url, initialVtt, onClose, onSaved }: Props) => {
 													e.stopPropagation();
 													removeCue(i);
 												}}
-												className="ml-auto rounded px-1.5 py-0.5 text-xs font-semibold text-red-500 hover:bg-red-50"
+												className="ml-auto rounded-sm px-1.5 py-0.5 text-xs font-semibold text-red-500 hover:bg-red-50"
 												title="Delete cue"
 											>
 												✕
@@ -458,7 +458,7 @@ const CaptionEditor = ({ uuid, url, initialVtt, onClose, onSaved }: Props) => {
 											onChange={(e) => patchCue(i, { body: e.target.value })}
 											rows={2}
 											placeholder="Caption text…"
-											className="mt-2 w-full resize-y rounded border border-slate-200 px-2 py-1.5 text-sm leading-relaxed text-slate-700 focus:border-blue-400 focus:outline-none"
+											className="mt-2 w-full resize-y rounded-sm border border-slate-200 px-2 py-1.5 text-sm leading-relaxed text-slate-700 focus:border-blue-400 focus:outline-hidden"
 										/>
 									</div>
 									<InsertDivider onClick={() => insertAt(i + 1)} />

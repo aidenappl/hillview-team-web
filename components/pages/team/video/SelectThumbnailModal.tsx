@@ -125,7 +125,7 @@ const SelectThumbnailModal = (props: {
 							controls
 						></video>
 						<button
-							className="w-full py-3 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 font-semibold disabled:opacity-50"
+							className="w-full py-3 bg-blue-600 text-white rounded-md shadow-xs hover:bg-blue-700 font-semibold disabled:opacity-50"
 							disabled={uploadState === "uploading"}
 							onClick={handleSelect}
 						>

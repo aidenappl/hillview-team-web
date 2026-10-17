@@ -114,11 +114,11 @@ const ToolsPage = () => {
 							className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-all ${
 								isActive
 									? "border-blue-500 bg-blue-50 ring-1 ring-blue-500"
-									: "border-slate-100 bg-white hover:border-slate-200 hover:shadow-sm"
+									: "border-slate-100 bg-white hover:border-slate-200 hover:shadow-xs"
 							}`}
 						>
 							<div
-								className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg transition-colors ${
+								className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
 									isActive
 										? "bg-blue-600 text-white"
 										: "bg-slate-100 text-slate-500"
@@ -142,7 +142,7 @@ const ToolsPage = () => {
 			{/* Active tool content */}
 			{activeTool && activeDef && (
 				<div className="pb-8">
-					<div className="rounded-xl border border-slate-100 bg-white shadow-sm">
+					<div className="rounded-xl border border-slate-100 bg-white shadow-xs">
 						{/* Tool header */}
 						<div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
 							<div className="flex items-center gap-2.5">

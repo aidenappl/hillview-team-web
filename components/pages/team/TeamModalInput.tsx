@@ -169,7 +169,7 @@ const TeamModalInput = (props: Props) => {
 							setInternalValue(e.target.value);
 							setValue(e.target.value);
 						}}
-						className="shadow-sm w-full h-[40px] border rounded-md px-4 pr-9 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+						className="shadow-xs w-full h-[40px] border rounded-md px-4 pr-9 focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-sm"
 					/>
 					{loading && (
 						<div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -179,7 +179,7 @@ const TeamModalInput = (props: Props) => {
 				</div>
 				{showActionButton ? (
 					<button
-						className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap"
+						className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow-xs transition-colors hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 whitespace-nowrap"
 						onClick={!actionButtonDisabled ? actionButtonClick : () => {}}
 					>
 						{actionButtonLoading ? <Spinner style="light" size={14} /> : actionButtonText}

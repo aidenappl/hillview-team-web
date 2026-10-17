@@ -186,7 +186,7 @@ const PlatformUserInspectionModal = ({
 								onClick={onSave}
 								disabled={saving || !saveActive}
 								className={[
-									"flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-semibold text-white shadow-sm transition-all",
+									"flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-semibold text-white shadow-xs transition-all",
 									saveActive && !saving
 										? "bg-blue-600 shadow-blue-200/60 hover:bg-blue-700"
 										: "cursor-not-allowed bg-slate-300",

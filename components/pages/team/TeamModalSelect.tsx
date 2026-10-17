@@ -44,7 +44,7 @@ const TeamModalSelect = (props: Props) => {
 						</label>
 					) : null}
 					<div className={"relative " + (props.title ? "mt-2" : "")}>
-						<Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-1 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6">
+						<Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-1 pr-10 text-left text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 focus:outline-hidden focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6">
 							<span className="flex items-center">
 								<span className="ml-3 block truncate">
 									{selected.name}
@@ -65,7 +65,7 @@ const TeamModalSelect = (props: Props) => {
 							leaveFrom="opacity-100"
 							leaveTo="opacity-0"
 						>
-							<Listbox.Options className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+							<Listbox.Options className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-hidden sm:text-sm">
 								{values.map((value) =>
 									value.hidden ? null : (
 										<Listbox.Option

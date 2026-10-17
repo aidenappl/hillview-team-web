@@ -199,7 +199,7 @@ const WhatsNewModal = ({ onAcknowledge, acknowledging }: Props) => {
 						ref={buttonRef}
 						onClick={onAcknowledge}
 						disabled={acknowledging}
-						className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-200/60 transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+						className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white shadow-xs shadow-blue-200/60 transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
 					>
 						{acknowledging ? (
 							<>

@@ -54,7 +54,7 @@ const TeamModalDropzone = (props: Props) => {
 						<div className="mt-4 flex text-sm leading-6 text-gray-600 text-center justify-center">
 							<label
 								htmlFor="file-upload"
-								className="relative cursor-pointer rounded-md bg-white font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500"
+								className="relative cursor-pointer rounded-md bg-white font-semibold text-blue-600 focus-within:outline-hidden focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500"
 								id="file-upload-label"
 							>
 								<span>Upload a file</span>

@@ -23,7 +23,7 @@ const TeamModalTextarea = (props: Props) => {
 			<textarea
 				placeholder={props.placeholder}
 				className={
-					"shadow-sm w-full h-[100px] border rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm " +
+					"shadow-xs w-full h-[100px] border rounded-md px-4 py-3 focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-sm " +
 					props.className
 				}
 				value={value}

@@ -164,7 +164,7 @@ const QRCodeDesigner = ({ url }: Props) => {
 			{/* Preview */}
 			<div className="flex flex-col items-center gap-2">
 				<div
-					className="rounded-xl border border-slate-100 p-3 shadow-sm"
+					className="rounded-xl border border-slate-100 p-3 shadow-xs"
 					style={{ backgroundColor: design.bgColor }}
 				>
 					<div ref={containerRef} />
@@ -206,7 +206,7 @@ const QRCodeDesigner = ({ url }: Props) => {
 						</p>
 						<label className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-2.5 py-1.5 transition-colors hover:bg-slate-50">
 							<span
-								className="h-5 w-5 shrink-0 rounded border border-slate-200"
+								className="h-5 w-5 shrink-0 rounded-sm border border-slate-200"
 								style={{ backgroundColor: design[key] }}
 							/>
 							<span className="font-mono text-xs text-slate-600">{design[key]}</span>

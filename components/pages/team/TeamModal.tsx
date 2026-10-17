@@ -32,7 +32,7 @@ const TeamModal = (props: Props) => {
 					{props.children}
 				</div>
 				<div className="mt-8 w-full h-[75px] flex justify-between items-center relative">
-					<div className="w-[calc(100%+64px)] h-[1px] bg-slate-100 absolute top-0 left-[-32px]" />
+					<div className="w-[calc(100%+64px)] h-px bg-slate-100 absolute top-0 left-[-32px]" />
 					<div className="flex gap-2">
 						{showDestructive ? (
 							<button
@@ -52,7 +52,7 @@ const TeamModal = (props: Props) => {
 						</button>
 						<button
 							className={[
-								"flex items-center justify-center rounded-lg px-5 py-2 text-sm font-semibold text-white shadow-sm transition-all",
+								"flex items-center justify-center rounded-lg px-5 py-2 text-sm font-semibold text-white shadow-xs transition-all",
 								props.saveActive
 									? "bg-blue-600 hover:bg-blue-700"
 									: "cursor-not-allowed bg-slate-300",

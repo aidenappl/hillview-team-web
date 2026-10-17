@@ -25,7 +25,7 @@ const UsersPage = () => {
 						"rounded-md font-medium transition-colors",
 						size === "md" ? "px-3 py-1 text-sm" : "px-2.5 py-1 text-xs",
 						tab === t
-							? "bg-blue-600 text-white shadow-sm"
+							? "bg-blue-600 text-white shadow-xs"
 							: "text-slate-600 hover:text-slate-900",
 					].join(" ")}
 				>

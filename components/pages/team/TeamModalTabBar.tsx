@@ -35,7 +35,7 @@ const TeamModalTabBar = (props: Props) => {
 						}}
 					>
 						<p className="font-semibold text-sm">{tab.name}</p>
-                        <div className={"w-full bg-blue-700 absolute bottom-0 left-0 transition " + (locActiveTab === tab ? "h-[2px]" : "h-[0px]")}/>
+                        <div className={"w-full bg-blue-700 absolute bottom-0 left-0 transition " + (locActiveTab === tab ? "h-[2px]" : "h-0")}/>
 					</div>
 				);
 			})}

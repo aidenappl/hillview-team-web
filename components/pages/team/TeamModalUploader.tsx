@@ -26,7 +26,7 @@ const TeamModalUploader = (props: Props) => {
 			<div className="flex gap-4 items-center">
 				<div
 					className={
-						"w-[50px] h-[50px] relative rounded-md overflow-hidden border shadow-sm cursor-pointer flex items-center justify-center " +
+						"w-[50px] h-[50px] relative rounded-md overflow-hidden border shadow-xs cursor-pointer flex items-center justify-center " +
 						props.imageClassName
 					}
 					onClick={triggerFileInput}

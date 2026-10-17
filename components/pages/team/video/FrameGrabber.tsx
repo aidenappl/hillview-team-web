@@ -110,10 +110,10 @@ export const FrameGrabber = ({
 	if (!show) return null;
 
 	return (
-		<div className="fixed inset-0 z-[60] flex flex-col" aria-modal="true" role="dialog" aria-label="Grab Thumbnail">
+		<div className="fixed inset-0 z-60 flex flex-col" aria-modal="true" role="dialog" aria-label="Grab Thumbnail">
 			{/* Backdrop */}
 			<div
-				className="absolute inset-0 bg-black/75 backdrop-blur-sm"
+				className="absolute inset-0 bg-black/75 backdrop-blur-xs"
 				onClick={onCloseHit}
 				aria-hidden="true"
 			/>
@@ -214,7 +214,7 @@ export const FrameGrabber = ({
 							</button>
 							<button
 								onClick={() => onSelectFrame(currentTime)}
-								className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+								className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-blue-700"
 							>
 								Use Frame
 							</button>

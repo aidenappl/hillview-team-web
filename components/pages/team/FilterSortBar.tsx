@@ -81,7 +81,7 @@ const FilterSortBar = ({
 						value={internalSearch}
 						onChange={(e) => setInternalSearch(e.target.value)}
 						placeholder={searchPlaceholder}
-						className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-8 pr-3 text-sm text-slate-700 placeholder-slate-400 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+						className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-8 pr-3 text-sm text-slate-700 placeholder-slate-400 shadow-xs focus:border-blue-400 focus:outline-hidden focus:ring-1 focus:ring-blue-400"
 					/>
 				</div>
 			)}
@@ -90,7 +90,7 @@ const FilterSortBar = ({
 			<select
 				value={sortValue}
 				onChange={(e) => onSort(e.target.value)}
-				className="h-9 rounded-lg border border-slate-200 bg-white px-3 pr-7 text-sm text-slate-700 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400 appearance-none cursor-pointer"
+				className="h-9 rounded-lg border border-slate-200 bg-white px-3 pr-7 text-sm text-slate-700 shadow-xs focus:border-blue-400 focus:outline-hidden focus:ring-1 focus:ring-blue-400 appearance-none cursor-pointer"
 				style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 8px center", backgroundSize: "14px" }}
 			>
 				{sortOptions.map((opt) => (

@@ -397,7 +397,7 @@ const PlaylistsPage = () => {
 			{/* Team Heading */}
 			<TeamHeader title="Platform Playlists">
 				<button
-					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
+					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-xs"
 					onClick={() => {
 						setShowCreatePlaylist(true);
 					}}
@@ -406,13 +406,13 @@ const PlaylistsPage = () => {
 				</button>
 			</TeamHeader>
 			{/* Data Body */}
-			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
+			<div className="flex items-center w-full h-[70px] shrink-0 relative pr-4">
 				<div className="w-[300px]" />
 				<p className="w-[calc(33%-170px)] font-semibold">Title</p>
 				<p className="w-[calc(33%-170px)] font-semibold">Route</p>
 				<p className="w-[calc(33%-170px)] font-semibold"># Videos</p>
 				<div className="w-[200px]" />
-				<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
+				<div className="w-full h-px absolute bottom-0 right-0 bg-[#ebf0f6]" />
 			</div>
 			<div className="w-full h-[calc(100%-170px)] overflow-y-scroll overflow-x-auto">
 				{/* Table Body */}
@@ -423,7 +423,7 @@ const PlaylistsPage = () => {
 								return (
 									<div
 										key={index}
-										className="flex items-center w-full h-[100px] flex-shrink-0 hover:bg-slate-50"
+										className="flex items-center w-full h-[100px] shrink-0 hover:bg-slate-50"
 									>
 										<div className="w-[300px] flex items-center justify-center">
 											<div

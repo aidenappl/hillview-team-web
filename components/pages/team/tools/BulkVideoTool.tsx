@@ -105,7 +105,7 @@ const BulkVideoTool = () => {
 					<select
 						value={filterStatus}
 						onChange={(e) => setFilterStatus(e.target.value ? Number(e.target.value) : "")}
-						className="h-9 rounded-lg border border-slate-200 bg-white px-3 pr-7 text-sm text-slate-700 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400 appearance-none cursor-pointer"
+						className="h-9 rounded-lg border border-slate-200 bg-white px-3 pr-7 text-sm text-slate-700 shadow-xs focus:border-blue-400 focus:outline-hidden focus:ring-1 focus:ring-blue-400 appearance-none cursor-pointer"
 					>
 						<option value="">All statuses</option>
 						{VideoStatuses.map((s) => (
@@ -122,7 +122,7 @@ const BulkVideoTool = () => {
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
 						placeholder="Search videos..."
-						className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-sm placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+						className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:outline-hidden focus:ring-1 focus:ring-blue-400"
 					/>
 				</div>
 
@@ -135,7 +135,7 @@ const BulkVideoTool = () => {
 					<select
 						value={targetStatus}
 						onChange={(e) => setTargetStatus(e.target.value ? Number(e.target.value) : "")}
-						className="h-9 rounded-lg border border-slate-200 bg-white px-3 pr-7 text-sm text-slate-700 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400 appearance-none cursor-pointer"
+						className="h-9 rounded-lg border border-slate-200 bg-white px-3 pr-7 text-sm text-slate-700 shadow-xs focus:border-blue-400 focus:outline-hidden focus:ring-1 focus:ring-blue-400 appearance-none cursor-pointer"
 					>
 						<option value="">Select status...</option>
 						{VideoStatuses.map((s) => (
@@ -183,7 +183,7 @@ const BulkVideoTool = () => {
 								type="checkbox"
 								checked={videos.length > 0 && selected.size === videos.length}
 								onChange={toggleAll}
-								className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+								className="h-3.5 w-3.5 rounded-sm border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
 							/>
 						</div>
 						<p>Title</p>
@@ -207,7 +207,7 @@ const BulkVideoTool = () => {
 										checked={selected.has(video.id)}
 										onChange={() => toggleSelect(video.id)}
 										onClick={(e) => e.stopPropagation()}
-										className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+										className="h-3.5 w-3.5 rounded-sm border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
 									/>
 								</div>
 								<p className="text-sm text-slate-700 truncate">{video.title}</p>

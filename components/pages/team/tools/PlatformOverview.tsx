@@ -152,7 +152,7 @@ const PlatformOverview = () => {
 			{stats.map((stat) => (
 				<div
 					key={stat.label}
-					className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm"
+					className="rounded-xl border border-slate-100 bg-white p-5 shadow-xs"
 				>
 					<p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
 						{stat.label}

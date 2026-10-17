@@ -265,7 +265,7 @@ const VideosPage = () => {
 			{/* Team Heading */}
 			<TeamHeader title="Platform Videos">
 				<button
-					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
+					className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-xs"
 					onClick={() => {
 						setShowUploadVideo(true);
 					}}
@@ -274,13 +274,13 @@ const VideosPage = () => {
 				</button>
 			</TeamHeader>
 			{/* Data Body */}
-			<div className="flex items-center w-full h-[70px] flex-shrink-0 relative pr-4">
+			<div className="flex items-center w-full h-[70px] shrink-0 relative pr-4">
 				<div className="w-[300px]" />
 				<p className="w-[calc(33%-167px)] font-semibold">Title</p>
 				<p className="w-[calc(33%-167px)] font-semibold">Views</p>
 				<p className="w-[calc(33%-167px)] font-semibold">Status</p>
 				<div className="w-[200px]" />
-				<div className="w-full h-[1px] absolute bottom-0 right-0 bg-[#ebf0f6]" />
+				<div className="w-full h-px absolute bottom-0 right-0 bg-[#ebf0f6]" />
 			</div>
 			<div className="w-full h-[calc(100%-170px)] overflow-y-auto overflow-x-auto">
 				{/* Table Body */}
@@ -291,7 +291,7 @@ const VideosPage = () => {
 								return (
 									<div
 										key={index}
-										className="flex items-center w-full h-[100px] flex-shrink-0 hover:bg-slate-50"
+										className="flex items-center w-full h-[100px] shrink-0 hover:bg-slate-50"
 									>
 										<div className="w-[300px] flex items-center justify-center">
 											<div
@@ -364,7 +364,7 @@ const VideosPage = () => {
 							<div className="w-full h-[150px] flex items-center justify-center">
 								<button
 									onClick={loadMore}
-									className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-sm"
+									className="px-5 text-sm py-2 bg-blue-800 hover:bg-blue-900 transition text-white rounded-xs"
 								>
 									Load More
 								</button>

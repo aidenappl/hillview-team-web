@@ -44,7 +44,7 @@ const TeamNavbar = ({ router }: Props) => {
 						: "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
 				}`}
 			>
-				<FontAwesomeIcon icon={icon} fixedWidth className="w-[15px] h-[15px] flex-shrink-0" />
+				<FontAwesomeIcon icon={icon} fixedWidth className="w-[15px] h-[15px] shrink-0" />
 				<span className="hidden md:block font-medium text-sm leading-none">
 					{label}
 				</span>
@@ -63,10 +63,10 @@ const TeamNavbar = ({ router }: Props) => {
 	);
 
 	return (
-		<aside className="w-[60px] md:w-[220px] h-full flex-shrink-0 flex flex-col border-r border-slate-100 py-5 px-2 md:px-3">
+		<aside className="w-[60px] md:w-[220px] h-full shrink-0 flex flex-col border-r border-slate-100 py-5 px-2 md:px-3">
 			{/* Logo */}
 			<div className="flex items-center gap-3 px-2 mb-7">
-				<div className="w-8 h-8 rounded-xl bg-blue-600 flex-shrink-0 flex items-center justify-center overflow-hidden">
+				<div className="w-8 h-8 rounded-xl bg-blue-600 shrink-0 flex items-center justify-center overflow-hidden">
 					<Image
 						src="/logos/hillviewTVSun.png"
 						alt="Hillview TV"
@@ -159,7 +159,7 @@ const TeamNavbar = ({ router }: Props) => {
 			<div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-0.5">
 				{user && (
 					<div className="flex items-center gap-3 px-3 py-2 mb-1">
-						<div className="w-6 h-6 rounded-full bg-slate-200 flex-shrink-0 overflow-hidden">
+						<div className="w-6 h-6 rounded-full bg-slate-200 shrink-0 overflow-hidden">
 							{user.profile_image_url && (
 								<Image
 									src={user.profile_image_url}

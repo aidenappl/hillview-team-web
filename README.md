@@ -16,7 +16,7 @@ One of three Hillview web apps (hillview.tv, team.hillview.tv, watch.hillview.tv
 
 ## Tech stack
 
-Next.js 16 (**Pages Router**), React 19, Redux Toolkit, Tailwind CSS v3, TypeScript, axios with a refresh-token interceptor, `@react-oauth/google`, Headless UI (legacy — do not copy), `@aidenappleby/monitor-js` · Docker · Lattice
+Next.js 16 (**Pages Router**), React 19, Redux Toolkit, Tailwind CSS v4 (`@tailwindcss/postcss`, CSS-first config in `styles/globals.css` — no `tailwind.config.js`), TypeScript, axios with a refresh-token interceptor, `@react-oauth/google`, Headless UI (legacy — do not copy), `@aidenappleby/monitor-js` · Docker · Lattice
 
 ## Getting started
 

@@ -12,7 +12,7 @@ const PendingPage = () => {
 				<h1 className="w-full text-4xl font-semibold text-center">
 					Your account has been Terminated
 				</h1>
-				<p className="ml-[auto] mr-[auto] text-center mt-6 text-gray-500">
+				<p className="ml-auto mr-auto text-center mt-6 text-gray-500">
 					You are unable to access Hillview Team resources. Please
 					have an administrator create a new account for you.
 				</p>

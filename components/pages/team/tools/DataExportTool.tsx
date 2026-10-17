@@ -207,7 +207,7 @@ const DataExportTool = () => {
 						disabled={!!exporting}
 						className="flex items-start gap-3 rounded-xl border border-slate-100 bg-white p-4 text-left transition-colors hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
 					>
-						<div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+						<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
 							{isExporting ? (
 								<svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
 									<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

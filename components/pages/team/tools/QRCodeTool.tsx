@@ -16,7 +16,7 @@ const QRCodeTool = () => {
 					value={url}
 					onChange={(e) => setUrl(e.target.value)}
 					placeholder="https://hillview.tv/..."
-					className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-700 shadow-sm placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+					className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-700 shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:outline-hidden focus:ring-1 focus:ring-blue-400"
 				/>
 				<p className="mt-2 text-xs text-slate-400">
 					Enter any URL to generate a customizable QR code. Use the controls below to style it.
@@ -24,7 +24,7 @@ const QRCodeTool = () => {
 			</div>
 
 			{/* QR Code Designer */}
-			<div className="w-full lg:w-[340px] flex-shrink-0">
+			<div className="w-full lg:w-[340px] shrink-0">
 				<QRCodeDesigner url={url || "https://hillview.tv"} />
 			</div>
 		</div>

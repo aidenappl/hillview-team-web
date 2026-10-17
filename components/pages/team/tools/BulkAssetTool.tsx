@@ -108,7 +108,7 @@ const BulkAssetTool = () => {
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
 						placeholder="Search assets..."
-						className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-sm placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+						className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:outline-hidden focus:ring-1 focus:ring-blue-400"
 					/>
 				</div>
 
@@ -121,7 +121,7 @@ const BulkAssetTool = () => {
 					<select
 						value={targetStatus}
 						onChange={(e) => setTargetStatus(e.target.value ? Number(e.target.value) : "")}
-						className="h-9 rounded-lg border border-slate-200 bg-white px-3 pr-7 text-sm text-slate-700 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400 appearance-none cursor-pointer"
+						className="h-9 rounded-lg border border-slate-200 bg-white px-3 pr-7 text-sm text-slate-700 shadow-xs focus:border-blue-400 focus:outline-hidden focus:ring-1 focus:ring-blue-400 appearance-none cursor-pointer"
 					>
 						<option value="">Select status...</option>
 						{AssetStatuses.map((s) => (
@@ -169,7 +169,7 @@ const BulkAssetTool = () => {
 								type="checkbox"
 								checked={assets.length > 0 && selected.size === assets.length}
 								onChange={toggleAll}
-								className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+								className="h-3.5 w-3.5 rounded-sm border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
 							/>
 						</div>
 						<p>Name</p>
@@ -193,7 +193,7 @@ const BulkAssetTool = () => {
 										checked={selected.has(asset.id)}
 										onChange={() => toggleSelect(asset.id)}
 										onClick={(e) => e.stopPropagation()}
-										className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+										className="h-3.5 w-3.5 rounded-sm border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
 									/>
 								</div>
 								<div className="min-w-0">

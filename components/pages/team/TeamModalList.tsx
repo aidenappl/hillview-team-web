@@ -20,7 +20,7 @@ const TeamModalList = (props: Props) => {
 			</label>
 			<div
 				className={
-					"flex flex-col gap-1 w-full h-fit max-h-[300px] flex-shrink-0 " +
+					"flex flex-col gap-1 w-full h-fit max-h-[300px] shrink-0 " +
 					(props.list.length === 0
 						? "overflow-y-none"
 						: "overflow-y-scroll")
@@ -31,7 +31,7 @@ const TeamModalList = (props: Props) => {
 						return (
 							<div
 								key={index}
-								className="w-full h-[40px] flex-shrink-0 bg-slate-50 hover:bg-slate-100 flex items-center justify-between px-5"
+								className="w-full h-[40px] shrink-0 bg-slate-50 hover:bg-slate-100 flex items-center justify-between px-5"
 							>
 								<p
 									className="text-sm font-medium text-[#101827] cursor-pointer"
