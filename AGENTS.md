@@ -8,7 +8,7 @@ Served at **team.hillview.tv** from Lattice stack 38 "Hillview Web". It moved of
 
 ## 2. Stack & dependencies
 
-- Next.js 15.5 (**Pages Router**), React 19, Redux Toolkit, Tailwind CSS v3, TypeScript, axios with a refresh-token interceptor, `@react-oauth/google`, Headless UI (legacy — do not copy), `@aidenappleby/monitor-js`
+- Next.js 16 (**Pages Router**), React 19, Redux Toolkit, Tailwind CSS v3, TypeScript, axios with a refresh-token interceptor, `@react-oauth/google`, Headless UI (legacy — do not copy), `@aidenappleby/monitor-js`
 - Node 24 (Docker `node:24-alpine`), `output: "standalone"`
 - Telemetry: `@aidenappleby/monitor-js` ^1.2.1 → Monitor zone **hillview** (§6)
 
@@ -59,6 +59,8 @@ dev check      # lint + prettier --check + tsc --noEmit
 - Data fetching is imperative (`useEffect` + service calls, or `getServerSideProps`) through the axios wrapper in `services/http/requestHandler.ts`; no SWR/React Query.
 - Report errors with `reportError(name, error, data)` from `services/monitor.service.ts` in boundaries and catch blocks that change what the user sees. Never put form values, tokens or response bodies in event data.
 - The Monitor ingest key never reaches the browser: the browser SDK posts to the same-origin `/api/monitor`, which validates the batch, forces `service` to `hillview-team-web`, adds the key and forwards.
+- Lint is the ESLint 9 flat config in `eslint.config.mjs` (`npm run lint` → `eslint .`; Next 16 removed `next lint`). The React Compiler rules from eslint-plugin-react-hooks v7 are switched off there on purpose — they flag 38 existing patterns; enable them when refactoring those components.
+- `package.json` `overrides` pins `@uppy/core`'s `nanoid` to 5.1.16 (security fix within 5.x; Uppy 6 is a breaking upgrade). Drop it when Uppy is upgraded.
 - Legacy codebase: some components predate the estate standards (e.g. component libraries, Pages Router). Don't extend those patterns.
 
 ## 6. Domain & architecture
