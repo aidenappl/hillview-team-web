@@ -2,13 +2,13 @@
 
 ## 1. What this repo is
 
-The staff and student dashboard at **team.hillview.tv**: video management and Mux uploads (videos not yet migrated still play from Cloudflare Stream), caption/transcript editing, playlists, the homepage spotlight, equipment checkouts, short links and user administration. Google sign-in or local login through hillviewAuthAPI; students see a reduced dashboard.
+The staff and student dashboard at **team.hillview.tv**: video management and Mux uploads, caption/transcript editing, playlists, the homepage spotlight, equipment checkouts, short links and user administration. Google sign-in or local login through hillviewAuthAPI; students see a reduced dashboard.
 
 Served at **team.hillview.tv** from Lattice stack 38 "Hillview Web". It moved off Vercel (team `hillview-ms`) in October 2026. It owns no data — everything comes from the Hillview Go APIs at `api.hillview.tv`.
 
 ## 2. Stack & dependencies
 
-- Next.js 16 (**Pages Router**), React 19, Redux Toolkit, Tailwind CSS v4 (`@tailwindcss/postcss`, CSS-first config in `styles/globals.css` — no `tailwind.config.js`), TypeScript, axios with a refresh-token interceptor, `@react-oauth/google`, Headless UI (legacy — do not copy), `@aidenappleby/monitor-js`
+- Next.js 16 (**Pages Router**), React 19, Redux Toolkit, Tailwind CSS v4 (`@tailwindcss/postcss`, CSS-first config in `styles/globals.css` — no `tailwind.config.js`), TypeScript, axios with a refresh-token interceptor, `@react-oauth/google`, Headless UI (legacy — do not copy), `@mux/upchunk` (uploads), `@mux/mux-player-react` (caption editor), `@aidenappleby/monitor-js`
 - Node 24 (Docker `node:24-alpine`), `output: "standalone"`
 - Telemetry: `@aidenappleby/monitor-js` ^1.2.1 → Monitor zone **hillview** (§6)
 
@@ -23,7 +23,7 @@ hillview-team-web/
   models/, types/, validators/ # shapes and form validation
   redux/                       # store + `user` slice
   services/                    # `http/requestHandler.ts` (axios + refresh queue), session/token/cookie handlers, `monitor.service.ts`
-  utils/                       # Cloudflare and Mux url helpers (`mux.ts`), VTT, duration helpers
+  utils/                       # Mux url helpers (`mux.ts`), VTT, duration helpers
   styles/                      # Tailwind v4 entry (`@import "tailwindcss"`) + v3-compat base styles
   instrumentation.ts           # onRequestError → Monitor (Node runtime only)
   instrumentation-client.ts    # creates the browser Monitor before hydration
@@ -67,7 +67,7 @@ dev check      # lint + prettier --check + tsc --noEmit
 
 **Auth:** hillviewAuthAPI issues JWTs; the access token is kept in cookies via `cookies-next` and sent as a Bearer header. A 401 triggers one refresh (queued for concurrent requests) and a retry. Google sign-in's authorised origins include `https://team.hillview.tv`.
 
-**Uploads (Mux, Oct 2026):** `UploadComponent` asks hillviewVideoAPI `POST /video/v1.1/upload/mux/upload` for a Mux direct-upload url (videoAPI holds the Mux credentials; this app holds none), `@mux/upchunk` PUTs the file straight to Mux in 50MB chunks, then the component polls `GET /video/v1.1/upload/mux/{id}` (`waiting` → `preparing` → `ready`). The status fills the form's `url` (`https://stream.mux.com/{playback_id}.m3u8`), `download_url` (`…/{playback_id}/highest.mp4`) and duration; the video row is then created through hillviewCoreAPI as before. Mux gives no encoding percentage, so the dropzone shows "Encoding…" alone. For existing videos, "generate download" derives the Mux MP4 url locally and still calls videoAPI for Cloudflare Stream urls; the frame picker builds `image.mux.com` thumbnails for Mux videos.
+**Uploads (Mux, Oct 2026):** `UploadComponent` asks hillviewVideoAPI `POST /video/v1.1/upload/mux/upload` for a Mux direct-upload url (videoAPI holds the Mux credentials; this app holds none), `@mux/upchunk, `@mux/mux-player-react` (caption editor)` PUTs the file straight to Mux in 50MB chunks, then the component polls `GET /video/v1.1/upload/mux/{id}` (`waiting` → `preparing` → `ready`). The status fills the form's `url` (`https://stream.mux.com/{playback_id}.m3u8`), `download_url` (`…/{playback_id}/highest.mp4`) and duration; the video row is then created through hillviewCoreAPI as before. Mux gives no encoding percentage, so the dropzone shows "Encoding…" alone. For existing videos, the download-url action derives the Mux MP4 url locally; the frame picker builds `image.mux.com` thumbnails; the caption editor previews and seeks with `@mux/mux-player-react`. There is no Cloudflare Stream code left (removed Oct 2026); `next.config.js` still allows the old Stream thumbnail host for archived rows until the Stream account is deleted.
 
 ### Monitor telemetry
 
@@ -89,7 +89,7 @@ Service **`hillview-team-web`**, zone **`hillview`** (Lattice stack 37). Server-
 
 ## 8. Operations
 
-- **Lattice stack 38 "Hillview Web"** on worker-5 (id 8, `10.15.10.79`), container `hillview-team-web`, host port `3011`. Stack env: `MONITOR_HILLVIEW_INGEST_URL` / `MONITOR_HILLVIEW_INGEST_KEY`. (`CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN` are no longer read since uploads moved to Mux; remove them from the stack when it is next edited.)
+- **Lattice stack 38 "Hillview Web"** on worker-5 (id 8, `10.15.10.79`), container `hillview-team-web`, host port `3011`. Stack env: `MONITOR_HILLVIEW_INGEST_URL` / `MONITOR_HILLVIEW_INGEST_KEY`.
 - **CI:** push to `main` → `push-to-registry.yml`: registry credentials from Keyring (token `hillview-web-ci`, via `aidenappl/keyring-actions`), build on the shared `lattice-builder`, push `registry.appleby.cloud/hillview-team-web:latest`, then `LATTICE_DEPLOY_URL?container=hillview-team-web`. GitHub secrets: `KEYRING_URL`, `KEYRING_ACCESS_KEY_ID`, `KEYRING_SECRET_ACCESS_KEY`, `LATTICE_DEPLOY_URL`.
 - Env or compose changes need a **stack Deploy** in Lattice; a CI container redeploy reuses the old config.
 - **Edge:** Cloudflare DNS record (proxied) → NPM proxy host with the Cloudflare real-IP block and a Let's Encrypt certificate (DNS challenge).

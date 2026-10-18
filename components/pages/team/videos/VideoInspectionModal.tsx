@@ -16,6 +16,7 @@ import TeamModalTextarea from "../TeamModalTextarea";
 import TeamModalUploader from "../TeamModalUploader";
 import { FrameGrabber } from "../video/FrameGrabber";
 import {
+	extractMuxPlaybackIdFromUrl,
 	extractMuxPlaybackIdFromDownloadUrl,
 	muxThumbnailUrl,
 } from "../../../../utils/mux";
@@ -51,7 +52,7 @@ interface VideoInspectionModalProps {
 	saveVideoInspection: () => void;
 	setShowConfirmDeleteVideo: (show: boolean) => void;
 	deleteChange: (key: string) => void;
-	generateCloudflareDownload: () => void;
+	generateMuxDownload: () => void;
 	showThumbnailSelector: boolean;
 	setShowThumbnailSelector: (show: boolean) => void;
 	downloadButtonParams: any;
@@ -68,7 +69,7 @@ const VideoInspectionModal = ({
 	saveVideoInspection,
 	setShowConfirmDeleteVideo,
 	deleteChange,
-	generateCloudflareDownload,
+	generateMuxDownload,
 	showThumbnailSelector,
 	setShowThumbnailSelector,
 	downloadButtonParams,
@@ -174,17 +175,12 @@ const VideoInspectionModal = ({
 		}
 	};
 
-	// The frame picker plays the MP4 download, then builds a poster url for the
-	// chosen moment: Stream thumbnails or Mux image urls.
+	// The frame picker plays the Mux MP4 download, then builds an image.mux.com
+	// poster url for the chosen moment.
 	const muxDownloadPlaybackId = selectedVideo.download_url
 		? extractMuxPlaybackIdFromDownloadUrl(selectedVideo.download_url)
 		: null;
-	const isCloudflareThumbnailAvailable =
-		!!selectedVideo.download_url &&
-		(selectedVideo.download_url.includes(
-			"https://customer-nakrsdfbtn3mdz5z.cloudflarestream.com/"
-		) ||
-			muxDownloadPlaybackId !== null);
+	const isFrameGrabAvailable = muxDownloadPlaybackId !== null;
 
 	return (
 		<>
@@ -194,22 +190,9 @@ const VideoInspectionModal = ({
 				onCloseHit={() => setShowThumbnailSelector(false)}
 				onSelectFrame={(timestamp: number) => {
 					setShowThumbnailSelector(false);
-					if (muxDownloadPlaybackId) {
-						inputChange({
-							thumbnail: muxThumbnailUrl(muxDownloadPlaybackId, timestamp),
-						});
-						return;
-					}
-					const baseURL = selectedVideo.download_url.replaceAll(
-						"/downloads/default.mp4",
-						""
-					);
+					if (!muxDownloadPlaybackId) return;
 					inputChange({
-						thumbnail:
-							baseURL +
-							"/thumbnails/thumbnail.jpg?time=" +
-							timestamp +
-							"s&width=1280&height=720",
+						thumbnail: muxThumbnailUrl(muxDownloadPlaybackId, timestamp),
 					});
 				}}
 			/>
@@ -442,7 +425,7 @@ const VideoInspectionModal = ({
 							<TeamModalInput
 								title="Thumbnail URL"
 								placeholder="Thumbnail image URL"
-								showActionButton={isCloudflareThumbnailAvailable}
+								showActionButton={isFrameGrabAvailable}
 								actionButtonText="Grab Frame"
 								actionButtonClick={() => setShowThumbnailSelector(true)}
 								value={changes?.thumbnail ?? selectedVideo.thumbnail}
@@ -470,12 +453,12 @@ const VideoInspectionModal = ({
 							}}
 							showActionButton={
 								!!selectedVideo.url &&
-								selectedVideo.url.includes("cloudflarestream") &&
+								extractMuxPlaybackIdFromUrl(selectedVideo.url) !== null &&
 								!selectedVideo.download_url
 							}
 							actionButtonText={downloadButtonParams.text}
 							actionButtonLoading={downloadButtonParams.loading}
-							actionButtonClick={generateCloudflareDownload}
+							actionButtonClick={generateMuxDownload}
 						/>
 
 						{/* Allow Downloads */}

@@ -103,7 +103,7 @@ const VideosPage = () => {
 		showThumbnailSelector,
 		setShowThumbnailSelector,
 		downloadButtonParams,
-		generateCloudflareDownload,
+		generateMuxDownload,
 		resetDownloadBtn,
 	} = useVideoInspector({ onSaved: initialize });
 
@@ -190,7 +190,7 @@ const VideosPage = () => {
 					cancelVideoInspection={cancelVideoInspection}
 					saveVideoInspection={saveVideoInspection}
 					setShowConfirmDeleteVideo={setShowConfirmArchive}
-					generateCloudflareDownload={generateCloudflareDownload}
+					generateMuxDownload={generateMuxDownload}
 					showThumbnailSelector={showThumbnailSelector}
 					setShowThumbnailSelector={setShowThumbnailSelector}
 					downloadButtonParams={downloadButtonParams}

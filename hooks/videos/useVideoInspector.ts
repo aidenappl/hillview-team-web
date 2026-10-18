@@ -1,8 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { reqUpdateVideo } from "../../services/api/video.service";
-import { reqCreateDownloadUrl } from "../../services/api/cloudflare.service";
-import { extractCloudflareIdFromUrl } from "../../utils/cloudflare";
 import { extractMuxPlaybackIdFromUrl, muxDownloadUrl } from "../../utils/mux";
 import { Video } from "../../types";
 
@@ -78,7 +76,7 @@ export function useVideoInspector({ onSaved }: Params) {
 		}
 	};
 
-	const generateCloudflareDownload = async () => {
+	const generateMuxDownload = async () => {
 		if (!selectedVideo?.url) {
 			toast.error("Please enter a source URL first");
 			return;
@@ -95,38 +93,7 @@ export function useVideoInspector({ onSaved }: Params) {
 			setDownloadButtonParams({ loading: false, text: "Done", disabled: true });
 			return;
 		}
-		const id = extractCloudflareIdFromUrl(selectedVideo.url);
-		if (!id) {
-			toast.error("Please enter a valid source URL first");
-			return;
-		}
-		setDownloadButtonParams({
-			loading: true,
-			text: "Generating...",
-			disabled: false,
-		});
-		try {
-			const response = await reqCreateDownloadUrl(id);
-			if (response.success) {
-				const url = response.data?.result?.default?.url;
-				await inputChange({ download_url: url });
-				setDownloadButtonParams({ loading: false, text: "Done", disabled: true });
-			} else {
-				toast.error(response.error_message || "Failed to generate download URL");
-				setDownloadButtonParams({
-					loading: false,
-					text: "Failed",
-					disabled: false,
-				});
-			}
-		} catch {
-			toast.error("Failed to generate download URL");
-			setDownloadButtonParams({
-				loading: false,
-				text: "Failed",
-				disabled: false,
-			});
-		}
+		toast.error("Please enter a valid Mux source URL first");
 	};
 
 	return {
@@ -141,7 +108,7 @@ export function useVideoInspector({ onSaved }: Params) {
 		showThumbnailSelector,
 		setShowThumbnailSelector,
 		downloadButtonParams,
-		generateCloudflareDownload,
+		generateMuxDownload,
 		resetDownloadBtn,
 	};
 }

@@ -8,7 +8,7 @@ The HillviewTV team dashboard — videos, uploads, captions, playlists, assets, 
 
 ## Overview
 
-The staff and student dashboard at **team.hillview.tv**: video management and Mux uploads (videos not yet migrated still play from Cloudflare Stream), caption/transcript editing, playlists, the homepage spotlight, equipment checkouts, short links and user administration. Google sign-in or local login through hillviewAuthAPI; students see a reduced dashboard.
+The staff and student dashboard at **team.hillview.tv**: video management and Mux uploads, caption/transcript editing, playlists, the homepage spotlight, equipment checkouts, short links and user administration. Google sign-in or local login through hillviewAuthAPI; students see a reduced dashboard.
 
 ## Role in the Hillview ecosystem
 
