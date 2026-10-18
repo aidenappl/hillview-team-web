@@ -9,6 +9,7 @@ const nextConfig = {
 			{ hostname: "content.hillview.tv" },
 			{ hostname: "google.com" },
 			{ hostname: "customer-nakrsdfbtn3mdz5z.cloudflarestream.com" },
+			{ hostname: "image.mux.com" },
 			{ hostname: "lh3.googleusercontent.com" },
 		],
 	},

@@ -1,211 +1,132 @@
-import React, { useEffect, useState } from "react";
-import Uppy from "@uppy/core";
-import Tus from "@uppy/tus";
+import React, { useEffect, useRef, useState } from "react";
+import * as UpChunk from "@mux/upchunk";
 
-import { CloudflareStatus } from "../../../../models/cloudflareStatus.model";
+import { MuxUploadStatus } from "../../../../types";
+import { DropzoneStates } from "../TeamModalDropzone";
+import {
+	reqCreateMuxUpload,
+	reqGetMuxUploadStatus,
+} from "../../../../services/api/mux.service";
 
-import { reqGetCloudflareStatus } from "../../../../services/api/cloudflare.service";
+// Mux direct upload: videoAPI mints a resumable PUT url, UpChunk sends the file
+// in 50MB chunks (a multiple of the 256KB Mux requires), then we poll videoAPI
+// until Mux has finished preparing the asset.
+
+const CHUNK_SIZE_KB = 50 * 1024;
+const POLL_INTERVAL_MS = 2000;
 
 interface PageProps {
 	hidden?: boolean;
 	id?: string;
-	onSourceURL?: (url: string) => void;
-	onThumbnailURL?: (url: string) => void;
-	onUppyState?: (
-		state:
-			| "none"
-			| "dna"
-			| "in-progress"
-			| "finishing-up"
-			| "status-checks"
-			| "status-rolling"
-			| "done"
-			| "failed"
-	) => void;
+	onUploadState?: (state: DropzoneStates) => void;
 	onProgress?: (progress: number) => void;
-	onEncodingProgress?: (progress: number) => void;
-	onStatusBody?: (status: CloudflareStatus | null) => void;
+	onFileName?: (name: string) => void;
+	onStatus?: (status: MuxUploadStatus) => void;
 }
 
 const UploadComponent = (props: PageProps) => {
 	const {
-		onSourceURL = () => {},
-		onThumbnailURL = () => {},
-		onUppyState = () => {},
+		onUploadState = () => {},
 		onProgress = () => {},
-		onEncodingProgress = () => {},
-		onStatusBody = () => {},
+		onFileName = () => {},
+		onStatus = () => {},
 		hidden,
 		id,
 	} = props;
 
-	const [uppy, setUppy] = useState<any>(null);
+	const [state, setState] = useState<DropzoneStates>("none");
 	const [progress, setProgress] = useState<number>(0);
-	const [uppyState, setUppyState] = useState<
-		| "none"
-		| "dna"
-		| "in-progress"
-		| "finishing-up"
-		| "status-checks"
-		| "status-rolling"
-		| "done"
-		| "failed"
-	>("none");
-	const [statusBody, setStatusBody] = useState<CloudflareStatus | null>(null);
-	const [videoID, setVideoID] = useState<string>("");
+	const pollerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+	const uploadRef = useRef<UpChunk.UpChunk | null>(null);
 
 	useEffect(() => {
-		if (uppyState === "status-checks") {
-			getEncodingProgress();
-		}
-		onUppyState(uppyState);
+		onUploadState(state);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [uppyState]);
+	}, [state]);
 
 	useEffect(() => {
 		onProgress(progress);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [progress]);
 
-	useEffect(() => {
-		onStatusBody(statusBody);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [statusBody]);
+	// Stop uploading and polling if the modal closes mid-way.
+	useEffect(
+		() => () => {
+			if (pollerRef.current) clearInterval(pollerRef.current);
+			uploadRef.current?.abort();
+		},
+		[],
+	);
 
-	const getEncodingProgress = async () => {
-		let retryCount = 0;
-		const maxRetries = 10;
-		const initialDelay = 500;
-
-		const waitForVideoAvailable = async (): Promise<boolean> => {
-			const response = await reqGetCloudflareStatus(videoID);
-
-			if (
-				!response ||
-				!response.success ||
-				!response.data ||
-				!response.data.result ||
-				typeof response.data.result !== "object" ||
-				Object.keys(response.data.result).length === 0
-			) {
-				if (retryCount < maxRetries) {
-					retryCount++;
-					const delay = initialDelay * Math.pow(1.5, retryCount - 1);
-					await new Promise((resolve) => setTimeout(resolve, delay));
-					return waitForVideoAvailable();
-				} else {
-					setUppyState("failed");
-					return false;
-				}
-			}
-
-			return true;
-		};
-
-		const isAvailable = await waitForVideoAvailable();
-		if (!isAvailable) return;
-
-		// Now start regular polling
-		const poller = setInterval(async () => {
-			const response = await reqGetCloudflareStatus(videoID);
-			if (!response) {
-				clearInterval(poller);
-				return;
-			}
+	const pollStatus = (uploadID: string) => {
+		if (pollerRef.current) clearInterval(pollerRef.current);
+		pollerRef.current = setInterval(async () => {
+			const response = await reqGetMuxUploadStatus(uploadID);
 			if (!response.success) {
-				clearInterval(poller);
-				setUppyState("failed");
+				if (pollerRef.current) clearInterval(pollerRef.current);
+				setState("failed");
 				return;
 			}
-			setUppyState("status-rolling");
-			const data = response.data;
-			setStatusBody(data);
-			if (data.success) {
-				const status = data.result.status;
-				if (
-					status.state === "ready" &&
-					status.pctComplete &&
-					parseInt(status.pctComplete) > 99
-				) {
-					setUppyState("done");
-					onSourceURL(data.result.playback.hls);
-					onThumbnailURL(data.result.thumbnail);
-					clearInterval(poller);
-				} else if (
-					status.state === "ready" &&
-					data.result.readyToStream &&
-					data.result.playback.hls
-				) {
-					onThumbnailURL(data.result.thumbnail);
-					onSourceURL(data.result.playback.hls);
-				}
-				if (status.state !== "queued") {
-					onEncodingProgress(parseInt(status.pctComplete || "0"));
-				} else {
-					onEncodingProgress(0);
-				}
+			const status = response.data;
+			onStatus(status);
+			switch (status.status) {
+				case "waiting":
+					setState("status-checks");
+					break;
+				case "preparing":
+					setState("status-rolling");
+					break;
+				case "ready":
+					if (pollerRef.current) clearInterval(pollerRef.current);
+					setState("done");
+					break;
+				case "errored":
+					if (pollerRef.current) clearInterval(pollerRef.current);
+					setState("failed");
+					break;
 			}
-		}, 1000);
+		}, POLL_INTERVAL_MS);
 	};
 
-	const initializeUppy = (file: File, uploadURL: string) => {
-		const uppyInstance = new Uppy({
-			debug: true,
-			autoProceed: true,
-			restrictions: {
-				maxNumberOfFiles: 1,
+	const startUpload = (file: File) => {
+		let uploadID = "";
+
+		const upload = UpChunk.createUpload({
+			endpoint: async () => {
+				const response = await reqCreateMuxUpload();
+				if (!response.success) {
+					throw new Error(response.error_message || "Failed to create upload");
+				}
+				uploadID = response.data.id;
+				return response.data.url;
 			},
+			file,
+			chunkSize: CHUNK_SIZE_KB,
+		});
+		uploadRef.current = upload;
+
+		upload.on("progress", (e: CustomEvent<number>) => {
+			const pct = Math.round(e.detail);
+			setProgress(pct);
+			setState(pct >= 100 ? "finishing-up" : "in-progress");
 		});
 
-		uppyInstance.use(Tus, {
-			endpoint: uploadURL,
-			chunkSize: 50 * 1024 * 1024,
-			removeFingerprintOnSuccess: true,
+		upload.on("success", () => {
+			setState("status-checks");
+			pollStatus(uploadID);
 		});
 
-		uppyInstance.on("upload-progress", (file, progress) => {
-			const precProgress = Math.round(
-				((progress.bytesUploaded ?? 0) / (progress.bytesTotal ?? 1)) * 100
-			);
-			if (precProgress === 100) {
-				setUppyState("finishing-up");
-			} else {
-				setUppyState("in-progress");
-			}
-			setProgress(precProgress);
+		upload.on("error", () => {
+			setState("failed");
 		});
-
-		uppyInstance.on("complete", (result) => {
-			const uploadURL = result.successful?.[0]?.uploadURL;
-			if (uploadURL) {
-				setVideoID(formatVideoURL(uploadURL));
-			}
-			setUppyState("status-checks");
-			// Handle result here
-		});
-
-		uppyInstance.addFile({
-			name: file.name,
-			type: file.type,
-			size: file.size,
-			data: file,
-		});
-
-		setUppy(uppyInstance);
 	};
 
-	const formatVideoURL = (url: string): string => {
-		const regex = /tus\/(.*?)\?tusv2/;
-		const match = url.match(regex);
-		if (!match) return "";
-		return match[1];
-	};
-
-	const handleFileChange = async (e: any) => {
-		const file = e.target.files[0];
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
 		if (!file) return;
-		setUppyState("dna");
-		initializeUppy(file, "/api/upload");
+		setState("dna");
+		onFileName(file.name);
+		startUpload(file);
 	};
 
 	return (
@@ -215,30 +136,14 @@ const UploadComponent = (props: PageProps) => {
 				onChange={handleFileChange}
 				id={id ? id : "file-upload"}
 				name="file-upload"
-				accept=".mp4, .m4v"
+				accept=".mp4, .m4v, .mov"
 				className="sr-only"
 			/>
-			{uppyState === "in-progress" && <div>Uploading: {progress}%</div>}
-			{uppyState === "finishing-up" && <div>Processing...</div>}
-			{uppyState === "status-checks" && <div>Checking status...</div>}
-			{uppyState === "status-rolling" &&
-				statusBody &&
-				statusBody.result.status.state === "queued" && (
-					<div>Queued for Encoding...</div>
-				)}
-			{uppyState === "done" ||
-				(uppyState === "status-rolling" &&
-					statusBody &&
-					statusBody.result.readyToStream && <div>Ready to Stream!</div>)}
-			{uppyState === "status-rolling" &&
-				statusBody &&
-				statusBody.result.status.state !== "queued" && (
-					<div>
-						Encoding:{" "}
-						{Math.round(parseInt(statusBody.result.status.pctComplete || "0"))}%
-					</div>
-				)}
-			{uppyState === "done" && <div>Done!</div>}
+			{state === "in-progress" && <div>Uploading: {progress}%</div>}
+			{state === "finishing-up" && <div>Processing...</div>}
+			{state === "status-checks" && <div>Checking status...</div>}
+			{state === "status-rolling" && <div>Encoding...</div>}
+			{state === "done" && <div>Done!</div>}
 		</div>
 	);
 };

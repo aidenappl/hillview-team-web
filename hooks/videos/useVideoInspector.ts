@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { reqUpdateVideo } from "../../services/api/video.service";
 import { reqCreateDownloadUrl } from "../../services/api/cloudflare.service";
 import { extractCloudflareIdFromUrl } from "../../utils/cloudflare";
+import { extractMuxPlaybackIdFromUrl, muxDownloadUrl } from "../../utils/mux";
 import { Video } from "../../types";
 
 type Params = {
@@ -82,13 +83,21 @@ export function useVideoInspector({ onSaved }: Params) {
 			toast.error("Please enter a source URL first");
 			return;
 		}
+		if (selectedVideo.download_url) {
+			toast.error("A download URL already exists for this video");
+			return;
+		}
+		// Every Mux asset is created with an MP4; its url follows from the
+		// playback id.
+		const playbackId = extractMuxPlaybackIdFromUrl(selectedVideo.url);
+		if (playbackId) {
+			await inputChange({ download_url: muxDownloadUrl(playbackId) });
+			setDownloadButtonParams({ loading: false, text: "Done", disabled: true });
+			return;
+		}
 		const id = extractCloudflareIdFromUrl(selectedVideo.url);
 		if (!id) {
 			toast.error("Please enter a valid source URL first");
-			return;
-		}
-		if (selectedVideo.download_url) {
-			toast.error("A download URL already exists for this video");
 			return;
 		}
 		setDownloadButtonParams({

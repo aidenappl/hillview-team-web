@@ -2,7 +2,7 @@
 
 ## 1. What this repo is
 
-The staff and student dashboard at **team.hillview.tv**: video management and Cloudflare Stream uploads, caption/transcript editing, playlists, the homepage spotlight, equipment checkouts, short links and user administration. Google sign-in or local login through hillviewAuthAPI; students see a reduced dashboard.
+The staff and student dashboard at **team.hillview.tv**: video management and Mux uploads (videos not yet migrated still play from Cloudflare Stream), caption/transcript editing, playlists, the homepage spotlight, equipment checkouts, short links and user administration. Google sign-in or local login through hillviewAuthAPI; students see a reduced dashboard.
 
 Served at **team.hillview.tv** from Lattice stack 38 "Hillview Web". It moved off Vercel (team `hillview-ms`) in October 2026. It owns no data — everything comes from the Hillview Go APIs at `api.hillview.tv`.
 
@@ -16,14 +16,14 @@ Served at **team.hillview.tv** from Lattice stack 38 "Hillview Web". It moved of
 
 ```
 hillview-team-web/
-  pages/                       # routes; `pages/api/` holds `health`, `monitor` (telemetry relay), `upload` (mints a Cloudflare Stream direct-upload URL)
+  pages/                       # routes; `pages/api/` holds `health` and `monitor` (telemetry relay)
   components/                  # UI
   hooks/                       # data hooks
   lib/                         # `monitor-server.ts`, `monitor-relay.ts`
   models/, types/, validators/ # shapes and form validation
   redux/                       # store + `user` slice
   services/                    # `http/requestHandler.ts` (axios + refresh queue), session/token/cookie handlers, `monitor.service.ts`
-  utils/                       # Cloudflare, VTT, duration helpers
+  utils/                       # Cloudflare and Mux url helpers (`mux.ts`), VTT, duration helpers
   styles/                      # Tailwind v4 entry (`@import "tailwindcss"`) + v3-compat base styles
   instrumentation.ts           # onRequestError → Monitor (Node runtime only)
   instrumentation-client.ts    # creates the browser Monitor before hydration
@@ -46,8 +46,6 @@ dev check      # lint + prettier --check + tsc --noEmit
 | `NEXT_PUBLIC_API_URL`          | build arg | https://api.hillview.tv                                                                                                    |
 | `NEXT_PUBLIC_BASE_URL`         | build arg | https://team.hillview.tv                                                                                                   |
 | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | build arg | the Hillview Google OAuth client (public)                                                                                  |
-| `CLOUDFLARE_ACCOUNT_ID`        | runtime   | Cloudflare account for Stream uploads (`/api/upload`)                                                                      |
-| `CLOUDFLARE_API_TOKEN`         | runtime   | Stream token used by `/api/upload`                                                                                         |
 | `MONITOR_INGEST_URL`           | runtime   | Monitor ingest, `https://hillview-monitor-api.appleby.cloud/v1/events`. Unset = telemetry discarded (logged once a minute) |
 | `MONITOR_API_KEY`              | runtime   | Ingest-scoped key minted on the **hillview** zone; server-side only                                                        |
 | `MONITOR_ENV`                  | runtime   | Event `env` (default `production`)                                                                                         |
@@ -60,7 +58,6 @@ dev check      # lint + prettier --check + tsc --noEmit
 - Report errors with `reportError(name, error, data)` from `services/monitor.service.ts` in boundaries and catch blocks that change what the user sees. Never put form values, tokens or response bodies in event data.
 - The Monitor ingest key never reaches the browser: the browser SDK posts to the same-origin `/api/monitor`, which validates the batch, forces `service` to `hillview-team-web`, adds the key and forwards.
 - Lint is the ESLint 9 flat config in `eslint.config.mjs` (`npm run lint` → `eslint .`; Next 16 removed `next lint`). The React Compiler rules from eslint-plugin-react-hooks v7 are switched off there on purpose — they flag 38 existing patterns; enable them when refactoring those components.
-- `package.json` `overrides` pins `@uppy/core`'s `nanoid` to 5.1.16 (security fix within 5.x; Uppy 6 is a breaking upgrade). Drop it when Uppy is upgraded.
 - Legacy codebase: some components predate the estate standards (e.g. component libraries, Pages Router). Don't extend those patterns.
 - **Tailwind v4 CSS layering:** utilities live in `@layer utilities`, and unlayered CSS beats any layer. Put element-level rules (`html`, `body`, `a`, `*`, resets) inside `@layer base` in `styles/globals.css`, or they will override utility classes. Theme tokens go in `@theme`, not a JS config.
 
@@ -70,7 +67,7 @@ dev check      # lint + prettier --check + tsc --noEmit
 
 **Auth:** hillviewAuthAPI issues JWTs; the access token is kept in cookies via `cookies-next` and sent as a Bearer header. A 401 triggers one refresh (queued for concurrent requests) and a retry. Google sign-in's authorised origins include `https://team.hillview.tv`.
 
-**Uploads:** `/api/upload` asks Cloudflare Stream for a tus direct-upload URL; the browser then uploads straight to Cloudflare.
+**Uploads (Mux, Oct 2026):** `UploadComponent` asks hillviewVideoAPI `POST /video/v1.1/upload/mux/upload` for a Mux direct-upload url (videoAPI holds the Mux credentials; this app holds none), `@mux/upchunk` PUTs the file straight to Mux in 50MB chunks, then the component polls `GET /video/v1.1/upload/mux/{id}` (`waiting` → `preparing` → `ready`). The status fills the form's `url` (`https://stream.mux.com/{playback_id}.m3u8`), `download_url` (`…/{playback_id}/highest.mp4`) and duration; the video row is then created through hillviewCoreAPI as before. Mux gives no encoding percentage, so the dropzone shows "Encoding…" alone. For existing videos, "generate download" derives the Mux MP4 url locally and still calls videoAPI for Cloudflare Stream urls; the frame picker builds `image.mux.com` thumbnails for Mux videos.
 
 ### Monitor telemetry
 
@@ -92,7 +89,7 @@ Service **`hillview-team-web`**, zone **`hillview`** (Lattice stack 37). Server-
 
 ## 8. Operations
 
-- **Lattice stack 38 "Hillview Web"** on worker-5 (id 8, `10.15.10.79`), container `hillview-team-web`, host port `3011`. Stack env: `MONITOR_HILLVIEW_INGEST_URL` / `MONITOR_HILLVIEW_INGEST_KEY` and the Cloudflare Stream credentials.
+- **Lattice stack 38 "Hillview Web"** on worker-5 (id 8, `10.15.10.79`), container `hillview-team-web`, host port `3011`. Stack env: `MONITOR_HILLVIEW_INGEST_URL` / `MONITOR_HILLVIEW_INGEST_KEY`. (`CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN` are no longer read since uploads moved to Mux; remove them from the stack when it is next edited.)
 - **CI:** push to `main` → `push-to-registry.yml`: registry credentials from Keyring (token `hillview-web-ci`, via `aidenappl/keyring-actions`), build on the shared `lattice-builder`, push `registry.appleby.cloud/hillview-team-web:latest`, then `LATTICE_DEPLOY_URL?container=hillview-team-web`. GitHub secrets: `KEYRING_URL`, `KEYRING_ACCESS_KEY_ID`, `KEYRING_SECRET_ACCESS_KEY`, `LATTICE_DEPLOY_URL`.
 - Env or compose changes need a **stack Deploy** in Lattice; a CI container redeploy reuses the old config.
 - **Edge:** Cloudflare DNS record (proxied) → NPM proxy host with the Cloudflare real-IP block and a Let's Encrypt certificate (DNS challenge).
