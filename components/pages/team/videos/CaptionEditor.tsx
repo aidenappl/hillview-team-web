@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import Script from "next/script";
 import toast from "react-hot-toast";
+import MuxPlayer, { MuxPlayerRefAttributes } from "@mux/mux-player-react";
 import Spinner from "../../../general/Spinner";
 import {
 	EditCue,
@@ -15,26 +15,8 @@ import {
 	reqSaveVideoCaption,
 	reqRegenerateVideoCaption,
 } from "../../../../services/api/captions.service";
+import { extractMuxPlaybackIdFromUrl } from "../../../../utils/mux";
 
-interface StreamPlayer {
-	currentTime: number;
-	play: () => void;
-	pause: () => void;
-	addEventListener: (e: string, h: () => void) => void;
-	removeEventListener: (e: string, h: () => void) => void;
-}
-declare global {
-	interface Window {
-		Stream?: (iframe: HTMLIFrameElement) => StreamPlayer;
-	}
-}
-
-const embedFromUrl = (url: string): string | null => {
-	if (url.includes("cloudflarestream.com") || url.includes("videodelivery.net")) {
-		return url.replace("/manifest/video.m3u8", "/iframe");
-	}
-	return null;
-};
 
 // Editable time field — keeps a local string while focused, commits on blur/Enter.
 const TimeField = ({
@@ -93,20 +75,16 @@ type Props = {
 };
 
 const CaptionEditor = ({ uuid, url, initialVtt, onClose, onSaved }: Props) => {
-	const embed = useMemo(() => embedFromUrl(url), [url]);
+	const playbackId = useMemo(() => extractMuxPlaybackIdFromUrl(url), [url]);
 	const [cues, setCues] = useState<EditCue[]>(() => parseEditCues(initialVtt));
 	const [selected, setSelected] = useState(0);
 	const [activeCue, setActiveCue] = useState(-1);
 	const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
 	const [regenerating, setRegenerating] = useState(false);
-	const [sdkReady, setSdkReady] = useState(
-		typeof window !== "undefined" && !!window.Stream,
-	);
 	const [dragIndex, setDragIndex] = useState<number | null>(null);
 	const [overIndex, setOverIndex] = useState<number | null>(null);
 
-	const iframeRef = useRef<HTMLIFrameElement | null>(null);
-	const playerRef = useRef<StreamPlayer | null>(null);
+	const playerRef = useRef<MuxPlayerRefAttributes | null>(null);
 	const savedSnapshot = useRef(serializeCues(parseEditCues(initialVtt)));
 	const activeRef = useRef<HTMLLIElement | null>(null);
 
@@ -118,26 +96,21 @@ const CaptionEditor = ({ uuid, url, initialVtt, onClose, onSaved }: Props) => {
 		cuesRef.current = cues;
 	}, [cues]);
 
-	// Attach to the Cloudflare player once; track playback to highlight the active cue.
-	useEffect(() => {
-		if (!embed || !sdkReady || !iframeRef.current || !window.Stream) return;
-		const sp = window.Stream(iframeRef.current);
-		playerRef.current = sp;
-		const onTime = () => {
-			const t = sp.currentTime;
-			const cs = cuesRef.current;
-			let idx = -1;
-			for (let i = 0; i < cs.length; i++) {
-				if (cs[i].start <= t && t < cs[i].end) {
-					idx = i;
-					break;
-				}
+	// Highlight the cue under the playhead.
+	const onTimeUpdate = () => {
+		const p = playerRef.current;
+		if (!p) return;
+		const t = p.currentTime;
+		const cs = cuesRef.current;
+		let idx = -1;
+		for (let i = 0; i < cs.length; i++) {
+			if (cs[i].start <= t && t < cs[i].end) {
+				idx = i;
+				break;
 			}
-			setActiveCue((prev) => (prev === idx ? prev : idx));
-		};
-		sp.addEventListener("timeupdate", onTime);
-		return () => sp.removeEventListener("timeupdate", onTime);
-	}, [embed, sdkReady]);
+		}
+		setActiveCue((prev) => (prev === idx ? prev : idx));
+	};
 
 	useEffect(() => {
 		activeRef.current?.scrollIntoView({ block: "nearest" });
@@ -181,7 +154,7 @@ const CaptionEditor = ({ uuid, url, initialVtt, onClose, onSaved }: Props) => {
 		const p = playerRef.current;
 		if (!p) return;
 		p.currentTime = sec;
-		p.play();
+		void p.play();
 	};
 
 	const setStartToPlayhead = () => {
@@ -220,7 +193,7 @@ const CaptionEditor = ({ uuid, url, initialVtt, onClose, onSaved }: Props) => {
 		if (regenerating) return;
 		if (
 			!window.confirm(
-				"Regenerate captions from Cloudflare AI? This replaces the current captions.",
+				"Regenerate captions with Mux AI? This replaces the current captions.",
 			)
 		)
 			return;
@@ -237,14 +210,6 @@ const CaptionEditor = ({ uuid, url, initialVtt, onClose, onSaved }: Props) => {
 
 	return (
 		<div className="fixed inset-0 z-50 flex flex-col bg-white">
-			{embed && (
-				<Script
-					src="https://embed.cloudflarestream.com/embed/sdk.latest.js"
-					strategy="afterInteractive"
-					onLoad={() => setSdkReady(true)}
-				/>
-			)}
-
 			{/* Header */}
 			<div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-5 py-3">
 				<div>
@@ -266,21 +231,20 @@ const CaptionEditor = ({ uuid, url, initialVtt, onClose, onSaved }: Props) => {
 			<div className="flex min-h-0 flex-1 flex-col lg:flex-row">
 				{/* Left — player + controls */}
 				<div className="flex shrink-0 flex-col gap-4 border-b border-slate-100 p-5 lg:w-[44%] lg:border-b-0 lg:border-r">
-					{embed ? (
+					{playbackId ? (
 						<div className="overflow-hidden rounded-xl bg-black">
-							<div className="relative pt-[56.25%]">
-								<iframe
-									ref={iframeRef}
-									src={embed}
-									className="absolute inset-0 h-full w-full border-none"
-									allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
-									allowFullScreen
-								/>
-							</div>
+							<MuxPlayer
+								ref={playerRef}
+								playbackId={playbackId}
+								streamType="on-demand"
+								accentColor="#2563eb"
+								onTimeUpdate={onTimeUpdate}
+								style={{ aspectRatio: "16 / 9", width: "100%", display: "block" }}
+							/>
 						</div>
 					) : (
 						<div className="flex h-40 items-center justify-center rounded-xl bg-slate-100 text-sm text-slate-400">
-							No Cloudflare player for this video
+							No Mux player for this video
 						</div>
 					)}
 
@@ -288,7 +252,7 @@ const CaptionEditor = ({ uuid, url, initialVtt, onClose, onSaved }: Props) => {
 						<button
 							type="button"
 							onClick={setStartToPlayhead}
-							disabled={!embed || !cues[selected]}
+							disabled={!playbackId || !cues[selected]}
 							className="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
 						>
 							Set start to playhead
@@ -296,7 +260,7 @@ const CaptionEditor = ({ uuid, url, initialVtt, onClose, onSaved }: Props) => {
 						<button
 							type="button"
 							onClick={setEndToPlayhead}
-							disabled={!embed || !cues[selected]}
+							disabled={!playbackId || !cues[selected]}
 							className="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
 						>
 							Set end to playhead

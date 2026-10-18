@@ -11,7 +11,6 @@ import ValidVideo from "../../../../validators/video.validator";
 import Spinner from "../../../general/Spinner";
 
 import { reqCreateVideo } from "../../../../services/api/video.service";
-import { reqCreateDownloadUrl } from "../../../../services/api/cloudflare.service";
 import { applyChange, removeChange } from "../../../../utils/changeTracking";
 import { VideoInput } from "../../../../types";
 import { MuxUploadStatus } from "../../../../types";
@@ -93,7 +92,6 @@ const CreateVideoModal = ({
 	const [dropzoneState, setDropzoneState] = useState<DropzoneStates>("none");
 	const [uploadProgress, setUploadProgress] = useState(0);
 	const [showImageLoader, setShowImageLoader] = useState(false);
-	const [generatingDownload, setGeneratingDownload] = useState(false);
 	const [downloadGenerated, setDownloadGenerated] = useState(false);
 	const [showThumbnailSelector, setShowThumbnailSelector] = useState(false);
 
@@ -105,8 +103,7 @@ const CreateVideoModal = ({
 
 	const isStreamingUrl =
 		typeof video.url === "string" &&
-		(video.url.includes("cloudflarestream.com") ||
-			extractMuxPlaybackIdFromUrl(video.url) !== null);
+		extractMuxPlaybackIdFromUrl(video.url) !== null;
 	const showGenerateDownload =
 		isStreamingUrl && !video.download_url && !downloadGenerated;
 
@@ -180,7 +177,7 @@ const CreateVideoModal = ({
 		}
 	};
 
-	const handleGenerateDownload = async () => {
+	const handleGenerateDownload = () => {
 		if (!video.url) return;
 		// Every Mux asset is created with an MP4; its url follows from the
 		// playback id.
@@ -190,30 +187,7 @@ const CreateVideoModal = ({
 			setDownloadGenerated(true);
 			return;
 		}
-		const match = video.url.match(/cloudflarestream\.com\/([a-zA-Z0-9]+)\//);
-		const id = match?.[1];
-		if (!id) {
-			toast.error("Could not extract a video ID from the source URL");
-			return;
-		}
-		setGeneratingDownload(true);
-		try {
-			const response = await reqCreateDownloadUrl(id);
-			if (response.success) {
-				setField("download_url", response.data.result.default.url);
-				setDownloadGenerated(true);
-			} else {
-				toast.error(
-					response.error_message || "Failed to generate download link",
-				);
-			}
-		} catch (err) {
-			toast.error(
-				"An unexpected error occurred while generating the download link",
-			);
-		} finally {
-			setGeneratingDownload(false);
-		}
+		toast.error("Could not extract a Mux playback ID from the source URL");
 	};
 
 	const runCreateVideo = async () => {
@@ -405,22 +379,14 @@ const CreateVideoModal = ({
 							{showGenerateDownload && (
 								<div className="flex items-center justify-between gap-3 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2.5">
 									<p className="text-xs text-blue-700">
-										Streaming URL detected — generate a download link for this
+										Mux URL detected — add the MP4 download link for this
 										video.
 									</p>
 									<button
 										onClick={handleGenerateDownload}
-										disabled={generatingDownload}
-										className="flex shrink-0 items-center gap-1.5 rounded-md bg-blue-600 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+										className="flex shrink-0 items-center gap-1.5 rounded-md bg-blue-600 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700"
 									>
-										{generatingDownload ? (
-											<>
-												<Spinner style="light" size={12} />
-												<span>Generating…</span>
-											</>
-										) : (
-											<span>Generate</span>
-										)}
+										<span>Add</span>
 									</button>
 								</div>
 							)}

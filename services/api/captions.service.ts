@@ -2,7 +2,7 @@ import { FetchAPI } from "../http/requestHandler";
 import { VideoCaption } from "../../types";
 
 // Captions are keyed by the video's uuid and proxied through videoAPI, which
-// owns the Cloudflare Stream integration.
+// owns the Mux integration.
 
 export const reqGetVideoCaption = (uuid: string) =>
 	FetchAPI<VideoCaption>(
