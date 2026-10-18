@@ -6,3 +6,4 @@ export { reqGetCheckouts, reqUpdateCheckout } from "./checkout.service";
 export { reqGetUsers, reqGetSelf, reqUpdateUser, reqGetMobileUsers, reqCreateMobileUser, reqUpdateMobileUser } from "./user.service";
 export { reqGetSpotlight, reqUpdateSpotlight } from "./spotlight.service";
 export { reqGetCloudflareStatus, reqCreateDownloadUrl } from "./cloudflare.service";
+export { reqCreateMuxUpload, reqGetMuxUploadStatus } from "./mux.service";

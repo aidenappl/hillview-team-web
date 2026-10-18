@@ -405,6 +405,27 @@ type MobileUserQueryParams = {
 };
 
 // =============================================================================
+// Mux
+// =============================================================================
+
+// A Mux direct upload: the browser PUTs the file to `url` (UpChunk).
+type MuxUpload = {
+	id: string;
+	url: string;
+};
+
+// What /video/v1.1/upload/mux/{id} reports while Mux ingests an upload.
+type MuxUploadStatus = {
+	status: "waiting" | "preparing" | "ready" | "errored";
+	asset_id?: string;
+	playback_id?: string;
+	url?: string;
+	thumbnail?: string;
+	download_url?: string;
+	duration?: number;
+};
+
+// =============================================================================
 // Cloudflare Status
 // =============================================================================
 
@@ -538,6 +559,10 @@ export type {
 	MobileUserInput,
 	MobileUserChanges,
 	MobileUserQueryParams,
+
+	// Mux
+	MuxUpload,
+	MuxUploadStatus,
 
 	// Cloudflare
 	CloudflareStatus,

@@ -93,7 +93,8 @@ const TeamModalDropzone = (props: Props) => {
 				{state === "status-rolling" && (
 					<div className="text-center flex flex-col justify-center items-center gap-3">
 						<Spinner />
-						<p>{encodingProgress}% Complete</p>
+						{/* Mux reports no encoding percentage; show one only when given. */}
+						{encodingProgress > 0 && <p>{encodingProgress}% Complete</p>}
 						<p>Encoding...</p>
 					</div>
 				)}

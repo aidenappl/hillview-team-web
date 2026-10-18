@@ -14,7 +14,8 @@ import { reqCreateVideo } from "../../../../services/api/video.service";
 import { reqCreateDownloadUrl } from "../../../../services/api/cloudflare.service";
 import { applyChange, removeChange } from "../../../../utils/changeTracking";
 import { VideoInput } from "../../../../types";
-import { CloudflareStatus } from "../../../../models/cloudflareStatus.model";
+import { MuxUploadStatus } from "../../../../types";
+import { extractMuxPlaybackIdFromUrl, muxDownloadUrl } from "../../../../utils/mux";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -91,7 +92,6 @@ const CreateVideoModal = ({
 	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 	const [dropzoneState, setDropzoneState] = useState<DropzoneStates>("none");
 	const [uploadProgress, setUploadProgress] = useState(0);
-	const [encodeProgress, setEncodingProgress] = useState(0);
 	const [showImageLoader, setShowImageLoader] = useState(false);
 	const [generatingDownload, setGeneratingDownload] = useState(false);
 	const [downloadGenerated, setDownloadGenerated] = useState(false);
@@ -103,10 +103,12 @@ const CreateVideoModal = ({
 	const { error: validationError } = ValidVideo(video);
 	const canSave = !saving && !isUploading && !validationError;
 
-	const isCloudflarUrl =
-		typeof video.url === "string" && video.url.includes("cloudflarestream.com");
+	const isStreamingUrl =
+		typeof video.url === "string" &&
+		(video.url.includes("cloudflarestream.com") ||
+			extractMuxPlaybackIdFromUrl(video.url) !== null);
 	const showGenerateDownload =
-		isCloudflarUrl && !video.download_url && !downloadGenerated;
+		isStreamingUrl && !video.download_url && !downloadGenerated;
 
 	// Keep a stable ref so the listener doesn't need cancelHit in its deps
 	// and never gets torn down/re-registered on parent re-renders.
@@ -180,6 +182,14 @@ const CreateVideoModal = ({
 
 	const handleGenerateDownload = async () => {
 		if (!video.url) return;
+		// Every Mux asset is created with an MP4; its url follows from the
+		// playback id.
+		const playbackId = extractMuxPlaybackIdFromUrl(video.url);
+		if (playbackId) {
+			setField("download_url", muxDownloadUrl(playbackId));
+			setDownloadGenerated(true);
+			return;
+		}
 		const match = video.url.match(/cloudflarestream\.com\/([a-zA-Z0-9]+)\//);
 		const id = match?.[1];
 		if (!id) {
@@ -333,40 +343,37 @@ const CreateVideoModal = ({
 							<UploadComponent
 								hidden
 								id="file-upload"
-								onUppyState={(state) => setDropzoneState(state)}
+								onUploadState={(state) => setDropzoneState(state)}
 								onProgress={(p) => setUploadProgress(p)}
-								onEncodingProgress={(p) => setEncodingProgress(p)}
-								onStatusBody={(status: CloudflareStatus | null) => {
-									if (status?.result) {
-										setField(
-											"url",
-											status.result.playback?.hls ?? video.url ?? "",
+								onFileName={(filename) => {
+									if (video.title) return;
+									const name =
+										filename.substring(0, filename.lastIndexOf(".")) ||
+										filename;
+									if (name) setField("title", name);
+								}}
+								onStatus={(status: MuxUploadStatus) => {
+									// Mux creates the playback id before the asset is ready;
+									// the MP4 download url follows from it.
+									if (status.url) setField("url", status.url);
+									if (status.download_url)
+										setField("download_url", status.download_url);
+									// Duration arrives once the asset is ready — capture it so
+									// it's persisted at create time (the videoAPI webhook and
+									// sync job are the fallback).
+									const dur = status.duration;
+									if (typeof dur === "number" && dur > 0) {
+										setVideo(
+											(prev) =>
+												applyChange(prev, {
+													duration: Math.round(dur),
+												}) as Partial<VideoInput>,
 										);
-										// Cloudflare reports the real duration once the video
-										// is ready — capture it so it's persisted at create
-										// time (the videoAPI sync job is the fallback).
-										const dur = status.result.duration;
-										if (typeof dur === "number" && dur > 0) {
-											setVideo(
-												(prev) =>
-													applyChange(prev, {
-														duration: Math.round(dur),
-													}) as Partial<VideoInput>,
-											);
-										}
-										if (!video.title) {
-											const filename = status.result.meta?.filename ?? "";
-											const name =
-												filename.substring(0, filename.lastIndexOf(".")) ||
-												filename;
-											if (name) setField("title", name);
-										}
 									}
 								}}
 							/>
 							<TeamModalDropzone
 								onClick={() => document.getElementById("file-upload")?.click()}
-								encodingProgress={encodeProgress}
 								state={dropzoneState}
 								progress={uploadProgress}
 							/>
@@ -398,7 +405,7 @@ const CreateVideoModal = ({
 							{showGenerateDownload && (
 								<div className="flex items-center justify-between gap-3 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2.5">
 									<p className="text-xs text-blue-700">
-										Cloudflare URL detected — generate a download link for this
+										Streaming URL detected — generate a download link for this
 										video.
 									</p>
 									<button
